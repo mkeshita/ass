@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="protobuf-net, Version=2.3.3.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.3.3\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -75,10 +78,30 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MaterialDesignInXamlToolkit\MaterialDesignColors.Wpf\MaterialDesignColors.Wpf.csproj">
+      <Project>{90b53209-c60c-4655-b28d-a1b3e1044ba3}</Project>
+      <Name>MaterialDesignColors.Wpf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MaterialDesignInXamlToolkit\MaterialDesignThemes.Wpf\MaterialDesignThemes.Wpf.csproj">
+      <Project>{f079fb0a-a8ed-4216-b6a5-345756751a04}</Project>
+      <Name>MaterialDesignThemes.Wpf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NetworkComms.net\Platforms\Net40\NetworkCommsDotNet\NetworkCommsDotNet.csproj">
+      <Project>{b0fd9f50-a375-44dd-aaae-ccc2f94a99d1}</Project>
+      <Name>NetworkCommsDotNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NetworkComms.net\Platforms\Net40\ProtobufSerializer\ProtobufSerializer.csproj">
+      <Project>{62977be8-428b-4683-a098-4e3f588b3f7e}</Project>
+      <Name>ProtobufSerializer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\Network\Network.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
