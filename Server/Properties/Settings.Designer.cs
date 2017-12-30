@@ -22,5 +22,125 @@ namespace norsu.ass.Server.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AllowAnnonymousUser {
+            get {
+                return ((bool)(this["AllowAnnonymousUser"]));
+            }
+            set {
+                this["AllowAnnonymousUser"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RequireUserFullname {
+            get {
+                return ((bool)(this["RequireUserFullname"]));
+            }
+            set {
+                this["RequireUserFullname"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UserSuggestionDefaultPublic {
+            get {
+                return ((bool)(this["UserSuggestionDefaultPublic"]));
+            }
+            set {
+                this["UserSuggestionDefaultPublic"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AllowUserPrivateSuggestion {
+            get {
+                return ((bool)(this["AllowUserPrivateSuggestion"]));
+            }
+            set {
+                this["AllowUserPrivateSuggestion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UserCanDeleteOwnSuggestion {
+            get {
+                return ((bool)(this["UserCanDeleteOwnSuggestion"]));
+            }
+            set {
+                this["UserCanDeleteOwnSuggestion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UserCanEditOwnSuggestion {
+            get {
+                return ((bool)(this["UserCanEditOwnSuggestion"]));
+            }
+            set {
+                this["UserCanEditOwnSuggestion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OfficeAdminCanDeleteSuggestions {
+            get {
+                return ((bool)(this["OfficeAdminCanDeleteSuggestions"]));
+            }
+            set {
+                this["OfficeAdminCanDeleteSuggestions"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OfficeAdminCanSeeUserFullname {
+            get {
+                return ((bool)(this["OfficeAdminCanSeeUserFullname"]));
+            }
+            set {
+                this["OfficeAdminCanSeeUserFullname"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AllowAndroidRegistration {
+            get {
+                return ((bool)(this["AllowAndroidRegistration"]));
+            }
+            set {
+                this["AllowAndroidRegistration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        public int ReplyDepth {
+            get {
+                return ((int)(this["ReplyDepth"]));
+            }
+            set {
+                this["ReplyDepth"] = value;
+            }
+        }
     }
 }
