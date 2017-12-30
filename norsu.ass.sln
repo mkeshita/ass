@@ -25,7 +25,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProtobufSerializer", "Netwo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{DBCD661D-FA74-4481-B284-D4822ED356AF}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Network", "Network\Network.shproj", "{29D0DB58-6D24-4EC0-83DC-D976D1FC0D87}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Network\Network.projitems*{29d0db58-6d24-4ec0-83dc-d976d1fc0d87}*SharedItemsImports = 13
+		Network\Network.projitems*{db8840fe-ac44-4377-9024-29f79ebf8f28}*SharedItemsImports = 4
+		Network\Network.projitems*{dbcd661d-fa74-4481-b284-d4822ed356af}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AppVeyor|Any CPU = AppVeyor|Any CPU
 		AppVeyor|x86 = AppVeyor|x86
