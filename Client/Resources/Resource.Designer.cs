@@ -26,6 +26,10 @@ namespace Client
 		
 		public static void UpdateIdValues()
 		{
+			global::NetworkCommsDotNet.Resource.String.ApplicationName = global::Client.Resource.String.ApplicationName;
+			global::NetworkCommsDotNet.Resource.String.Hello = global::Client.Resource.String.Hello;
+			global::ProtobufSerializer.Resource.String.ApplicationName = global::Client.Resource.String.ApplicationName;
+			global::ProtobufSerializer.Resource.String.Hello = global::Client.Resource.String.Hello;
 		}
 		
 		public partial class Attribute
@@ -60,8 +64,14 @@ namespace Client
 		public partial class String
 		{
 			
+			// aapt resource value: 0x7f030001
+			public const int ApplicationName = 2130903041;
+			
 			// aapt resource value: 0x7f030000
-			public const int app_name = 2130903040;
+			public const int Hello = 2130903040;
+			
+			// aapt resource value: 0x7f030002
+			public const int app_name = 2130903042;
 			
 			static String()
 			{
