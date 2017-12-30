@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "norsu.ass", "norsu.ass\norsu.ass.csproj", "{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{DB8840FE-AC44-4377-9024-29F79EBF8F28}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkCommsDotNet", "NetworkComms.net\Platforms\Net40\NetworkCommsDotNet\NetworkCommsDotNet.csproj", "{B0FD9F50-A375-44DD-AAAE-CCC2F94A99D1}"
@@ -42,18 +40,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.AppVeyor|Any CPU.ActiveCfg = Release|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.AppVeyor|Any CPU.Build.0 = Release|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.AppVeyor|x86.ActiveCfg = Debug|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.AppVeyor|x86.Build.0 = Debug|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Debug|x86.Build.0 = Debug|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Release|x86.ActiveCfg = Release|Any CPU
-		{DB39E17C-2B39-4D2F-ADDC-CEC1E446184F}.Release|x86.Build.0 = Release|Any CPU
 		{DB8840FE-AC44-4377-9024-29F79EBF8F28}.AppVeyor|Any CPU.ActiveCfg = Release|Any CPU
 		{DB8840FE-AC44-4377-9024-29F79EBF8F28}.AppVeyor|Any CPU.Build.0 = Release|Any CPU
 		{DB8840FE-AC44-4377-9024-29F79EBF8F28}.AppVeyor|x86.ActiveCfg = Debug|Any CPU
