@@ -5,14 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:norsu.ass.Server.Views"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
+             Margin="20"
              xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
              d:DesignHeight="300" d:DesignWidth="300">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel>
         <Grid Margin="10" Background="Transparent">
+            <Border CornerRadius="7" BorderThickness="1" BorderBrush="White" Padding="4"
+                    Background="White">
             <Image Source="{Binding CurrentUser.Picture,Converter={cnv:BytesToImage}}"
                    IsHitTestVisible="False"
+                   Height="{Binding RelativeSource={RelativeSource Self},Path=ActualWidth}"
                    Stretch="UniformToFill"/>
+            </Border>
             <Button Content="Change Picture"
                     Command="{Binding ChangePictureCommand}"
                     VerticalAlignment="Center"
@@ -28,5 +34,13 @@
                  md:HintAssist.IsFloating="True"
                  Margin="10" />
         
+        <Button Command="{Binding CurrentUser.SaveCommand}"
+                Margin="10 74 10 10">
+            <StackPanel Orientation="Horizontal">
+                <md:PackIcon Kind="ContentSave"/>
+                <TextBlock Text="SAVE"/>
+            </StackPanel>
+        </Button>
     </StackPanel>
+    </ScrollViewer>
 </UserControl>

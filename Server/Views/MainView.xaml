@@ -18,27 +18,36 @@
         xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
         DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
         Title="MainView" Height="300" Width="300">
-    <md:Transitioner SelectedIndex="{Binding SelectedIndex}">
-        <views:LoginView/>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Server/Views/NewOfficeDialog.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <md:DialogHost Identifier="DialogHost">
+        <md:Transitioner SelectedIndex="{Binding SelectedIndex}">
+            <views:LoginView/>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Image Source="pack://siteoforigin:,,,/bg.jpg"
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Image Source="pack://siteoforigin:,,,/bg.jpg"
                Stretch="UniformToFill"
                Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Grid.RowSpan="2"/>
-            <md:ColorZone Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0 7"
+                <md:ColorZone Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0 7"
                       Opacity="0.7"
                       Mode="Dark">
-                <Grid>
-                    
-                    <TextBlock     TextAlignment="Center"
+                    <Grid>
+
+                        <TextBlock     TextAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                            VerticalAlignment="Center"
                            Margin="47 17" >
@@ -49,26 +58,27 @@
                      BaselineAlignment="Center"
                            FontSize="12pt"
                            Foreground="{StaticResource PrimaryHueMidBrush}" />
-                </TextBlock>
+                        </TextBlock>
 
-                    <Button Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                        <Button Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                            Command="{Binding LogoutCommand}"
                             Margin="10"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center"
                             Height="Auto">
-                        <StackPanel>
-                            <md:PackIcon Kind="Logout"
+                            <StackPanel>
+                                <md:PackIcon Kind="Logout"
                                          Height="24"
                                          HorizontalAlignment="Center"
                                          VerticalAlignment="Center"
                                          Width="24" />
-                            <TextBlock Text="Logout" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-            </md:ColorZone>
+                                <TextBlock Text="Logout" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </md:ColorZone>
 
-            <md:ColorZone Grid.Column="0" Grid.Row="1"
+                <md:ColorZone Grid.Column="0" Grid.Row="1"
                       BorderBrush="{StaticResource MaterialDesignLightBackground}"
                       md:ShadowAssist.ShadowDepth="Depth3"
                       md:ShadowAssist.ShadowEdges="All"
@@ -77,118 +87,121 @@
                       CornerRadius="7"
                       VerticalAlignment="Stretch"
                       HorizontalAlignment="Stretch">
-                <md:ColorZone.Background>
-                    <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
-                        <LinearGradientBrush.GradientStops>
-                            <GradientStop Offset="-0.2" Color="{StaticResource Primary600}"/>
-                            <GradientStop Offset="2" Color="{StaticResource Accent400}" />
-                        </LinearGradientBrush.GradientStops>
-                    </LinearGradientBrush>
-                </md:ColorZone.Background>
-                <Grid Margin="20">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <md:ColorZone.Background>
+                        <LinearGradientBrush StartPoint="0 0" EndPoint="0 1">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Offset="-0.2" Color="{StaticResource Primary600}"/>
+                                <GradientStop Offset="2" Color="{StaticResource Accent400}" />
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </md:ColorZone.Background>
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Image Source="{Binding CurrentUser.Picture,Converter={cnv:BytesToImage}}"
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Margin="20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Image Source="{Binding CurrentUser.Picture,Converter={cnv:BytesToImage}}"
                                Height="48"
                                Width="48"
                                Stretch="UniformToFill"/>
-                        <StackPanel Margin="20 0" VerticalAlignment="Center"
+                            <StackPanel Margin="20 0" VerticalAlignment="Center"
                                     Grid.Column="1">
-                            <TextBlock Text="{Binding CurrentUser.Username}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
-                            <TextBlock Text="{Binding CurrentUser.Access}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"/>
-                        </StackPanel>
-                        <md:PopupBox Grid.Column="2" VerticalAlignment="Center">
-                            <md:PopupBox.PopupContent>
-                                <StackPanel>
-                                    <Button Content="Change Picture" Command="{Binding ChangePictureCommand}"/>
-                                    <Button Content="Change Password" Command="{Binding ChangePasswordCommand}"/>
-                                    <Separator/>
-                                    <Button Content="Logout" Command="{Binding LogoutCommand}"/>
-                                </StackPanel>
-                            </md:PopupBox.PopupContent>
-                        </md:PopupBox>
-                      
-                    </Grid>
+                                <TextBlock Text="{Binding CurrentUser.Username}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
+                                <TextBlock Text="{Binding CurrentUser.Access}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"/>
+                            </StackPanel>
+                            <md:PopupBox Grid.Column="2" VerticalAlignment="Center">
+                                <md:PopupBox.PopupContent>
+                                    <StackPanel>
+                                        <Button Content="Change Picture" Command="{Binding ChangePictureCommand}"/>
+                                        <Button Content="Change Password" Command="{Binding ChangePasswordCommand}"/>
+                                        <Separator/>
+                                        <Button Content="Logout" Command="{Binding LogoutCommand}"/>
+                                    </StackPanel>
+                                </md:PopupBox.PopupContent>
+                            </md:PopupBox>
 
-                    <md:ColorZone Grid.Row="1" Mode="Light"
+                        </Grid>
+
+                        <md:ColorZone Grid.Row="1" Mode="Light"
                                   CornerRadius="7"
-                                  Margin="0 20">
-                        <UniformGrid Columns="4">
-                            
-                        <Button Style="{StaticResource MaterialDesignToolButton}"
+                                  Margin="20">
+                            <UniformGrid Columns="4">
+
+                                <Button Style="{StaticResource MaterialDesignToolButton}"
                                 Command="{Binding ShowAccountCommand}"
                                 Height="Auto">
-                            <StackPanel>
-                                <md:PackIcon Kind="AccountCardDetails"
+                                    <StackPanel>
+                                        <md:PackIcon Kind="AccountCardDetails"
                                              Height="32"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
                                              Width="32"/>
-                                <TextBlock Text="Account"/>
-                            </StackPanel>
-                        </Button>
-                            
-                        <Button Style="{StaticResource MaterialDesignToolButton}"
+                                        <TextBlock Text="Account"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Style="{StaticResource MaterialDesignToolButton}"
                                 Command="{Binding ShowSettingsCommand}"
                                 Height="Auto">
-                            <StackPanel>
-                                <md:PackIcon Kind="Settings"
+                                    <StackPanel>
+                                        <md:PackIcon Kind="Settings"
                                              Height="32"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
                                              Width="32" />
-                                <TextBlock Text="Settings" />
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource MaterialDesignToolButton}"
+                                        <TextBlock Text="Settings" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource MaterialDesignToolButton}"
                                 Command="{Binding ShowOfficesCommand}"
                                 Height="Auto">
-                            <StackPanel>
-                                <md:PackIcon Kind="Factory"
+                                    <StackPanel>
+                                        <md:PackIcon Kind="Factory"
                                              Height="32"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
                                              Width="32" />
-                                <TextBlock Text="Offices" />
-                            </StackPanel>
-                        </Button>
-                            <Button Style="{StaticResource MaterialDesignToolButton}"
+                                        <TextBlock Text="Offices" />
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource MaterialDesignToolButton}"
                                     Command="{Binding ShowUsersCommand}"
                                     Height="Auto">
-                                <StackPanel>
-                                    <md:PackIcon Kind="AccountMultiple"
+                                    <StackPanel>
+                                        <md:PackIcon Kind="AccountMultiple"
                                                  Height="32"
                                                  HorizontalAlignment="Center"
                                                  VerticalAlignment="Center"
                                                  Width="32" />
-                                    <TextBlock Text="Users" />
-                                </StackPanel>
-                            </Button>
-                        </UniformGrid>
-                    </md:ColorZone>
+                                        <TextBlock Text="Users" />
+                                    </StackPanel>
+                                </Button>
+                            </UniformGrid>
+                        </md:ColorZone>
 
-                    <md:Transitioner Grid.Row="2">
-                        
-                    </md:Transitioner>
-                </Grid>
-            </md:ColorZone>
+                        <md:Transitioner Grid.Row="2" SelectedIndex="{Binding SidebarIndex}">
+                            <views:UserAccount/>
+                            <views:SettingsView/>
+                            <views:OfficesView/>
+                        </md:Transitioner>
+                    </Grid>
+                </md:ColorZone>
 
-            <md:ColorZone Grid.Column="1" Grid.Row="1"
+                <md:ColorZone Grid.Column="1" Grid.Row="1"
                       CornerRadius="7"
                       md:ShadowAssist.ShadowDepth="Depth3"
                       md:ShadowAssist.ShadowEdges="All"
                       VerticalAlignment="Stretch"
                       Margin="20"/>
-        </Grid>
-    </md:Transitioner>
-    
+            </Grid>
+
+        </md:Transitioner>
+    </md:DialogHost>
 </Window>

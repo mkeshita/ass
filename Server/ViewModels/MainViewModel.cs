@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using Devcorner.NIdenticon;
 using Devcorner.NIdenticon.BlockGenerators;
 using Devcorner.NIdenticon.BrushGenerators;
+using MaterialDesignThemes.Wpf;
 using norsu.ass.Models;
 
 namespace norsu.ass.Server.ViewModels
@@ -19,6 +22,59 @@ namespace norsu.ass.Server.ViewModels
 
         private static MainViewModel _instance;
         public static MainViewModel Instance => _instance ?? (_instance = new MainViewModel());
+
+        private ICommand _showAccountCommand;
+
+        public ICommand ShowAccountCommand => _showAccountCommand ?? (_showAccountCommand = new DelegateCommand(d =>
+        {
+            SidebarIndex = 0;
+        }));
+
+        private ICommand _showOfficesCommand;
+        public ICommand ShowOfficesCommand => _showOfficesCommand ?? (_showOfficesCommand = new DelegateCommand(d =>
+        {
+            SidebarIndex = 2;
+        }));
+
+        private ICommand _showSettingsCommand;
+
+        public ICommand ShowSettingsCommand => _showSettingsCommand ?? (_showSettingsCommand = new DelegateCommand(d =>
+        {
+            SidebarIndex = 1;
+        }));
+
+        private ICommand _addOfficeCommand;
+
+        public ICommand AddOfficeCommand => _addOfficeCommand ?? (_addOfficeCommand = new DelegateCommand(async d =>
+        {
+            var offce = new NewOfficeViewModel();
+            var result = await DialogHost.Show(offce,"DialogHost", (sender, args) =>
+            {
+                
+            }, (sender, args) =>
+            {
+                if(args.IsCancelled)
+                    return;
+
+                var ofc = new Office()
+                {
+                    ShortName = offce.ShortName,
+                    LongName = offce.LongName,
+                };
+                ofc.Save();
+            });
+        
+          //  if ((bool)result) return;
+            
+        }));
+
+        private ICommand _logoutCommand;
+
+        public ICommand LogoutCommand => _logoutCommand ?? (_logoutCommand = new DelegateCommand(d =>
+        {
+            CurrentUser = null;
+            SelectedIndex = 0;
+        }));
 
         private ICommand _loginCommand;
 
@@ -82,8 +138,20 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        
+        private int _SidebarIndex = 2;
 
+        public int SidebarIndex
+        {
+            get => _SidebarIndex;
+            set
+            {
+                if(value == _SidebarIndex)
+                    return;
+                _SidebarIndex = value;
+                OnPropertyChanged(nameof(SidebarIndex));
+            }
+        }
+        
         private int _SelectedIndex = 0;
 
         public int SelectedIndex
@@ -126,6 +194,16 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        
+        private ListCollectionView _offices;
+
+        public ListCollectionView Offices
+        {
+            get
+            {
+                if (_offices != null) return _offices;                
+                _offices = new ListCollectionView(Office.Cache);
+                return _offices;
+            }
+        }
     }
 }
