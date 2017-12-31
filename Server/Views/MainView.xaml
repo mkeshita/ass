@@ -21,15 +21,15 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Server/Views/NewOfficeDialog.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/NewOfficeDialog.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <md:DialogHost Identifier="DialogHost">
+   
         <md:Transitioner SelectedIndex="{Binding SelectedIndex}">
             <views:LoginView/>
 
-
+            <md:DialogHost Identifier="DialogHost">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -201,7 +201,7 @@
                       VerticalAlignment="Stretch"
                       Margin="20"/>
             </Grid>
-
-        </md:Transitioner>
-    </md:DialogHost>
+            </md:DialogHost>
+    </md:Transitioner>
+   
 </Window>

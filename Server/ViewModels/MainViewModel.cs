@@ -48,24 +48,22 @@ namespace norsu.ass.Server.ViewModels
         public ICommand AddOfficeCommand => _addOfficeCommand ?? (_addOfficeCommand = new DelegateCommand(async d =>
         {
             var offce = new NewOfficeViewModel();
-            var result = await DialogHost.Show(offce,"DialogHost", (sender, args) =>
-            {
-                
-            }, (sender, args) =>
-            {
-                if(args.IsCancelled)
-                    return;
-
-                var ofc = new Office()
+            await DialogHost.Show(offce, "DialogHost", null,
+                (sender, args) =>
                 {
-                    ShortName = offce.ShortName,
-                    LongName = offce.LongName,
-                };
-                ofc.Save();
-            });
-        
-          //  if ((bool)result) return;
-            
+                    if (args.IsCancelled)
+                        return;
+
+                    var ofc = new Office()
+                    {
+                        ShortName = offce.ShortName,
+                        LongName = offce.LongName,
+                    };
+                    ofc.Save();
+                });
+
+            //  if ((bool)result) return;
+
         }));
 
         private ICommand _logoutCommand;
