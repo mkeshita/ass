@@ -15,6 +15,8 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         xmlns:vm="clr-namespace:norsu.ass.Server.ViewModels"
         MinWidth="555" MinHeight="471"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
         xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
         DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
         Title="MainView" Height="300" Width="300">
@@ -36,7 +38,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Image Source="pack://siteoforigin:,,,/bg.jpg"
@@ -95,7 +97,7 @@
                             </LinearGradientBrush.GradientStops>
                         </LinearGradientBrush>
                     </md:ColorZone.Background>
-                    <Grid>
+                    <Grid MaxWidth="444">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -129,12 +131,11 @@
 
                         </Grid>
 
-                        <md:ColorZone Grid.Row="1" Mode="Light"
-                                  CornerRadius="7"
-                                  Margin="20">
+                        <Border Grid.Row="1" Background="#77FFFFFF"
+                                  Margin="20 20 20 0">
                             <UniformGrid Columns="4">
 
-                                <Button Style="{StaticResource MaterialDesignToolButton}"
+                                <Button Style="{StaticResource MaterialDesignFlatButton}"
                                 Command="{Binding ShowAccountCommand}"
                                 Height="Auto">
                                     <StackPanel>
@@ -147,7 +148,7 @@
                                     </StackPanel>
                                 </Button>
 
-                                <Button Style="{StaticResource MaterialDesignToolButton}"
+                                <Button Style="{StaticResource MaterialDesignFlatButton}"
                                 Command="{Binding ShowSettingsCommand}"
                                 Height="Auto">
                                     <StackPanel>
@@ -159,7 +160,7 @@
                                         <TextBlock Text="Settings" />
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource MaterialDesignToolButton}"
+                                <Button Style="{StaticResource MaterialDesignFlatButton}"
                                 Command="{Binding ShowOfficesCommand}"
                                 Height="Auto">
                                     <StackPanel>
@@ -171,7 +172,7 @@
                                         <TextBlock Text="Offices" />
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource MaterialDesignToolButton}"
+                                <Button Style="{StaticResource MaterialDesignFlatButton}"
                                     Command="{Binding ShowUsersCommand}"
                                     Height="Auto">
                                     <StackPanel>
@@ -184,7 +185,7 @@
                                     </StackPanel>
                                 </Button>
                             </UniformGrid>
-                        </md:ColorZone>
+                        </Border>
 
                         <md:Transitioner Grid.Row="2" SelectedIndex="{Binding SidebarIndex}">
                             <views:UserAccount/>

@@ -12,8 +12,11 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <materialDesign:ColorZone Mode="Light" CornerRadius="4" Padding="4"
+                                  Margin="20"
+                                  VerticalAlignment="Stretch">
         <ListBox ItemsSource="{Binding Offices}"
-                 Margin="10 4 4 4"
+                 Grid.IsSharedSizeScope="True"
                  ScrollViewer.VerticalScrollBarVisibility="Visible"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemsPanel>
@@ -23,17 +26,26 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition SharedSizeGroup="a"/>
+                            </Grid.ColumnDefinitions>
                     <StackPanel Margin="4">
                         <materialDesign:PackIcon Kind="Factory"
                                                  Height="32" Width="32"
                                                  HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding ShortName}"/>
+                        <TextBlock Text="{Binding ShortName}" TextAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxWidth="74"
+                                   MaxHeight="74" />
                     </StackPanel>
-                </DataTemplate>
+                        </Grid>
+                    </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        </materialDesign:ColorZone>
         <Button Grid.Row="1" Content="NEW OFFICE"
-                Margin="10"
+                Margin="20 0 20 20"
                 Command="{Binding AddOfficeCommand}"/>
     </Grid>
 </UserControl>

@@ -11,12 +11,15 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel>
-        <Grid Margin="10" Background="Transparent">
+        <Grid Margin="10" Background="Transparent" VerticalAlignment="Center">
             <Border CornerRadius="7" BorderThickness="1" BorderBrush="White" Padding="4"
+                    VerticalAlignment="Center"
+                    Width="174"
+                    Height="174"
                     Background="White">
             <Image Source="{Binding CurrentUser.Picture,Converter={cnv:BytesToImage}}"
                    IsHitTestVisible="False"
-                   Height="{Binding RelativeSource={RelativeSource Self},Path=ActualWidth}"
+                  
                    Stretch="UniformToFill"/>
             </Border>
             <Button Content="Change Picture"
@@ -38,7 +41,7 @@
                 Margin="10 74 10 10">
             <StackPanel Orientation="Horizontal">
                 <md:PackIcon Kind="ContentSave"/>
-                <TextBlock Text="SAVE"/>
+                <TextBlock Text=" SAVE"/>
             </StackPanel>
         </Button>
     </StackPanel>
