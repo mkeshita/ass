@@ -13,6 +13,7 @@ using Devcorner.NIdenticon.BlockGenerators;
 using Devcorner.NIdenticon.BrushGenerators;
 using MaterialDesignThemes.Wpf;
 using norsu.ass.Models;
+using norsu.ass.Server.Views;
 
 namespace norsu.ass.Server.ViewModels
 {
@@ -42,6 +43,12 @@ namespace norsu.ass.Server.ViewModels
         {
             SidebarIndex = 1;
         }));
+
+        private ICommand _changePasswordCommand;
+
+        public ICommand ChangePasswordCommand =>
+            _changePasswordCommand ??
+            (_changePasswordCommand = new DelegateCommand(d => DialogHost.Show(new ChangePasswordDialog(CurrentUser))));
 
         private ICommand _addOfficeCommand;
 

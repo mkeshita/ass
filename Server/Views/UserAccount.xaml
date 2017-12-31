@@ -9,6 +9,11 @@
              Margin="20"
              xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
              d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel>
         <Grid Margin="10" Background="Transparent" VerticalAlignment="Center">
@@ -36,14 +41,24 @@
                  md:HintAssist.Hint="Last Name"
                  md:HintAssist.IsFloating="True"
                  Margin="10" />
-        
-        <Button Command="{Binding CurrentUser.SaveCommand}"
-                Margin="10 74 10 10">
-            <StackPanel Orientation="Horizontal">
-                <md:PackIcon Kind="ContentSave"/>
-                <TextBlock Text=" SAVE"/>
-            </StackPanel>
-        </Button>
     </StackPanel>
     </ScrollViewer>
+        
+        <UniformGrid Grid.Row="1" Margin="10" Rows="1">
+            <Button Command="{Binding ChangePasswordCommand}"
+                    Margin="0 0 10 0">
+                <StackPanel Orientation="Horizontal">
+                    <md:PackIcon Kind="KeyChange" />
+                    <TextBlock Text=" Change Password" />
+                </StackPanel>
+            </Button>
+        <Button Command="{Binding CurrentUser.SaveCommand}"
+                Margin="10 0 0 0">
+            <StackPanel Orientation="Horizontal">
+                <md:PackIcon Kind="ContentSave" />
+                <TextBlock Text=" SAVE" />
+            </StackPanel>
+            </Button>
+        </UniformGrid>
+    </Grid>
 </UserControl>

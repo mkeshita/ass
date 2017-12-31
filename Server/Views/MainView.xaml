@@ -49,17 +49,17 @@
                       Mode="Dark">
                     <Grid>
 
-                        <TextBlock     TextAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                           VerticalAlignment="Center"
-                           Margin="47 17" >
-                <Run Text="NORSU-G    " FontSize="20pt" FontWeight="Bold"
-                     BaselineAlignment="Center"/>
-                <Run Text="Automated Suggestion System Through Android Phone and Desktop"
-                           FontStyle="Italic"
-                     BaselineAlignment="Center"
-                           FontSize="12pt"
-                           Foreground="{StaticResource PrimaryHueMidBrush}" />
+                        <TextBlock TextAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"
+                                   Margin="47 17" >
+                            <Run Text="NORSU-G    " FontSize="20pt" FontWeight="Bold"
+                                 BaselineAlignment="Center"/>
+                            <Run Text="Automated Suggestion System Through Android Phone and Desktop"
+                                    FontStyle="Italic"
+                                    BaselineAlignment="Center"
+                                    FontSize="12pt"
+                                    Foreground="{StaticResource PrimaryHueMidBrush}" />
                         </TextBlock>
 
                         <Button Style="{StaticResource MaterialDesignRaisedAccentButton}"
@@ -128,11 +128,9 @@
                                     </StackPanel>
                                 </md:PopupBox.PopupContent>
                             </md:PopupBox>
-
                         </Grid>
 
-                        <Border Grid.Row="1" Background="#77FFFFFF"
-                                  Margin="20 20 20 0">
+                        <Border Grid.Row="1" Background="#FFFFFF">
                             <UniformGrid Columns="4">
 
                                 <Button Style="{StaticResource MaterialDesignFlatButton}"
