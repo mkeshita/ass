@@ -16,6 +16,7 @@
                                   Margin="20"
                                   VerticalAlignment="Stretch">
         <ListBox ItemsSource="{Binding Offices}"
+                 IsSynchronizedWithCurrentItem="True"
                  Grid.IsSharedSizeScope="True"
                  ScrollViewer.VerticalScrollBarVisibility="Visible"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">

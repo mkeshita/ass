@@ -11,7 +11,7 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         xmlns:views="clr-namespace:norsu.ass.Server.Views"
-        Background="{DynamicResource MaterialDesignPaper}"
+        Background="{DynamicResource MaterialDesignDarkBackground}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         xmlns:vm="clr-namespace:norsu.ass.Server.ViewModels"
         MinWidth="555" MinHeight="471"
@@ -29,10 +29,15 @@
     </Window.Resources>
    
         <md:Transitioner SelectedIndex="{Binding SelectedIndex}">
+        <md:TransitionerSlide>
+            <md:TransitionerSlide.ForwardWipe>
+                <md:SlideOutWipe/>
+            </md:TransitionerSlide.ForwardWipe>
             <views:LoginView/>
+        </md:TransitionerSlide>
 
-            <md:DialogHost Identifier="DialogHost">
-            <Grid>
+        <md:DialogHost Identifier="DialogHost">
+            <Grid Background="{StaticResource MaterialDesignDarkBackground}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -198,7 +203,9 @@
                       md:ShadowAssist.ShadowDepth="Depth3"
                       md:ShadowAssist.ShadowEdges="All"
                       VerticalAlignment="Stretch"
-                      Margin="20"/>
+                      Margin="20">
+                    <views:OfficeView/>
+                </md:ColorZone>
             </Grid>
             </md:DialogHost>
     </md:Transitioner>
