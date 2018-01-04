@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="norsu.ass.Server.Views.RatingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:norsu.ass.Server.Views"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" 
+             xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
+             d:DesignHeight="300" d:DesignWidth="300">
+    
+    <Grid>
+        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=UserControl},Path=StarBackground}" />
+        <Rectangle Fill="{Binding RelativeSource={RelativeSource AncestorType=UserControl},Path=Foreground}" x:Name="value" x:FieldModifier="private" 
+                   Width="0"
+                   VerticalAlignment="Stretch"
+                   HorizontalAlignment="Left"/>
+
+        <Path x:Name="stars"
+                  HorizontalAlignment="Stretch"
+                  Fill="{Binding RelativeSource={RelativeSource AncestorType=UserControl},Path=Background}"
+                  Stretch="Uniform">
+            <Path.Data>
+                <PathGeometry Figures="M 0 645 0 0 l 3320 0 3320 0 0 645 0 645 -3320 0 -3320 0 0 -645 z m 525 380 c 55 -34 118 -71 140 -82 l 40 -21 155 94 c 85 51 155 92 156 91 1 -1 -15 -76 -37 -167 -21 -91 -39 -172 -39 -180 0 -9 61 -67 135 -130 74 -62 133 -115 131 -118 -3 -2 -80 -10 -173 -18 -92 -8 -173 -16 -179 -18 -7 -3 -42 -77 -80 -165 -37 -89 -70 -161 -74 -161 -4 0 -37 72 -74 161 -38 88 -73 162 -80 165 -6 2 -87 10 -179 18 -93 8 -170 16 -173 18 -2 3 57 56 131 118 74 63 135 121 135 130 0 14 -64 296 -76 333 -7 23 -3 21 141 -68 z m 1320 0 c 55 -34 118 -71 140 -82 l 40 -21 155 94 c 85 51 155 92 156 91 1 -1 -15 -76 -37 -167 -21 -91 -39 -172 -39 -180 0 -9 61 -67 135 -130 74 -62 133 -115 131 -118 -3 -2 -80 -10 -173 -18 -92 -8 -173 -16 -179 -18 -7 -3 -42 -77 -80 -165 -37 -89 -70 -161 -74 -161 -4 0 -37 72 -74 161 -38 88 -73 162 -80 165 -6 2 -87 10 -179 18 -93 8 -170 16 -173 18 -2 3 57 56 131 118 74 63 135 121 135 130 0 14 -64 296 -76 333 -7 23 -3 21 141 -68 z m 1320 0 c 55 -34 118 -71 140 -82 l 40 -21 155 94 c 85 51 155 92 156 91 1 -1 -15 -76 -37 -167 -21 -91 -39 -172 -39 -180 0 -9 61 -67 135 -130 74 -62 133 -115 131 -118 -3 -2 -80 -10 -173 -18 -92 -8 -173 -16 -179 -18 -7 -3 -42 -77 -80 -165 -37 -89 -70 -161 -74 -161 -4 0 -37 72 -74 161 -38 88 -73 162 -80 165 -6 2 -87 10 -179 18 -93 8 -170 16 -173 18 -2 3 57 56 131 118 74 63 135 121 135 130 0 14 -64 296 -76 333 -7 23 -3 21 141 -68 z m 1320 0 c 55 -34 118 -71 140 -82 l 40 -21 155 94 c 85 51 155 92 156 91 1 -1 -15 -76 -37 -167 -21 -91 -39 -172 -39 -180 0 -9 61 -67 135 -130 74 -62 133 -115 131 -118 -3 -2 -80 -10 -173 -18 -92 -8 -173 -16 -179 -18 -7 -3 -42 -77 -80 -165 -37 -89 -70 -161 -74 -161 -4 0 -37 72 -74 161 -38 88 -73 162 -80 165 -6 2 -87 10 -179 18 -93 8 -170 16 -173 18 -2 3 57 56 131 118 74 63 135 121 135 130 0 14 -64 296 -76 333 -7 23 -3 21 141 -68 z m 1320 0 c 55 -34 118 -71 140 -82 l 40 -21 155 94 c 85 51 155 92 156 91 1 -1 -15 -76 -37 -167 -21 -91 -39 -172 -39 -180 0 -9 61 -67 135 -130 74 -62 133 -115 131 -118 -3 -2 -80 -10 -173 -18 -92 -8 -173 -16 -179 -18 -7 -3 -42 -77 -80 -165 -37 -89 -70 -161 -74 -161 -4 0 -37 72 -74 161 -38 88 -73 162 -80 165 -6 2 -87 10 -179 18 -93 8 -170 16 -173 18 -2 3 57 56 131 118 74 63 135 121 135 130 0 14 -64 296 -76 333 -7 23 -3 21 141 -68 z" FillRule="NonZero"/>
+            </Path.Data>
+        </Path>
+    </Grid>
+    
+</UserControl>

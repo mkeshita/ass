@@ -18,7 +18,7 @@
         <ListBox ItemsSource="{Binding Offices}"
                  IsSynchronizedWithCurrentItem="True"
                  Grid.IsSharedSizeScope="True"
-                 ScrollViewer.VerticalScrollBarVisibility="Visible"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -31,15 +31,31 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition SharedSizeGroup="a"/>
                             </Grid.ColumnDefinitions>
-                    <StackPanel Margin="4">
-                        <materialDesign:PackIcon Kind="Factory"
+
+                            <StackPanel Margin="4">
+                                <materialDesign:PackIcon Kind="Bank"
                                                  Height="32" Width="32"
                                                  HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding ShortName}" TextAlignment="Center"
+                                <TextBlock Text="{Binding ShortName}" TextAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
                                    MaxWidth="74"
                                    MaxHeight="74" />
-                    </StackPanel>
+                            </StackPanel>
+                            <materialDesign:ColorZone IsHitTestVisible="False" CornerRadius="4"
+                                                      Mode="Accent"
+                                                      VerticalAlignment="Top"
+                                                      Padding="2 0"
+                                                      HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Star"
+                                                             SnapsToDevicePixels="True"
+                                                             Height="12"
+                                                             Width="12"/>
+                                    <TextBlock Text="4.7"
+                                               VerticalAlignment="Center"
+                                               FontSize="7pt"/>
+                                </StackPanel>
+                            </materialDesign:ColorZone>
                         </Grid>
                     </DataTemplate>
             </ListBox.ItemTemplate>

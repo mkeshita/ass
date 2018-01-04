@@ -207,8 +207,60 @@ namespace norsu.ass.Server.ViewModels
             {
                 if (_offices != null) return _offices;                
                 _offices = new ListCollectionView(Office.Cache);
+                _offices.CurrentChanged += (sender, args) =>
+                {
+                    Suggestions.Filter = FilterSuggestion;
+                    Ratings.Filter = FilterRating;
+                };
                 return _offices;
             }
+        }
+
+        private ListCollectionView _suggestions;
+
+        public ListCollectionView Suggestions
+        {
+            get
+            {
+                if (_suggestions != null) return _suggestions;
+                _suggestions = new ListCollectionView(Message.Cache);
+                _suggestions.Filter = FilterSuggestion;
+                Office.Cache.CollectionChanged += (sender, args) =>
+                {
+                    _suggestions.Filter = FilterSuggestion;
+                };
+                return _suggestions;
+            }
+        }
+
+        private bool FilterSuggestion(object o)
+        {
+            if (!(o is Message msg)) return false;
+            var selectedOffice = Offices.CurrentItem as Office;
+            return msg.OfficeId == selectedOffice?.Id;
+        }
+
+        private ListCollectionView _ratings;
+
+        public ListCollectionView Ratings
+        {
+            get
+            {
+                if (_ratings != null) return _ratings;
+                _ratings = new ListCollectionView(Rating.Cache);
+                _ratings.Filter = FilterRating;
+                Office.Cache.CollectionChanged += (sender, args) =>
+                {
+                    _ratings.Filter = FilterRating;
+                };
+                return _ratings;
+            }
+        }
+
+        private bool FilterRating(object o)
+        {
+            if (!(o is Rating rating)) return false;
+            return rating.OfficeId == (Offices.CurrentItem as Office)?.Id;
         }
     }
 }

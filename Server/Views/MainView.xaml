@@ -17,6 +17,8 @@
         MinWidth="555" MinHeight="471"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
+        SnapsToDevicePixels="True"
+        
         xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
         DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
         Title="MainView" Height="300" Width="300">
@@ -27,7 +29,6 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-   
         <md:Transitioner SelectedIndex="{Binding SelectedIndex}">
         <md:TransitionerSlide>
             <md:TransitionerSlide.ForwardWipe>
@@ -87,8 +88,7 @@
 
                 <md:ColorZone Grid.Column="0" Grid.Row="1"
                       BorderBrush="{StaticResource MaterialDesignLightBackground}"
-                      md:ShadowAssist.ShadowDepth="Depth3"
-                      md:ShadowAssist.ShadowEdges="All"
+                     
                       Mode="PrimaryDark"
                       Margin="20"
                       CornerRadius="7"
@@ -114,10 +114,15 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
+                            <Border Height="48"
+                                    Width="48"
+                                    CornerRadius="4"
+                                    Padding="2"
+                                    Background="White">
                             <Image Source="{Binding CurrentUser.Picture,Converter={cnv:BytesToImage}}"
-                               Height="48"
-                               Width="48"
+                               
                                Stretch="UniformToFill"/>
+                            </Border>
                             <StackPanel Margin="20 0" VerticalAlignment="Center"
                                     Grid.Column="1">
                                 <TextBlock Text="{Binding CurrentUser.Username}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
@@ -167,7 +172,7 @@
                                 Command="{Binding ShowOfficesCommand}"
                                 Height="Auto">
                                     <StackPanel>
-                                        <md:PackIcon Kind="Factory"
+                                        <md:PackIcon Kind="Bank"
                                              Height="32"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
@@ -200,8 +205,6 @@
 
                 <md:ColorZone Grid.Column="1" Grid.Row="1"
                       CornerRadius="7"
-                      md:ShadowAssist.ShadowDepth="Depth3"
-                      md:ShadowAssist.ShadowEdges="All"
                       VerticalAlignment="Stretch"
                       Margin="20">
                     <views:OfficeView/>

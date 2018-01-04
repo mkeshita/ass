@@ -5,8 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:norsu.ass.Server.Views"
              mc:Ignorable="d" 
+             SnapsToDevicePixels="True"
              xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:views="clr-namespace:norsu.ass.Server.Views"
+             xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -19,47 +22,213 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <md:PackIcon Kind="Factory" Height="64" Width="64" />
+            <md:PackIcon Kind="Bank" Height="64" Width="64" />
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
             <StackPanel Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Offices/ShortName}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
                 <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"/>
             </StackPanel>
-            <ListBox Grid.Column="2"
+            
+            </StackPanel>
+            <ListBox Grid.Column="2" x:Name="Box"
                      VerticalAlignment="Center">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Rows="1"/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
-                <ListBoxItem IsSelected="True" Padding="7 14 7 0">
+                <ListBoxItem IsSelected="True" >
                     <StackPanel>
-                        <md:PackIcon Kind="Message" Height="24" Width="24" HorizontalAlignment="Center"/>
+                        <md:PackIcon Kind="Message" Height="24" Width="24" HorizontalAlignment="Center"
+                                     Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
+                                            Path=IsSelected,Converter={cnv:BooleanToVisibility Collapsed,Visible}}" />
+                        <md:PackIcon Kind="Message" Height="24" Width="24" HorizontalAlignment="Center" 
+                                     Foreground="{StaticResource PrimaryHueMidBrush}"
+                                     Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
+                                            Path=IsSelected,Converter={cnv:BooleanToVisibility}}"/>
                         <TextBlock Text="Suggestions"
-                                   Margin="0 0 0 7"/>
-                        <Rectangle Fill="{StaticResource PrimaryHueDarkBrush}" Height="4"
-                                   Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Converter={cnv:BooleanToVisibility}}"/>
+                                   Margin="0 0 0 0"/>
+                        <!--<Rectangle Fill="{StaticResource PrimaryHueDarkBrush}" Height="4"
+                                   Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Converter={cnv:BooleanToVisibility}}"/>-->
                     </StackPanel>
                 </ListBoxItem>
-                <ListBoxItem x:Name="Front" HorizontalContentAlignment="Stretch" Padding="7 14 7 0">
+                <ListBoxItem x:Name="Front" HorizontalContentAlignment="Stretch" >
                     <StackPanel>
-                        <md:PackIcon Kind="Star" Height="24" Width="24" HorizontalAlignment="Center" />
+                        <md:PackIcon Kind="Star" Height="24" Width="24" HorizontalAlignment="Center"
+                                     Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
+                                            Path=IsSelected,Converter={cnv:BooleanToVisibility Collapsed,Visible}}" />
+                        <md:PackIcon Kind="Star" Height="24" Width="24" HorizontalAlignment="Center"
+                                     Foreground="Red"
+                                     Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
+                                            Path=IsSelected,Converter={cnv:BooleanToVisibility}}" />
                         <TextBlock Text="Ratings" TextAlignment="Center"
-                                   Margin="0 0 0 7" />
-                        <Rectangle Fill="{StaticResource PrimaryHueDarkBrush}" Height="4"
-                                   Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Converter={cnv:BooleanToVisibility}}" />
+                                   Margin="0 0 0 0" />
+                        <!--<Rectangle Fill="{StaticResource PrimaryHueDarkBrush}" Height="4"
+                                   Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Converter={cnv:BooleanToVisibility}}" />-->
                     </StackPanel>
                 </ListBoxItem>
             </ListBox>
         </Grid>
-        <Grid Grid.Row="1" Margin="20">
-        <md:Flipper IsFlipped="{Binding ElementName=Front,Path=IsSelected}">
-            <md:Flipper.FrontContent>
-                <DataGrid ItemsSource="{Binding Offices}"/>
-            </md:Flipper.FrontContent>
-            <md:Flipper.BackContent>
-                <DataGrid ItemsSource="{Binding Offices}"/>
-            </md:Flipper.BackContent>
-        </md:Flipper>
+        <Grid Grid.Row="1">
+        <md:Transitioner SelectedIndex="{Binding ElementName=Box,Path=SelectedIndex}">
+            <md:TransitionerSlide>
+                    <md:TransitionerSlide.ForwardWipe>
+                        <md:FadeWipe/>
+                    </md:TransitionerSlide.ForwardWipe>
+                    <md:TransitionerSlide.BackwardWipe>
+                        <md:FadeWipe/>
+                    </md:TransitionerSlide.BackwardWipe>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition SharedSizeGroup="a"/>
+                        </Grid.ColumnDefinitions>
+                        <DataGrid ItemsSource="{Binding Suggestions}"/>
+                    </Grid>
+                </md:TransitionerSlide>
+            <md:TransitionerSlide>
+                <md:TransitionerSlide.ForwardWipe>
+                    <md:FadeWipe />
+                </md:TransitionerSlide.ForwardWipe>
+                <md:TransitionerSlide.BackwardWipe>
+                    <md:FadeWipe />
+                </md:TransitionerSlide.BackwardWipe>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ListBox Style="{StaticResource MaterialDesignCardsListBox}"
+                                 Margin="0 20 40 20">
+                            
+                            <ListBoxItem Margin="10">
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center"/>
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                               VerticalAlignment="Center"
+                                               Margin="40 0 0 0"/>
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem Margin="10">
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                               VerticalAlignment="Center"
+                                               Margin="40 0 0 0" />
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem Margin="10">
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                               VerticalAlignment="Center"
+                                               Margin="40 0 0 0" />
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem Margin="10">
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                               VerticalAlignment="Center"
+                                               Margin="40 0 0 0" />
+                                </Grid>
+                            </ListBoxItem>
+                            <ListBoxItem Margin="10">
+                                <Grid Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                        <md:PackIcon Kind="Star" Height="32" Width="32"
+                                                     VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                               VerticalAlignment="Center"
+                                               Margin="40 0 0 0" />
+                                </Grid>
+                            </ListBoxItem>
+                        </ListBox>
+                        <DataGrid ItemsSource="{Binding Ratings}" Grid.Column="1"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn SortMemberPath="Value" Header="Rating">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type models:Rating}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <md:PackIcon Kind="Star" Foreground="{StaticResource SecondaryAccentBrush}"/>
+                                                <md:PackIcon Kind="Star"
+                                                             Foreground="{StaticResource SecondaryAccentBrush}"
+                                                             Visibility="{Binding Value,Converter={cnv:EqualityConverter Operand=1, Operation=GreaterThan, ReturnType=Visibility}}"/>
+                                                <md:PackIcon Kind="Star"
+                                                             Foreground="{StaticResource SecondaryAccentBrush}"
+                                                             Visibility="{Binding Value,Converter={cnv:EqualityConverter Operand=2, Operation=GreaterThan, ReturnType=Visibility}}" />
+                                                <md:PackIcon Kind="Star"
+                                                             Foreground="{StaticResource SecondaryAccentBrush}"
+                                                             Visibility="{Binding Value,Converter={cnv:EqualityConverter Operand=3, Operation=GreaterThan, ReturnType=Visibility}}" />
+                                                <md:PackIcon Kind="Star"
+                                                             Foreground="{StaticResource SecondaryAccentBrush}"
+                                                             Visibility="{Binding Value,Converter={cnv:EqualityConverter Operand=4, Operation=GreaterThan, ReturnType=Visibility}}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name" />
+                                <DataGridTextColumn Binding="{Binding User.Course}" Header="Course" />
+                                <DataGridTextColumn Binding="{Binding Message}" Header="Message"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </md:TransitionerSlide>
+        </md:Transitioner>
         </Grid>
     </Grid>
 </UserControl>
