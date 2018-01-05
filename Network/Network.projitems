@@ -9,5 +9,17 @@
     <Import_RootNamespace>norsu.ass.Network</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AndroidDevice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Comment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Login.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Office.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OfficeRating.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PacketBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Registration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Requests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ServerInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Student.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Suggestion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utility.cs" />
   </ItemGroup>
 </Project>

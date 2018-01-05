@@ -21,7 +21,7 @@
         
         xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
         DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
-        Title="MainView" Height="300" Width="300">
+        Title="Server [pre-release]" Height="300" Width="300">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

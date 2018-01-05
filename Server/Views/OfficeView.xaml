@@ -98,7 +98,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <ListBox Style="{StaticResource MaterialDesignCardsListBox}"
-                                 Margin="0 20 40 20">
+                                 Margin="0 20 20 20">
                             
                             <ListBoxItem Margin="10">
                                 <Grid Margin="10">
