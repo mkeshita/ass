@@ -13,7 +13,7 @@ namespace norsu.ass.Network
         public string LongName { get; set; }
 
         [ProtoMember(3)]
-        public double Rating { get; set; }
+        public float Rating { get; set; }
         
         [ProtoMember(4)]
         public long Id { get; set; }

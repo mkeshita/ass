@@ -28,7 +28,7 @@ namespace norsu.ass.Network
         
         private static bool _started = false;
 
-        public void Start()
+        public static void Start()
         {
             Instance._Start();
         }
@@ -65,7 +65,7 @@ namespace norsu.ass.Network
 
         private static ServerInfo _server;
 
-        private static ServerInfo Server
+        public static ServerInfo Server
         {
             get
             {
@@ -107,7 +107,12 @@ namespace norsu.ass.Network
             }
         }
 
-        private async Task FindServer()
+        public static async Task FindServer()
+        {
+            await Instance._FindServer();
+        }
+        
+        private async Task _FindServer()
         {
             var start = DateTime.Now;
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
@@ -126,7 +131,7 @@ namespace norsu.ass.Network
         private async Task<RegistrationResult> _Register(string username, string password, string name, string course)
         {
             if (Server == null)
-                await FindServer();
+                await _FindServer();
             if (Server == null)
                 return null;
 
@@ -167,7 +172,7 @@ namespace norsu.ass.Network
         private async Task<LoginResult> _Login(string username, string password, bool annonymous = false)
         {
             if (Server == null)
-                await FindServer();
+                await _FindServer();
             if (Server == null)
                 return null;
 
@@ -204,7 +209,7 @@ namespace norsu.ass.Network
         }
         private async Task<Offices> _GetOffices()
         {
-            if (Server == null) await FindServer();
+            if (Server == null) await _FindServer();
             if (Server == null) return null;
 
             Offices result = null;

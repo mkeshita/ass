@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
@@ -9,6 +10,7 @@ using norsu.ass.Network;
 namespace norsu.ass
 {
     [Activity(Icon = "@drawable/ic_launcher", Label = "Sign In", Theme = "@style/Theme",
+        ScreenOrientation = ScreenOrientation.Portrait,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
     public class LoginActivity : Activity
     {
@@ -24,6 +26,7 @@ namespace norsu.ass
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            
             base.OnCreate(savedInstanceState);
 
             // Create your application here
@@ -40,7 +43,13 @@ namespace norsu.ass
             _password = FindViewById<EditText>(Resource.Id.password);
             
             _anonymous.CheckedChange += AnonymousOnCheckedChange;
-            
+
+            if (Client.Server != null)
+            {
+                _anonymous.Visibility = Client.Server.AllowAnnonymous ? ViewStates.Visible : ViewStates.Gone;
+                _register.Visibility = Client.Server.AllowRegistration ? ViewStates.Visible : ViewStates.Gone;
+                
+            }
         }
 
         private void AnonymousOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs checkedChangeEventArgs)
@@ -69,7 +78,7 @@ namespace norsu.ass
             _progressView.Visibility = ViewStates.Gone;
             if (result?.Success ?? false)
             {
-                
+                StartActivity(new Intent(Application.Context,typeof(OfficesActivity)));
                 Finish();
             }
             else

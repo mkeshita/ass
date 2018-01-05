@@ -76,6 +76,9 @@ namespace norsu.ass
 			// aapt resource value: 0x7f060006
 			public const int login = 2131099654;
 			
+			// aapt resource value: 0x7f060008
+			public const int name = 2131099656;
+			
 			// aapt resource value: 0x7f060003
 			public const int nickName = 2131099651;
 			
@@ -84,6 +87,9 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f060007
 			public const int progress = 2131099655;
+			
+			// aapt resource value: 0x7f060009
+			public const int rating = 2131099657;
 			
 			// aapt resource value: 0x7f060005
 			public const int register = 2131099653;
@@ -112,6 +118,12 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f030001
 			public const int Main = 2130903041;
+			
+			// aapt resource value: 0x7f030002
+			public const int Offices = 2130903042;
+			
+			// aapt resource value: 0x7f030003
+			public const int OfficesRow = 2130903043;
 			
 			static Layout()
 			{
