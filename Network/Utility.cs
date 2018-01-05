@@ -42,10 +42,18 @@ namespace norsu.ass.Network
 
         public static bool IsInSameSubnet(this IPAddress address2, IPAddress address, IPAddress subnetMask)
         {
-            IPAddress network1 = address.GetNetworkAddress(subnetMask);
-            IPAddress network2 = address2.GetNetworkAddress(subnetMask);
+            try
+            {
+                IPAddress network1 = address.GetNetworkAddress(subnetMask);
+                IPAddress network2 = address2.GetNetworkAddress(subnetMask);
 
-            return network1.Equals(network2);
+                return network1.Equals(network2);
+            }
+            catch (Exception e)
+            {
+               //
+            }
+            return false;
         }
 
         public static bool IsInSameSubnet(this IPAddress ip, IPAddress remoteIp)

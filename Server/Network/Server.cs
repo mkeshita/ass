@@ -28,6 +28,7 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<LoginRequest>(LoginRequest.Header, LoginHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+            
         }
 
         private Dictionary<int, User> Sessions { get; } = new Dictionary<int, User>();

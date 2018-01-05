@@ -16,26 +16,7 @@ namespace norsu.ass.Network
     {
         private Client()
         {
-        }
-
-        ~Client()
-        {
-            Stop();
-        }
-
-        private static Client _instance;
-        public static Client Instance => _instance ?? (_instance = new Client());
-        
-        private static bool _started = false;
-
-        public static void Start()
-        {
-            Instance._Start();
-        }
-        
-        private void _Start()
-        {
-            if(_started)
+            if (_started)
                 return;
             _started = true;
 
@@ -55,6 +36,26 @@ namespace norsu.ass.Network
             Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+        }
+
+        ~Client()
+        {
+            Stop();
+        }
+
+        private static Client _instance;
+        public static Client Instance => _instance ?? (_instance = new Client());
+        
+        private static bool _started = false;
+
+        public static void Start()
+        {
+            Instance._Start();
+        }
+        
+        private void _Start()
+        {
+           
         }
 
         public static void Stop()

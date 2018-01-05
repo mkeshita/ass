@@ -11,6 +11,7 @@ namespace norsu.ass.Server
         {
             base.OnStartup(e);
             awooo.IsRunning = true;
+            Network.Server.Instance.Start();
         }
     }
 }

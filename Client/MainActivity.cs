@@ -12,18 +12,14 @@ namespace norsu.ass
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
     public class MainActivity : Activity
     {
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            Task.Factory.StartNew(async () =>
-            {
-                Client.Start();
+
                 await Client.FindServer();
                 StartActivity(new Intent(Application.Context, typeof(LoginActivity)));
-            }).ContinueWith(d =>
-            {
+        
                 Finish();
-            });
         }
     }
 }

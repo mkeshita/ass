@@ -33,15 +33,15 @@ namespace norsu.ass
             SetContentView(Resource.Layout.Login);
 
             _loginButton = FindViewById<Button>(Resource.Id.login);
-            _loginButton.Click += LoginButtonOnClick;
-
+            _register = FindViewById<Button>(Resource.Id.register);
             _anonymous = FindViewById<CheckBox>(Resource.Id.anonymous);
             _userView = FindViewById<LinearLayout>(Resource.Id.userView);
-            _nickName = FindViewById<EditText>(Resource.Id.nickName);
             _progressView = FindViewById<RelativeLayout>(Resource.Id.progress);
+            _nickName = FindViewById<EditText>(Resource.Id.nickName);
             _username = FindViewById<EditText>(Resource.Id.userName);
             _password = FindViewById<EditText>(Resource.Id.password);
             
+            _loginButton.Click += LoginButtonOnClick;
             _anonymous.CheckedChange += AnonymousOnCheckedChange;
 
             if (Client.Server != null)
