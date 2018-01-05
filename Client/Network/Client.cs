@@ -170,6 +170,9 @@ namespace norsu.ass.Network
         
         private int Session { get; set; }
         
+        private string _Username { get; set; }
+        public static string Username => Instance._Username;
+        
         private async Task<LoginResult> _Login(string username, string password, bool annonymous = false)
         {
             if (Server == null)
@@ -184,6 +187,7 @@ namespace norsu.ass.Network
                     NetworkComms.RemoveGlobalIncomingPacketHandler(LoginResult.Header);
                     result = r;
                     Session = r.Success ? r.Session : 0;
+                    _Username = r.Student.Name;
                 });
             
             await new LoginRequest()

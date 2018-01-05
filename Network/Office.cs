@@ -23,7 +23,7 @@ namespace norsu.ass.Network
     class Offices : Packet<Offices>
     {
         [ProtoMember(1)]
-        public List<Office> Items { get; set; }
+        public List<Office> Items { get; set; } = new List<Office>();
     }
 
     // beware of fragmentation

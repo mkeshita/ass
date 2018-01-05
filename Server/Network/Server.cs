@@ -26,9 +26,33 @@ namespace norsu.ass.Network
 
             NetworkComms.AppendGlobalIncomingPacketHandler<AndroidDevice>(AndroidDevice.Header, HandShakeHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<LoginRequest>(LoginRequest.Header, LoginHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<string>(Requests.GET_OFFICES, GetOfficesHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void GetOfficesHandler(PacketHeader packetheader, Connection connection, string incomingobject)
+        {
+            var dev = Devices.FirstOrDefault(d =>
+                d.IP == ((IPEndPoint) connection.ConnectionInfo.RemoteEndPoint).Address.ToString());
+
+            if (dev == null) return;
+            
+            var offices = new Offices();
+            foreach (var office in Models.Office.Cache)
+            {
+                var ratings = Models.Rating.Cache.Where(x => x.OfficeId == office.Id);
+                offices.Items.Add(new Office()
+                {
+                    Id = office.Id,
+                    LongName = office.LongName,
+                    Rating = ,
+                    ShortName = office.ShortName
+                });
+            }
+
+            await offices.Send(dev.IP, dev.Port);
         }
 
         private Dictionary<int, User> Sessions { get; } = new Dictionary<int, User>();

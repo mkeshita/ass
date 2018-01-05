@@ -17,8 +17,8 @@ namespace norsu.ass
             base.OnCreate(savedInstanceState);
 
                 await Client.FindServer();
-                StartActivity(new Intent(Application.Context, typeof(LoginActivity)));
-        
+               // StartActivity(new Intent(Application.Context, typeof(LoginActivity)));
+                StartActivity(typeof(LoginActivity));
                 Finish();
         }
     }
