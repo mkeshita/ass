@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2579BF"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="20dp"
+    android:orientation="vertical">
+
+    <ScrollView android:layout_weight="7"
+      android:layout_width="match_parent"
+      android:layout_height="fill_parent">
+      <LinearLayout
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:layout_centerInParent="true"
+          android:orientation="vertical">
+       
+        <LinearLayout android:orientation="vertical"
+                      android:layout_marginTop="20dp"
+            android:id="@+id/userView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+          <EditText
+              android:id="@+id/userName"
+              android:layout_width="fill_parent"
+              android:layout_height="45dp"
+              android:padding="5dp"
+              android:hint="Your username"
+              android:background="@android:color/white" />
+          <View
+              android:layout_width="fill_parent"
+              android:layout_height="2dp"
+              android:background="#f7f7f7" />
+          <EditText
+              android:id="@+id/password"
+              android:layout_width="fill_parent"
+              android:layout_height="45dp"
+              android:padding="5dp"
+              android:hint="Your password"
+              android:background="@android:color/white"
+              android:inputType="textPassword" />
+        </LinearLayout>
+
+        <EditText android:visibility="gone"
+            android:id="@+id/nickName"
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:padding="5dp"
+            android:hint="Your nickname"
+            android:background="@android:color/white" />
+
+        <LinearLayout android:background="@android:color/white"
+                      android:layout_width="match_parent"
+                      android:layout_marginBottom="20dp"
+                      android:layout_height="wrap_content">
+
+
+          <CheckBox
+            android:id="@+id/anonymous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_alignParentRight="true"
+            android:text="Anonymous" />
+        </LinearLayout>
+
+      </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout android:orientation="horizontal"
+                  android:layout_below="@id/anonymous"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+
+      <Button android:layout_weight="7"
+              android:id="@+id/register"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="10dp"
+              android:layout_marginRight="10dp"
+              android:background="@android:color/white"
+              android:textColor="#307FC1"
+              android:text="Register" />
+
+      <Button android:layout_weight="7"
+              android:id="@+id/login"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginLeft="10dp"
+              android:layout_marginTop="10dp"
+              android:background="#307FC1"
+              android:text="Login"
+              android:textColor="@android:color/white" />
+    </LinearLayout>
+
+  </LinearLayout>
+  
+  <RelativeLayout android:id="@+id/progress"
+      android:visibility="gone"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="#2579BF">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+      <ProgressBar
+          style="@android:style/Widget.Holo.ProgressBar.Large"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_centerHorizontal="true"
+          android:layout_gravity="center"
+          android:indeterminate="true" />
+      <TextView android:text="Signing in..."
+          android:textColor="#FFF"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textSize="17pt"/>
+    </LinearLayout>
+  </RelativeLayout>
+</RelativeLayout>

@@ -1,18 +1,26 @@
-﻿using Android.App;
+﻿using System.Threading.Tasks;
+using Android.App;
+using Android.Content;
+using Android.Content.PM;
 using Android.Widget;
 using Android.OS;
 
-namespace Client
+namespace norsu.ass
 {
-    [Activity(Label = "Client", MainLauncher = true)]
+    [Activity(Icon = "@drawable/ic_launcher",Label = "NORSU ASS", MainLauncher = true, Theme = "@style/Theme.Splash",
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
     public class MainActivity : Activity
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-            // Set our view from the "main" layout resource
-            SetContentView(Resource.Layout.Main);
+            Task.Factory.StartNew(() =>
+            {
+                StartActivity(new Intent(Application.Context, typeof(LoginActivity)));
+            }).ContinueWith(d =>
+            {
+                Finish();
+            });
         }
     }
 }
