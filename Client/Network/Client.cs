@@ -237,5 +237,78 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
+
+        public static async Task<OfficeRatings> GetRatings(long officeId)
+        {
+            return await Instance._GetRatings(officeId);
+        }
+        private async Task<OfficeRatings> _GetRatings(long officeId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+            
+            OfficeRatings result = null;
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<OfficeRatings>(OfficeRatings.Header,
+                (h, c, res) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
+                    result = res;
+                });
+
+            await Packet.Send(Requests.GET_RATINGS,officeId, Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<OfficeRatings> RateOffice(long officeId, int rating, string message, bool isPrivate)
+        {
+            return await Instance._RateOffice(officeId, rating, message, isPrivate);
+        }
+        private async Task<OfficeRatings> _RateOffice(long officeId, int rating, string message, bool isPrivate = false)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            OfficeRatings result = null;
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<OfficeRatings>(OfficeRatings.Header,
+                (h, c, res) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
+                    result = res;
+                });
+            
+            await new RateOffice()
+            {
+                IsPrivate = isPrivate,
+                Message = message,
+                OfficeId = officeId,
+                Rating = rating,
+                Session = Session,
+            }.Send(Server.IP, Server.Port);
+            
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
     }
 }

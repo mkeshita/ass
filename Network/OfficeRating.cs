@@ -3,7 +3,7 @@
 namespace norsu.ass.Network
 {
     [ProtoContract]
-    class OfficeRating
+    class OfficeRating : Packet<OfficeRating>
     {
         [ProtoMember(1)]
         public long OfficeId { get; set; }
@@ -14,7 +14,16 @@ namespace norsu.ass.Network
         [ProtoMember(3)]
         public string Message { get; set; }
         
+        [ProtoMember(4)]
+        public bool IsAnonymous { get; set; }
+        
         [ProtoMember(5)]
         public string StudentName { get; set; }
+        
+        [ProtoMember(6)]
+        public bool MyRating { get; set; }
+        
+        [ProtoMember(7)]
+        public bool IsPrivate { get; set; }
     }
 }

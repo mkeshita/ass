@@ -31,6 +31,11 @@ namespace norsu.ass.Network
 
     class Packet
     {
+        public static async Task Send(string header, object message, string ip, int port)
+        {
+            await Send(header, message, new IPEndPoint(IPAddress.Parse(ip), port));
+        }
+        
         public static async Task Send(object message, string ip, int port)
         {
             await Send(message, new IPEndPoint(IPAddress.Parse(ip), port));
@@ -38,12 +43,16 @@ namespace norsu.ass.Network
 
         public static async Task Send(object message, IPEndPoint ip)
         {
+            await Send(message.ToString(), message, ip);
+        }
+        public static async Task Send(string header, object message, IPEndPoint ip)
+        {
             var sent = false;
             while (!sent)
             {
                 try
                 {
-                    UDPConnection.SendObject(message.ToString(), message, ip, NetworkComms.DefaultSendReceiveOptions,
+                    UDPConnection.SendObject(header, message, ip, NetworkComms.DefaultSendReceiveOptions,
                         ApplicationLayerProtocolStatus.Enabled);
                     sent = true;
                     break;

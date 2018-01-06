@@ -16,5 +16,8 @@ namespace norsu.ass.Network
 
         [ProtoMember(3)]
         public string Course { get; set; }
+        
+        [ProtoMember(4)]
+        public bool IsAnonymous { get; set; }
     }
 }

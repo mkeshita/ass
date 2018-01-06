@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Android.App;
+using Android.Content;
 using Android.Views;
 using Android.Widget;
 using norsu.ass.Network;

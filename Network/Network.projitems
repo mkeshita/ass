@@ -11,10 +11,13 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AndroidDevice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Comment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GetRatings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Login.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Office.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OfficeRating.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OfficeRatings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PacketBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RateOffice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Registration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Requests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInfo.cs" />

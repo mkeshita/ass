@@ -49,13 +49,19 @@ namespace norsu.ass
 		{
 			
 			// aapt resource value: 0x7f020000
-			public const int ic_launcher = 2130837504;
+			public const int ic_action_comment = 2130837504;
 			
 			// aapt resource value: 0x7f020001
-			public const int norsu = 2130837505;
+			public const int ic_action_star_half = 2130837505;
 			
 			// aapt resource value: 0x7f020002
-			public const int splash = 2130837506;
+			public const int ic_launcher = 2130837506;
+			
+			// aapt resource value: 0x7f020003
+			public const int norsu = 2130837507;
+			
+			// aapt resource value: 0x7f020004
+			public const int splash = 2130837508;
 			
 			static Drawable()
 			{
@@ -73,8 +79,14 @@ namespace norsu.ass
 			// aapt resource value: 0x7f060004
 			public const int anonymous = 2131099652;
 			
+			// aapt resource value: 0x7f06000b
+			public const int fragmentContainer = 2131099659;
+			
 			// aapt resource value: 0x7f060006
 			public const int login = 2131099654;
+			
+			// aapt resource value: 0x7f06000a
+			public const int message = 2131099658;
 			
 			// aapt resource value: 0x7f060008
 			public const int name = 2131099656;
@@ -85,6 +97,9 @@ namespace norsu.ass
 			// aapt resource value: 0x7f060002
 			public const int password = 2131099650;
 			
+			// aapt resource value: 0x7f06000d
+			public const int privateCheckbox = 2131099661;
+			
 			// aapt resource value: 0x7f060007
 			public const int progress = 2131099655;
 			
@@ -93,6 +108,12 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f060005
 			public const int register = 2131099653;
+			
+			// aapt resource value: 0x7f06000e
+			public const int submit = 2131099662;
+			
+			// aapt resource value: 0x7f06000c
+			public const int submitProgress = 2131099660;
 			
 			// aapt resource value: 0x7f060001
 			public const int userName = 2131099649;
@@ -124,6 +145,15 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f030003
 			public const int OfficesRow = 2130903043;
+			
+			// aapt resource value: 0x7f030004
+			public const int RatingRow = 2130903044;
+			
+			// aapt resource value: 0x7f030005
+			public const int Ratings = 2130903045;
+			
+			// aapt resource value: 0x7f030006
+			public const int RatingsTab = 2130903046;
 			
 			static Layout()
 			{

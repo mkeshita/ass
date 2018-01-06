@@ -18,6 +18,7 @@
 
   <RatingBar
     style="@android:style/Widget.Holo.Light.RatingBar.Small"
+    android:isIndicator="true"
     android:id="@+id/rating"
     android:layout_margin="20dp"
     android:layout_width="wrap_content"

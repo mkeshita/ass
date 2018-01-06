@@ -27,27 +27,90 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<AndroidDevice>(AndroidDevice.Header, HandShakeHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<LoginRequest>(LoginRequest.Header, LoginHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<string>(Requests.GET_OFFICES, GetOfficesHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<RateOffice>(RateOffice.Header, OfficeRatingHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetRatings>(GetRatings.Header, GetRatingsHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
         }
 
+        private void GetRatingsHandler(PacketHeader packetheader, Connection connection, GetRatings incomingobject)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null) return;
+
+            if (!Sessions.ContainsKey(incomingobject.Session))
+                return;
+            var student = Sessions[incomingobject.Session];
+            
+            SendRatings(incomingobject.OfficeId, dev, student);
+        }
+
+        private void OfficeRatingHandler(PacketHeader packetheader, Connection connection, RateOffice rating)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null) return;
+
+            if (!Sessions.ContainsKey(rating.Session)) return;
+            var student = Sessions[rating.Session];
+
+            var studentRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == rating.OfficeId && x.UserId == student.Id);
+            if (studentRating == null)
+            {
+                studentRating = new Rating()
+                {
+                    OfficeId = rating.OfficeId,
+                    UserId = student.Id,
+                };
+            }
+            
+            studentRating.Message = rating.Message;
+            studentRating.Value = rating.Rating;
+            studentRating.Save();
+
+            SendRatings(rating.OfficeId, dev, student);
+        }
+
+        private async void SendRatings(long officeId, AndroidDevice dev, User user)
+        {
+            var result = new OfficeRatings();
+            result.OfficeId = officeId;
+            var ratings = Models.Rating.Cache.Where(x => x.OfficeId == officeId).ToList();
+
+            foreach (var item in ratings)
+            {
+                if(item.IsPrivate && user.Id!=item.UserId) continue;
+                result.Ratings.Add(
+                    new OfficeRating()
+                    {
+                        IsPrivate = item.IsPrivate,
+                        Rating = item.Value,
+                        Message = item.Message,
+                        OfficeId = item.OfficeId,
+                        StudentName = item.User.IsAnnonymous ? "Anonymous" : item.User.Fullname,
+                        MyRating = item.UserId == user.Id
+                    }
+                );
+            }
+
+            await result.Send(dev.IP, dev.Port);
+        }
+
         private async void GetOfficesHandler(PacketHeader packetheader, Connection connection, string incomingobject)
         {
-            var dev = Devices.FirstOrDefault(d =>
-                d.IP == ((IPEndPoint) connection.ConnectionInfo.RemoteEndPoint).Address.ToString());
-
+            var dev = GetDevice(connection);
             if (dev == null) return;
             
             var offices = new Offices();
             foreach (var office in Models.Office.Cache)
             {
-                var ratings = Models.Rating.Cache.Where(x => x.OfficeId == office.Id);
+                var ratings = Models.Rating.Cache.Where(x => x.OfficeId == office.Id).ToList();
+                var avgRating = ratings.Count>0 ? (float) ratings.Average(x => x.Value) : 0f;
                 offices.Items.Add(new Office()
                 {
                     Id = office.Id,
                     LongName = office.LongName,
-                    Rating = ,
+                    Rating = avgRating,
                     ShortName = office.ShortName
                 });
             }
@@ -60,7 +123,7 @@ namespace norsu.ass.Network
         
         private async void LoginHandler(PacketHeader packetheader, Connection connection, LoginRequest request)
         {
-            var dev = Devices.FirstOrDefault(d => d.IP == ((IPEndPoint) connection.ConnectionInfo.RemoteEndPoint).Address.ToString());
+            var dev = GetDevice(connection);
             
             if (dev == null) return;
             
@@ -98,15 +161,32 @@ namespace norsu.ass.Network
                     sid = SessionID.Next(7, int.MaxValue);
 
                 Sessions.Add(sid, user);
-
-                result = new LoginResult(new Student() {Name = request.Username}, sid);
+                var name = user.IsAnnonymous ? $"{request.Username} [Anonymous]" : user.Fullname;
+                result = new LoginResult(new Student() {Name = name, IsAnonymous = user.IsAnnonymous}, sid);
             }
             await result.Send(dev.IP, dev.Port);
         }
 
+        private AndroidDevice GetDevice(string ip)
+        {
+            lock (Devices)
+            {
+                return Devices.FirstOrDefault(x => x.IP == ip);
+            }
+        }
+
+        private AndroidDevice GetDevice(Connection connection)
+        {
+            lock (Devices)
+            {
+                return Devices.FirstOrDefault(d =>
+                    d.IP == ((IPEndPoint) connection.ConnectionInfo.RemoteEndPoint).Address.ToString());
+            }
+        }
+
         private async void HandShakeHandler(PacketHeader packetHeader, Connection connection, AndroidDevice ad)
         {
-            var dev = Devices.FirstOrDefault(x => x.IP == ad.IP);
+            var dev = GetDevice(ad.IP);
             if (dev == null)
             {
                 Devices.Add(ad);
