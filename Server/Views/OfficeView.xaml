@@ -86,12 +86,97 @@
                     </md:TransitionerSlide.BackwardWipe>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition SharedSizeGroup="a"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <DataGrid ItemsSource="{Binding Suggestions}"
-                                  AutoGenerateColumns="False">
-                            
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  RowDetailsVisibilityMode="VisibleWhenSelected"
+                                  CanUserDeleteRows="False"
+                                  CanUserAddRows="False">
+                            <DataGrid.RowDetailsTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Body}" TextWrapping="WrapWithOverflow"
+                                               Margin="10"/>
+                                </DataTemplate>
+                            </DataGrid.RowDetailsTemplate>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name"/>
+                                <DataGridTextColumn Header="Subject" Binding="{Binding Title}"/>
+                                <DataGridTextColumn Binding="{Binding Likes}" Header="{md:PackIcon ThumbUp}"/>
+                                <DataGridTextColumn Binding="{Binding Dislikes}" Header="{md:PackIcon ThumbDown}"/>
+                            </DataGrid.Columns>
                         </DataGrid>
+                        <GroupBox Grid.Column="1" Padding="1">
+                            <GroupBox.Header>
+                                <StackPanel Orientation="Horizontal" Margin="10">
+                                    <md:PackIcon Kind="Comment" Foreground="White"/>
+                                    <TextBlock Text=" COMMENTS" Foreground="White"/>
+                                </StackPanel>
+                            </GroupBox.Header>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding Suggestions/Comments}"
+                                         ScrollViewer.CanContentScroll="False">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderThickness="0 0 0 1" BorderBrush="{StaticResource MaterialDesignDivider}">
+                                                <Grid Margin="10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.RowSpan="2" Margin="0 0 20 0">
+                                                        <md:PackIcon Kind="Account" Height="48" Width="48"
+                                                                     Visibility="{Binding User.HasPicture,Converter={cnv:BooleanToVisibility Collapsed,Visible}}"
+                                                                     HorizontalAlignment="Center"/>
+                                                        <Image Source="{Binding User.Picture, Converter={cnv:BytesToImage}}"
+                                                               Stretch="UniformToFill"
+                                                               Height="48"
+                                                               Width="48"/>
+                                                        <TextBlock Text="{Binding User.Access}"
+                                                                   FontSize="7pt"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding User.Fullname}" 
+                                                                   FontWeight="Bold"/>
+                                                        <TextBlock Text="{Binding Message}"
+                                                                   TextWrapping="WrapWithOverflow" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                </ScrollViewer>
+                                <Grid Grid.Row="1" Margin="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox md:HintAssist.Hint="Type your message here."
+                                             Text="{Binding ReplyText,UpdateSourceTrigger=PropertyChanged}"
+                                             x:Name="ReplyTextBox"
+                                             MaxHeight="74"
+                                             VerticalScrollBarVisibility="Auto"
+                                             HorizontalScrollBarVisibility="Disabled"
+                                             AcceptsReturn="True"/>
+                                    <Button Grid.Column="1" Margin="10 0 0 0" Command="{Binding ReplyCommand}"
+                                            VerticalAlignment="Top">
+                                        <StackPanel Orientation="Horizontal">
+                                            <md:PackIcon Kind="Send"/>
+                                            <TextBlock Text=" SEND"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </GroupBox>
                     </Grid>
                 </md:TransitionerSlide>
             <md:TransitionerSlide>
@@ -103,108 +188,19 @@
                 </md:TransitionerSlide.BackwardWipe>
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <ListBox Style="{StaticResource MaterialDesignCardsListBox}"
-                                 Margin="0 20 20 20">
                             
-                            <ListBoxItem Margin="10">
-                                <Grid Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center"/>
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding FiveStars}" FontSize="25pt"
-                                               VerticalAlignment="Center"
-                                               Margin="40 0 0 0"/>
-                                </Grid>
-                            </ListBoxItem>
-                            <ListBoxItem Margin="10">
-                                <Grid Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding FourStars}" FontSize="25pt"
-                                               VerticalAlignment="Center"
-                                               Margin="40 0 0 0" />
-                                </Grid>
-                            </ListBoxItem>
-                            <ListBoxItem Margin="10">
-                                <Grid Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding ThreeStars}" FontSize="25pt"
-                                               VerticalAlignment="Center"
-                                               Margin="40 0 0 0" />
-                                </Grid>
-                            </ListBoxItem>
-                            <ListBoxItem Margin="10">
-                                <Grid Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding TwoStars}" FontSize="25pt"
-                                               VerticalAlignment="Center"
-                                               Margin="40 0 0 0" />
-                                </Grid>
-                            </ListBoxItem>
-                            <ListBoxItem Margin="10">
-                                <Grid Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                        <md:PackIcon Kind="Star" Height="32" Width="32"
-                                                     VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Text="{Binding OneStar}" FontSize="25pt"
-                                               VerticalAlignment="Center"
-                                               Margin="40 0 0 0" />
-                                </Grid>
-                            </ListBoxItem>
-                        </ListBox>
-                        <DataGrid ItemsSource="{Binding Ratings}" Grid.Column="1"
+                        </Grid.ColumnDefinitions>
+                        <Viewbox Grid.Column="1" Visibility="Collapsed">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                            </Grid>
+                        </Viewbox>
+                        <DataGrid ItemsSource="{Binding Ratings}" Grid.Column="0"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"

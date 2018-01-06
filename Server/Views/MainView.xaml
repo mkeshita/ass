@@ -18,7 +18,6 @@
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         SnapsToDevicePixels="True"
-        
         xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
         DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
         Title="Server [pre-release]" Height="300" Width="300">
@@ -102,7 +101,7 @@
                             </LinearGradientBrush.GradientStops>
                         </LinearGradientBrush>
                     </md:ColorZone.Background>
-                    <Grid MaxWidth="444">
+                    <Grid MaxWidth="333">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
@@ -141,7 +140,7 @@
                         </Grid>
 
                         <Border Grid.Row="1" Background="#FFFFFF">
-                            <UniformGrid Columns="4">
+                            <UniformGrid Rows="1">
 
                                 <Button Style="{StaticResource MaterialDesignFlatButton}"
                                 Command="{Binding ShowAccountCommand}"
@@ -180,7 +179,7 @@
                                         <TextBlock Text="Offices" />
                                     </StackPanel>
                                 </Button>
-                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                <!--<Button Style="{StaticResource MaterialDesignFlatButton}"
                                     Command="{Binding ShowUsersCommand}"
                                     Height="Auto">
                                     <StackPanel>
@@ -191,7 +190,7 @@
                                                  Width="32" />
                                         <TextBlock Text="Users" />
                                     </StackPanel>
-                                </Button>
+                                </Button>-->
                             </UniformGrid>
                         </Border>
 

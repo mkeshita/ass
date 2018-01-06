@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Devcorner.NIdenticon;
+using Devcorner.NIdenticon.BrushGenerators;
 using norsu.ass.Models;
 using norsu.ass.Server.Properties;
 using NetworkCommsDotNet;
@@ -133,16 +138,32 @@ namespace norsu.ass.Network
 
                 if (Settings.Default.AllowAnnonymousUser)
                 {
-                    var usr = new User()
-                    {
-                        Username = DateTime.Now.Ticks.ToString(),
-                        Firstname = request.Username,
-                        IsAnnonymous = true,
-                        Access = User.AccessLevels.Student,
-                    };
-                    usr.Save();
+                    user = new User();
+                    
+                    var gen = new IdenticonGenerator()
+                        .WithBlocks(7, 7)
+                        .WithSize(128, 128)
+                        .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig);
+                        //.WithBackgroundColor(Color.White)
+                        //.WithBrushGenerator(new StaticColorBrushGenerator(Color.DodgerBlue));
 
-                    user = usr;
+                    using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
+                    {
+                        using (var stream = new MemoryStream())
+                        {
+                            pic.Save(stream, ImageFormat.Jpeg);
+                            user = new User()
+                            {
+                                Username = request.Username,
+                                Password = request.Password,
+                                Access = User.AccessLevels.Student,
+                                IsAnnonymous = true,
+                                Picture = stream.ToArray(),
+                            };
+                            user.Save();
+                        }
+                    }
+                    
                 }
 
             }

@@ -295,5 +295,33 @@ namespace norsu.ass.Server.ViewModels
             if (!(o is Rating rating)) return false;
             return rating.OfficeId == (Offices.CurrentItem as Office)?.Id;
         }
+
+        private string _ReplyText;
+
+        public string ReplyText
+        {
+            get => _ReplyText;
+            set
+            {
+                if(value == _ReplyText)
+                    return;
+                _ReplyText = value;
+                OnPropertyChanged(nameof(ReplyText));
+            }
+        }
+
+        private ICommand _replyCommand;
+
+        public ICommand ReplyCommand => _replyCommand ?? (_replyCommand = new DelegateCommand(msg =>
+        {
+            new Models.Comment
+            {
+                SuggestionId = ((Suggestion) Suggestions.CurrentItem).Id,
+                ParentId = 0,
+                Message = ReplyText,
+                UserId = CurrentUser.Id
+            }.Save();
+            ReplyText = string.Empty;
+        }));
     }
 }
