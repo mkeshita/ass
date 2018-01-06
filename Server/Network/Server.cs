@@ -87,7 +87,7 @@ namespace norsu.ass.Network
                         Rating = item.Value,
                         Message = item.Message,
                         OfficeId = item.OfficeId,
-                        StudentName = item.User.IsAnnonymous ? "Anonymous" : item.User.Fullname,
+                        StudentName = item.User.IsAnnonymous ? "Anonymous" : item.User?.Fullname,
                         MyRating = item.UserId == user.Id
                     }
                 );

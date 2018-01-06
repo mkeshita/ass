@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading;
+using System.Windows;
 
 namespace norsu.ass.Server
 {
@@ -10,6 +11,7 @@ namespace norsu.ass.Server
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            awooo.Context = SynchronizationContext.Current;
             awooo.IsRunning = true;
             Network.Server.Instance.Start();
         }

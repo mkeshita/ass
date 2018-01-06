@@ -67,17 +67,25 @@ namespace norsu.ass
             var result =
                 await Client.RateOffice(OfficeId, (int) _rating.Rating, _message.Text, _privateCheckBox.Checked);
             _submitProgress.Visibility = ViewStates.Gone;
-            var dlg = new AlertDialog.Builder(Activity);
+            
             if (result == null)
             {
-                dlg.SetTitle("Cannot access server");
+                var dlg = new AlertDialog.Builder(Activity);
+                dlg.SetTitle("Retry to submit your rating?");
+                dlg.SetMessage("Your rating was not submitted successfully. Please make sure you are connected to the server and try again.");
+                dlg.SetPositiveButton("RETRY", (o, args) =>
+                {
+                    SubmitOnClick(sender,eventArgs);
+                });
+                dlg.SetNegativeButton("CANCEL", (o, args) => { });
+                dlg.Create().Show();
             }
             else
             {
-                dlg.SetTitle("Your rating has been successfully submitted.");
+                Toast.MakeText(Activity, "Rating successfully submitted.", ToastLength.Short);
                 ListAdapter = new RatingsAdapter(Activity,result.Ratings);
             }
-            dlg.Show();
+            
         }
 
     }

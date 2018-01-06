@@ -117,11 +117,11 @@ namespace norsu.ass.Network
         {
             var start = DateTime.Now;
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
-            while ((DateTime.Now - start).TotalSeconds < 20)
+            while ((DateTime.Now - start).TotalSeconds < 7)
             {
                 if (Server != null)
                     break;
-                await Task.Delay(TimeSpan.FromSeconds(7));
+                await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }
 
@@ -258,8 +258,12 @@ namespace norsu.ass.Network
                     result = res;
                 });
 
-            await Packet.Send(Requests.GET_RATINGS,officeId, Server.IP, Server.Port);
-
+            await new GetRatings()
+            {
+                OfficeId = officeId,
+                Session = Session
+            }.Send(Server.IP, Server.Port);
+            
             var start = DateTime.Now;
             while ((DateTime.Now - start).TotalSeconds < 17)
             {

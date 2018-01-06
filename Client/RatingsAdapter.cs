@@ -31,7 +31,7 @@ namespace norsu.ass
         {
             var item = _items[position];
 
-            var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.OfficesRow, null);
+            var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.RatingRow, null);
 
             view.FindViewById<TextView>(Resource.Id.name).Text = item.StudentName;
             view.FindViewById<TextView>(Resource.Id.message).Text = item.Message;

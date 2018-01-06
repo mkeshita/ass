@@ -13,7 +13,10 @@ using Devcorner.NIdenticon.BlockGenerators;
 using Devcorner.NIdenticon.BrushGenerators;
 using MaterialDesignThemes.Wpf;
 using norsu.ass.Models;
+using norsu.ass.Network;
 using norsu.ass.Server.Views;
+using Office = norsu.ass.Models.Office;
+using Suggestion = norsu.ass.Models.Suggestion;
 
 namespace norsu.ass.Server.ViewModels
 {
@@ -212,6 +215,14 @@ namespace norsu.ass.Server.ViewModels
                     Suggestions.Filter = FilterSuggestion;
                     Ratings.Filter = FilterRating;
                 };
+                Rating.Cache.CollectionChanged += (sender, args) =>
+                {
+                    Ratings.Filter = FilterRating;
+                };
+                Suggestion.Cache.CollectionChanged += (sender, args) =>
+                {
+                    Suggestions.Filter = FilterSuggestion;
+                };
                 return _offices;
             }
         }
@@ -223,7 +234,7 @@ namespace norsu.ass.Server.ViewModels
             get
             {
                 if (_suggestions != null) return _suggestions;
-                _suggestions = new ListCollectionView(Message.Cache);
+                _suggestions = new ListCollectionView(Suggestion.Cache);
                 _suggestions.Filter = FilterSuggestion;
                 Office.Cache.CollectionChanged += (sender, args) =>
                 {
@@ -235,7 +246,7 @@ namespace norsu.ass.Server.ViewModels
 
         private bool FilterSuggestion(object o)
         {
-            if (!(o is Message msg)) return false;
+            if (!(o is Suggestion msg)) return false;
             var selectedOffice = Offices.CurrentItem as Office;
             return msg.OfficeId == selectedOffice?.Id;
         }
