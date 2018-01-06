@@ -34,9 +34,143 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<string>(Requests.GET_OFFICES, GetOfficesHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<RateOffice>(RateOffice.Header, OfficeRatingHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetRatings>(GetRatings.Header, GetRatingsHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetComments>(GetComments.Header, GetCommentsHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<AddComment>(AddComment.Header, AddCommentHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetSuggestions>(GetSuggestions.Header,GetSuggestionsHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<Suggest>(Suggest.Header,SuggestionHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<LikeSuggestion>(LikeSuggestion.Header, LikeSuggestionHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private void AddCommentHandler(PacketHeader packetheader, Connection connection, AddComment i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null)
+                return;
+
+            if (!Sessions.ContainsKey(i.Session))
+                return;
+            var student = Sessions[i.Session];
+
+            new Models.Comment()
+            {
+                Message = i.Message,
+                UserId = student.Id,
+                SuggestionId = i.SuggestionId
+            }.Save();
+            
+            SendComments(i.SuggestionId, dev);
+        }
+
+        private async void LikeSuggestionHandler(PacketHeader packetheader, Connection connection, LikeSuggestion i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null)
+                return;
+
+            if (!Sessions.ContainsKey(i.Session))
+                return;
+            var student = Sessions[i.Session];
+
+            var like = Like.Cache.FirstOrDefault(x => x.SuggestionId == i.SuggestionId && x.UserId == student.Id) ?? new Like()
+            {
+                SuggestionId = i.SuggestionId,
+                UserId = student.Id
+            };
+            
+            like.Dislike = i.Dislike;
+            like.Save();
+
+            await Packet.Send(Requests.LIKE_SUGGESTION, true, dev.IP, dev.Port);
+        }
+
+        private void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null)
+                return;
+
+            if (!Sessions.ContainsKey(i.Session))
+                return;
+            var student = Sessions[i.Session];
+            
+            new Models.Suggestion()
+            {
+                Body = i.Body,
+                IsPrivate = i.IsPrivate,
+                OfficeId = i.OfficeId,
+                UserId = student.Id,
+                Title = i.Subject
+            }.Save();
+
+            SendSuggestions(i.OfficeId, dev, student);
+        }
+
+        private void GetSuggestionsHandler(PacketHeader packetheader, Connection connection, GetSuggestions i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null)
+                return;
+
+            if (!Sessions.ContainsKey(i.Session))
+                return;
+            var student = Sessions[i.Session];
+
+            SendSuggestions(i.OfficeId, dev, student);
+        }
+
+        private async void SendSuggestions(long id, AndroidDevice dev, User student)
+        {
+            var result = new Suggestions();
+            var comments = Models.Suggestion.Cache.
+                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id)).ToList();
+            foreach (var item in comments)
+            {
+                result.Items.Add(new Suggestion()
+                {
+                    Body = item.Body,
+                    StudentName = item.User.IsAnnonymous ? "Anonymous" : item.User.Fullname,
+                    Title = item.Title,
+                    Likes = item.Likes,
+                    Dislikes = item.Dislikes,
+                    Id = item.Id,
+                 //   Liked = Like.Cache.Any(x=>x.SuggestionId == id && x.UserId == student.Id && !x.Dislike),
+                   // Disliked = Like.Cache.Any(x => x.SuggestionId == id && x.UserId == student.Id && x.Dislike)
+                });
+            }
+            await result.Send(dev.IP, dev.Port);
+        }
+
+        private void GetCommentsHandler(PacketHeader packetheader, Connection connection, GetComments i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null) return;
+
+            if(!Sessions.ContainsKey(i.Session))
+                return;
+            var student = Sessions[i.Session];
+
+            SendComments(i.SuggestionId, dev);
+        }
+
+        private async void SendComments(long id, AndroidDevice dev)
+        {
+            var result = new Comments();
+            var comments = Models.Comment.Cache.Where(x => x.SuggestionId == id).ToList();
+            foreach (var comment in comments)
+            {
+                result.Items.Add(new Comment()
+                {
+                    Id = comment.Id,
+                    Message = comment.Message,
+                    ParentId = comment.ParentId,
+                    Sender = comment.User.IsAnnonymous ? "Anonymous" : comment.User.Fullname,
+                    SuggestionId = id
+                });
+            }
+            await result.Send(dev.IP, dev.Port);
         }
 
         private void GetRatingsHandler(PacketHeader packetheader, Connection connection, GetRatings incomingobject)
@@ -190,10 +324,23 @@ namespace norsu.ass.Network
 
         private AndroidDevice GetDevice(string ip)
         {
-            lock (Devices)
+            while (true)
             {
-                return Devices.FirstOrDefault(x => x.IP == ip);
+                try
+                {
+                    lock (Devices)
+                    {
+                        return Devices.FirstOrDefault(x => x.IP == ip);
+
+                    }
+                }
+                catch (Exception e)
+                {
+                    //success = false;
+                }
             }
+            
+            
         }
 
         private AndroidDevice GetDevice(Connection connection)

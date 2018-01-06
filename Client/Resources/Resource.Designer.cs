@@ -64,10 +64,16 @@ namespace norsu.ass
 			public const int ic_launcher = 2130837508;
 			
 			// aapt resource value: 0x7f020005
-			public const int norsu = 2130837509;
+			public const int ic_thumb_down = 2130837509;
 			
 			// aapt resource value: 0x7f020006
-			public const int splash = 2130837510;
+			public const int ic_thumb_up = 2130837510;
+			
+			// aapt resource value: 0x7f020007
+			public const int norsu = 2130837511;
+			
+			// aapt resource value: 0x7f020008
+			public const int splash = 2130837512;
 			
 			static Drawable()
 			{
@@ -85,8 +91,23 @@ namespace norsu.ass
 			// aapt resource value: 0x7f060004
 			public const int anonymous = 2131099652;
 			
+			// aapt resource value: 0x7f060014
+			public const int body = 2131099668;
+			
+			// aapt resource value: 0x7f060012
+			public const int dislike = 2131099666;
+			
+			// aapt resource value: 0x7f060013
+			public const int dislikes = 2131099667;
+			
 			// aapt resource value: 0x7f06000b
 			public const int fragmentContainer = 2131099659;
+			
+			// aapt resource value: 0x7f060010
+			public const int like = 2131099664;
+			
+			// aapt resource value: 0x7f060011
+			public const int likes = 2131099665;
 			
 			// aapt resource value: 0x7f060006
 			public const int login = 2131099654;
@@ -120,6 +141,9 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f06000c
 			public const int submitProgress = 2131099660;
+			
+			// aapt resource value: 0x7f06000f
+			public const int title = 2131099663;
 			
 			// aapt resource value: 0x7f060001
 			public const int userName = 2131099649;
@@ -160,6 +184,12 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f030006
 			public const int RatingsTab = 2130903046;
+			
+			// aapt resource value: 0x7f030007
+			public const int SuggestionRow = 2130903047;
+			
+			// aapt resource value: 0x7f030008
+			public const int SuggestionsTab = 2130903048;
 			
 			static Layout()
 			{

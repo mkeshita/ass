@@ -314,5 +314,198 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
+
+        public static async Task<Suggestions> GetSuggestions(long officeId)
+        {
+            return await Instance._GetSuggestions(officeId);
+        }
+
+        private async Task<Suggestions> _GetSuggestions(long officeId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            Suggestions result = null;
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<Suggestions>(Suggestions.Header,
+                (h, c, res) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(Suggestions.Header);
+                    result = res;
+                });
+
+            await new GetSuggestions()
+            {
+                OfficeId = officeId,
+                Session = Session,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<Suggestions> Suggest(long officeId, string subject, string body,bool isPrivate)
+        {
+            return await Instance._Suggest(officeId, subject, body, isPrivate);
+        }
+        
+        private async Task<Suggestions> _Suggest(long officeId, string subject, string body,bool isPrivate)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            Suggestions result = null;
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<Suggestions>(Suggestions.Header,
+                (h, c, res) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(Suggestions.Header);
+                    result = res;
+                });
+
+            await new Suggest()
+            {
+                OfficeId = officeId,
+                Session = Session,
+                Subject = subject,
+                Body = body,
+                IsPrivate = isPrivate
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<bool> LikeSuggestion(long suggestionId, bool dislike)
+        {
+            return await Instance._LikeSuggestion(suggestionId, dislike);
+        }
+        private async Task<bool> _LikeSuggestion(long suggestionId, bool dislike)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return false;
+
+            bool? result = null;
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<bool>(Requests.LIKE_SUGGESTION,
+                (h, c, res) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(Requests.LIKE_SUGGESTION);
+                    result = res;
+                });
+
+            await new LikeSuggestion()
+            {
+                SuggestionId = suggestionId,
+                Dislike = dislike,
+                Session = Session,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result??false;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return false;
+        }
+
+        public static async Task<Comments> GetComments(long suggestionId)
+        {
+            return await Instance._GetComments(suggestionId);
+        }
+        private async Task<Comments> _GetComments(long suggestionId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            Comments result = null;
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<Comments>(Comments.Header,
+                (h, c, res) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(Comments.Header);
+                    result = res;
+                });
+
+            await new GetComments()
+            {
+                SuggestionId = suggestionId,
+                Session = Session,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<bool> AddComment(long suggestionId, string comment)
+        {
+            return await Instance._AddComment(suggestionId, comment);
+        }
+        private async Task<bool> _AddComment(long suggestionId, string comment)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return false;
+
+            bool? result = null;
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<bool>(Requests.ADD_COMMENT,
+                (h, c, res) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(Requests.ADD_COMMENT);
+                    result = res;
+                });
+
+            await new AddComment()
+            {
+                SuggestionId = suggestionId,
+                Session = Session,
+                Message = comment
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result??false;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return false;
+
+        }
     }
 }

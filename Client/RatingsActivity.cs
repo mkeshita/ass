@@ -36,14 +36,17 @@ namespace norsu.ass
             ActionBar.AddTab(tab);
         }
 
+        private SuggestionsFragment suggestions => new SuggestionsFragment(OfficeId);
         private void TabOnTabSelected(object sender, ActionBar.TabEventArgs e)
         {
-            
+            e.FragmentTransaction.Replace(Resource.Id.fragmentContainer, suggestions);
         }
 
+        private RatingsFragment ratings => new RatingsFragment(OfficeId);
+        
         private void RatingsTabOnTabSelected(object sender, ActionBar.TabEventArgs e)
         {
-            e.FragmentTransaction.Add(Resource.Id.fragmentContainer, new RatingsFragment(OfficeId));
+            e.FragmentTransaction.Replace(Resource.Id.fragmentContainer, ratings);
         }
     }
 }
