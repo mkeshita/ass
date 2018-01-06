@@ -91,74 +91,86 @@ namespace norsu.ass
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f06000a
-			public const int anonymous = 2131099658;
+			// aapt resource value: 0x7f07001a
+			public const int action_dislike = 2131165210;
 			
-			// aapt resource value: 0x7f060004
-			public const int body = 2131099652;
+			// aapt resource value: 0x7f070019
+			public const int action_like = 2131165209;
 			
-			// aapt resource value: 0x7f060001
-			public const int comment = 2131099649;
+			// aapt resource value: 0x7f07000c
+			public const int anonymous = 2131165196;
 			
-			// aapt resource value: 0x7f060014
-			public const int dislikes = 2131099668;
+			// aapt resource value: 0x7f070004
+			public const int body = 2131165188;
 			
-			// aapt resource value: 0x7f06000f
-			public const int fragmentContainer = 2131099663;
+			// aapt resource value: 0x7f070001
+			public const int comment = 2131165185;
 			
-			// aapt resource value: 0x7f060013
-			public const int likes = 2131099667;
+			// aapt resource value: 0x7f070006
+			public const int dislike = 2131165190;
 			
-			// aapt resource value: 0x7f060015
-			public const int listView = 2131099669;
+			// aapt resource value: 0x7f070016
+			public const int dislikes = 2131165206;
 			
-			// aapt resource value: 0x7f06000c
-			public const int login = 2131099660;
+			// aapt resource value: 0x7f070011
+			public const int fragmentContainer = 2131165201;
 			
-			// aapt resource value: 0x7f06000e
-			public const int message = 2131099662;
+			// aapt resource value: 0x7f070005
+			public const int like = 2131165189;
 			
-			// aapt resource value: 0x7f060000
-			public const int name = 2131099648;
+			// aapt resource value: 0x7f070015
+			public const int likes = 2131165205;
 			
-			// aapt resource value: 0x7f060016
-			public const int newSuggestion = 2131099670;
+			// aapt resource value: 0x7f070017
+			public const int listView = 2131165207;
 			
-			// aapt resource value: 0x7f060009
-			public const int nickName = 2131099657;
+			// aapt resource value: 0x7f07000e
+			public const int login = 2131165198;
 			
-			// aapt resource value: 0x7f060008
-			public const int password = 2131099656;
+			// aapt resource value: 0x7f070010
+			public const int message = 2131165200;
 			
-			// aapt resource value: 0x7f060011
-			public const int privateCheckbox = 2131099665;
+			// aapt resource value: 0x7f070000
+			public const int name = 2131165184;
 			
-			// aapt resource value: 0x7f060002
-			public const int progress = 2131099650;
+			// aapt resource value: 0x7f070018
+			public const int newSuggestion = 2131165208;
 			
-			// aapt resource value: 0x7f06000d
-			public const int rating = 2131099661;
+			// aapt resource value: 0x7f07000b
+			public const int nickName = 2131165195;
 			
-			// aapt resource value: 0x7f06000b
-			public const int register = 2131099659;
+			// aapt resource value: 0x7f07000a
+			public const int password = 2131165194;
 			
-			// aapt resource value: 0x7f060005
-			public const int send = 2131099653;
+			// aapt resource value: 0x7f070013
+			public const int privateCheckbox = 2131165203;
 			
-			// aapt resource value: 0x7f060012
-			public const int submit = 2131099666;
+			// aapt resource value: 0x7f070002
+			public const int progress = 2131165186;
 			
-			// aapt resource value: 0x7f060010
-			public const int submitProgress = 2131099664;
+			// aapt resource value: 0x7f07000f
+			public const int rating = 2131165199;
 			
-			// aapt resource value: 0x7f060003
-			public const int title = 2131099651;
+			// aapt resource value: 0x7f07000d
+			public const int register = 2131165197;
 			
-			// aapt resource value: 0x7f060007
-			public const int userName = 2131099655;
+			// aapt resource value: 0x7f070007
+			public const int send = 2131165191;
 			
-			// aapt resource value: 0x7f060006
-			public const int userView = 2131099654;
+			// aapt resource value: 0x7f070014
+			public const int submit = 2131165204;
+			
+			// aapt resource value: 0x7f070012
+			public const int submitProgress = 2131165202;
+			
+			// aapt resource value: 0x7f070003
+			public const int title = 2131165187;
+			
+			// aapt resource value: 0x7f070009
+			public const int userName = 2131165193;
+			
+			// aapt resource value: 0x7f070008
+			public const int userView = 2131165192;
 			
 			static Id()
 			{
@@ -212,6 +224,22 @@ namespace norsu.ass
 			}
 			
 			private Layout()
+			{
+			}
+		}
+		
+		public partial class Menu
+		{
+			
+			// aapt resource value: 0x7f060000
+			public const int SuggestionMenu = 2131099648;
+			
+			static Menu()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Menu()
 			{
 			}
 		}

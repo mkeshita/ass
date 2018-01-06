@@ -56,7 +56,7 @@ namespace norsu.ass
             
             var intent = new Intent(Application.Context, typeof(RatingsActivity));
             intent.PutExtra("name", office.ShortName);
-            intent.PutExtra("id", office.Id);
+            intent.PutExtra("officeId", office.Id);
             StartActivity(intent);
             
         }

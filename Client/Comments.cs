@@ -9,8 +9,7 @@ using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Label = "RatingsActivity",ParentActivity = typeof(RatingsActivity),
-        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
+    [Activity(Label = "RatingsActivity",ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class CommentsActivity : ListActivity
     {
@@ -19,6 +18,8 @@ namespace norsu.ass
         private Button _send;
         private CommentsAdapter _adapter;
         private Comments _comments;
+        private ImageButton _dislike,_like;
+        
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -39,13 +40,76 @@ namespace norsu.ass
             _comments = await Client.GetComments(SuggestionId);
 
             FindViewById<ProgressBar>(Resource.Id.progress).Visibility = ViewStates.Gone;
-            
+            _like = FindViewById<ImageButton>(Resource.Id.like);
+            _like.Click += (sender, args) =>
+            {
+                Like(false);
+            };
+            _dislike = FindViewById<ImageButton>(Resource.Id.dislike);
+            _dislike.Click += (sender, args) =>
+            {
+                Like(true);
+            };
+
+
             if (_comments != null)
             {
                 _adapter = new CommentsAdapter(this,_comments.Items);
                 ListAdapter = _adapter;
             }
+            
+            
         }
+
+
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            this.MenuInflater.Inflate(Resource.Menu.SuggestionMenu, menu);
+
+            //var like = menu.FindItem(Resource.Id.action_like);
+            return true;
+
+            //return base.OnCreateOptionsMenu(menu);
+        }
+
+        //public override bool OnOptionsItemSelected(IMenuItem item)
+        //{
+        //    if (item.ItemId == Resource.Id.action_like)
+        //    {
+        //        Like(false);
+        //        return true;
+        //    }
+        //    if (item.ItemId == Resource.Id.action_dislike)
+        //    {
+        //        Like(true);
+        //        return true;
+        //    }
+        //    return base.OnOptionsItemSelected(item);
+        //}
+
+        private async void Like(bool dislike)
+        {
+            _dislike.Enabled = false;
+            _like.Enabled = false;
+            var msg = (dislike ? "Dislike" : "Like");
+            var toast = Toast.MakeText(Application.Context, msg, ToastLength.Short);
+            
+            if (await Client.LikeSuggestion(SuggestionId, dislike))
+            {
+                toast.SetText(msg+ " successful");
+                
+                _dislike.Enabled = !dislike;
+                _like.Enabled = dislike;
+            }
+            else
+            {
+                toast.SetText(msg + " failed");
+                _dislike.Enabled = true;
+                _like.Enabled = true;
+            }
+            toast.Show();
+        }
+
 
         protected override void OnSaveInstanceState(Bundle outState)
         {

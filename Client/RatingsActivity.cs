@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
 
 namespace norsu.ass
 {
-    [Activity(Label = "RatingsActivity",ParentActivity = typeof(OfficesActivity),
-        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
+    [Activity(Label = "RatingsActivity", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class RatingsActivity : Activity
     {
@@ -15,9 +12,17 @@ namespace norsu.ass
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            if (savedInstanceState == null)
+            {
+                Title = Intent.GetStringExtra("name");
+                OfficeId = Intent.GetLongExtra("officeId", 0);
+            }
+            else
+            {
+                Title = savedInstanceState.GetString("name");
+                OfficeId = savedInstanceState.GetLong("officeId");
+            }
             
-            Title = Intent.GetStringExtra("name");
-            OfficeId = Intent.GetLongExtra("id",0);
             
             SetContentView(Resource.Layout.Ratings);
             
@@ -35,10 +40,11 @@ namespace norsu.ass
             tab.SetIcon(Resource.Drawable.ic_action_comment);
             ActionBar.AddTab(tab);
         }
-
+        
         protected override void OnSaveInstanceState(Bundle outState)
         {
             outState.PutLong("officeId",OfficeId);
+            outState.PutString("name",Title);
             base.OnSaveInstanceState(outState);
         }
 
@@ -46,6 +52,7 @@ namespace norsu.ass
         {
             base.OnRestoreInstanceState(savedInstanceState);
             OfficeId = savedInstanceState.GetLong("officeId");
+            Title = savedInstanceState.GetString("name");
         }
 
         private SuggestionsFragment suggestions => new SuggestionsFragment(OfficeId);
