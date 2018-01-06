@@ -35,24 +35,11 @@ namespace norsu.ass
             var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null);
             
             view.FindViewById<TextView>(Resource.Id.name).Text = item.StudentName;
+            
             view.FindViewById<TextView>(Resource.Id.title).Text = item.Title;
-            view.FindViewById<TextView>(Resource.Id.body).Text = item.Body;
             view.FindViewById<TextView>(Resource.Id.dislikes).Text = item.Dislikes.ToString();
             view.FindViewById<TextView>(Resource.Id.likes).Text = item.Likes.ToString();
-            view.FindViewById<ImageButton>(Resource.Id.like).Click += async (sender, args) =>
-            {
-                if (await Client.LikeSuggestion(item.Id, false))
-                {
-                    Toast.MakeText(_context, "Successfully liked!", ToastLength.Short);
-                }
-            };
-            view.FindViewById<ImageButton>(Resource.Id.dislike).Click += async (sender, args) =>
-            {
-                if (await Client.LikeSuggestion(item.Id, true))
-                {
-                    Toast.MakeText(_context, "Successfully disliked!", ToastLength.Short);
-                }
-            };
+
             return view;
         }
     }

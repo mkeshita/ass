@@ -44,7 +44,7 @@ namespace norsu.ass.Network
             
         }
 
-        private void AddCommentHandler(PacketHeader packetheader, Connection connection, AddComment i)
+        private async void AddCommentHandler(PacketHeader packetheader, Connection connection, AddComment i)
         {
             var dev = GetDevice(connection);
             if (dev == null)
@@ -60,8 +60,9 @@ namespace norsu.ass.Network
                 UserId = student.Id,
                 SuggestionId = i.SuggestionId
             }.Save();
-            
-            SendComments(i.SuggestionId, dev);
+
+            await Packet.Send(Requests.ADD_COMMENT, true, dev.IP, dev.Port);
+            //SendComments(i.SuggestionId, dev);
         }
 
         private async void LikeSuggestionHandler(PacketHeader packetheader, Connection connection, LikeSuggestion i)

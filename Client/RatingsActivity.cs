@@ -36,6 +36,18 @@ namespace norsu.ass
             ActionBar.AddTab(tab);
         }
 
+        protected override void OnSaveInstanceState(Bundle outState)
+        {
+            outState.PutLong("officeId",OfficeId);
+            base.OnSaveInstanceState(outState);
+        }
+
+        protected override void OnRestoreInstanceState(Bundle savedInstanceState)
+        {
+            base.OnRestoreInstanceState(savedInstanceState);
+            OfficeId = savedInstanceState.GetLong("officeId");
+        }
+
         private SuggestionsFragment suggestions => new SuggestionsFragment(OfficeId);
         private void TabOnTabSelected(object sender, ActionBar.TabEventArgs e)
         {

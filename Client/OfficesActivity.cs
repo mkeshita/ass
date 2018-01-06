@@ -54,9 +54,6 @@ namespace norsu.ass
             base.OnListItemClick(l, v, position, id);
             var office = ((OfficesAdapter) ListAdapter)[position];
             
-            var options = new Bundle();
-            options.PutString("name", office.ShortName);
-            options.PutLong("id",office.Id);
             var intent = new Intent(Application.Context, typeof(RatingsActivity));
             intent.PutExtra("name", office.ShortName);
             intent.PutExtra("id", office.Id);

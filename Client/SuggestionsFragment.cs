@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Android.App;
+using Android.Content;
 using Android.OS;
 using Android.Views;
 using Android.Widget;
@@ -8,10 +9,10 @@ using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    class SuggestionsFragment : ListFragment
+    class SuggestionsFragment : Fragment
     {
         private ProgressBar _progress;
-        
+        private ListView _list;
         public SuggestionsFragment(long officeId)
         {
             OfficeId = officeId;
@@ -27,32 +28,42 @@ namespace norsu.ass
             var view = inflater.Inflate(Resource.Layout.SuggestionsTab, container, false);
             
             _progress = view.FindViewById<ProgressBar>(Resource.Id.progress);
-            //_list = view.FindViewById<ListView>(Resource.Id.listView);
+            _list = view.FindViewById<ListView>(Resource.Id.listView);
             
             SetAdapter();
 
+            
             return view;
         }
 
         private async void SetAdapter()
         {
+            _progress.Visibility = ViewStates.Visible;
+            
             var offices = await Client.GetSuggestions(OfficeId);
 
             var adapter = new SuggestionsAdapter(Activity, offices.Items);
 
-            ListAdapter = adapter;
+            _list.Adapter = adapter;
+            _list.ItemClick += ListOnItemClick;
             _progress.Visibility = ViewStates.Gone;
-            
+        
         }
 
         private void ListOnItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            var row = e.View.FindViewById<TextView>(Resource.Id.body);
-            if (row.Visibility == ViewStates.Gone)
-                row.Visibility = ViewStates.Visible;
-            else
-                row.Visibility = ViewStates.Gone;
+            var intent = new Intent(Application.Context, typeof(CommentsActivity));
+            var item = ((SuggestionsAdapter) _list.Adapter)[e.Position];
+            intent.PutExtra("name", item.StudentName);
+            intent.PutExtra("id", item.Id);
+            intent.PutExtra("title", item.Title);
+            intent.PutExtra("body", item.Body);
+
+            StartActivity(intent);
         }
+
+        
+        
         
     }
 }
