@@ -35,6 +35,7 @@
       <RatingBar
           android:layout_margin="10dp"
           android:id="@+id/rating"
+          android:stepSize="1"
           android:layout_gravity="center"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content" />

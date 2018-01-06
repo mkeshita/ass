@@ -213,11 +213,11 @@ namespace norsu.ass.Server.ViewModels
                 _offices.CurrentChanged += (sender, args) =>
                 {
                     Suggestions.Filter = FilterSuggestion;
-                    Ratings.Filter = FilterRating;
+                    RatingsChanged();
                 };
                 Rating.Cache.CollectionChanged += (sender, args) =>
                 {
-                    Ratings.Filter = FilterRating;
+                    RatingsChanged();
                 };
                 Suggestion.Cache.CollectionChanged += (sender, args) =>
                 {
@@ -227,6 +227,28 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
+        private void RatingsChanged()
+        {
+            Ratings.Filter = FilterRating;
+            OnPropertyChanged(nameof(OneStar));
+            OnPropertyChanged(nameof(TwoStars));
+            OnPropertyChanged(nameof(ThreeStars));
+            OnPropertyChanged(nameof(FourStars));
+            OnPropertyChanged(nameof(FiveStars));
+        }
+        
+        public long OneStar => Rating.Cache.Count(d=>d.Value==1 && d.OfficeId==((Office) Offices.CurrentItem).Id);
+        public long TwoStars => Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+
+        public long ThreeStars =>
+            Rating.Cache.Count(d => d.Value == 3 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+
+        public long FourStars =>
+            Rating.Cache.Count(d => d.Value == 4 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+
+        public long FiveStars =>
+            Rating.Cache.Count(d => d.Value == 5 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+        
         private ListCollectionView _suggestions;
 
         public ListCollectionView Suggestions

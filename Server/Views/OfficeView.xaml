@@ -22,13 +22,19 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <md:PackIcon Kind="Bank" Height="64" Width="64" />
+            <md:PackIcon Kind="Star" Height="64" Width="64" />
             <StackPanel Orientation="Horizontal" Grid.Column="1">
-            <StackPanel Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Offices/ShortName}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
-                <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"/>
-            </StackPanel>
-            
+                <Viewbox Margin="0 0 20 0">
+                    <TextBlock Text="{Binding Offices/Rating,StringFormat={}0.0}"
+                               FontSize="47pt"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center" />
+                </Viewbox>
+                <StackPanel Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Offices/ShortName}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
+                    <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"/>
+                </StackPanel>
+               
             </StackPanel>
             <ListBox Grid.Column="2" x:Name="Box"
                      VerticalAlignment="Center">
@@ -82,7 +88,10 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition SharedSizeGroup="a"/>
                         </Grid.ColumnDefinitions>
-                        <DataGrid ItemsSource="{Binding Suggestions}"/>
+                        <DataGrid ItemsSource="{Binding Suggestions}"
+                                  AutoGenerateColumns="False">
+                            
+                        </DataGrid>
                     </Grid>
                 </md:TransitionerSlide>
             <md:TransitionerSlide>
@@ -97,6 +106,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
+                        
                         <ListBox Style="{StaticResource MaterialDesignCardsListBox}"
                                  Margin="0 20 20 20">
                             
@@ -118,7 +128,7 @@
                                         <md:PackIcon Kind="Star" Height="32" Width="32"
                                                      VerticalAlignment="Center" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                    <TextBlock Grid.Column="1" Text="{Binding FiveStars}" FontSize="25pt"
                                                VerticalAlignment="Center"
                                                Margin="40 0 0 0"/>
                                 </Grid>
@@ -139,7 +149,7 @@
                                         <md:PackIcon Kind="Star" Height="32" Width="32"
                                                      VerticalAlignment="Center" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                    <TextBlock Grid.Column="1" Text="{Binding FourStars}" FontSize="25pt"
                                                VerticalAlignment="Center"
                                                Margin="40 0 0 0" />
                                 </Grid>
@@ -158,7 +168,7 @@
                                         <md:PackIcon Kind="Star" Height="32" Width="32"
                                                      VerticalAlignment="Center" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                    <TextBlock Grid.Column="1" Text="{Binding ThreeStars}" FontSize="25pt"
                                                VerticalAlignment="Center"
                                                Margin="40 0 0 0" />
                                 </Grid>
@@ -175,7 +185,7 @@
                                         <md:PackIcon Kind="Star" Height="32" Width="32"
                                                      VerticalAlignment="Center" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                    <TextBlock Grid.Column="1" Text="{Binding TwoStars}" FontSize="25pt"
                                                VerticalAlignment="Center"
                                                Margin="40 0 0 0" />
                                 </Grid>
@@ -188,7 +198,7 @@
                                     </Grid.ColumnDefinitions>
                                         <md:PackIcon Kind="Star" Height="32" Width="32"
                                                      VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Text="0" FontSize="25pt"
+                                    <TextBlock Grid.Column="1" Text="{Binding OneStar}" FontSize="25pt"
                                                VerticalAlignment="Center"
                                                Margin="40 0 0 0" />
                                 </Grid>

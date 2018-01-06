@@ -51,7 +51,7 @@
                                                              SnapsToDevicePixels="True"
                                                              Height="12"
                                                              Width="12"/>
-                                    <TextBlock Text="4.7"
+                                    <TextBlock Text="{Binding Rating,StringFormat={}0.0}"
                                                VerticalAlignment="Center"
                                                FontSize="7pt"/>
                                 </StackPanel>
