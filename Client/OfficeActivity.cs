@@ -2,21 +2,23 @@
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
+using Android.Support.V7.App;
 using Android.Widget;
 using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Theme = "@style/Theme.FullScreen", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
+    [Activity(Theme = "@style/AppTheme.NoActionBar", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
-    public class OfficeActivity : Activity
+    public class OfficeActivity : AppCompatActivity
     {
 
         private ImageView _officePicture;
         private TextView _officeShortName, _officeLongName, _officeRatingCount;
         private RatingBar _officeRating;
-        private Button _viewAllReviews,_viewAllSuggestions;
+        private Button _viewAllReviews,_viewAllSuggestions,_suggest,_review;
         private ListView _reviews, _suggestions;
+        
         protected override void OnCreate(Bundle savedInstanceState)
         {
             if(Client.SelectedOffice == null)
@@ -24,7 +26,8 @@ namespace norsu.ass
 
             base.OnCreate(savedInstanceState);
 
-            SetContentView(Resource.Layout.Ratings);
+            SetContentView(Resource.Layout.Office);
+
 
             _officePicture = FindViewById<ImageView>(Resource.Id.officePicture);
             _officeShortName = FindViewById<TextView>(Resource.Id.officeShortName);
@@ -33,8 +36,14 @@ namespace norsu.ass
             _officeRating = FindViewById<RatingBar>(Resource.Id.officeRating);
             _viewAllReviews = FindViewById<Button>(Resource.Id.viewAllReviews);
             _viewAllSuggestions = FindViewById<Button>(Resource.Id.viewAllSuggestions);
+            _suggest = FindViewById<Button>(Resource.Id.suggest);
+            _review = FindViewById<Button>(Resource.Id.review);
             _reviews = FindViewById<ListView>(Resource.Id.reviews);
             _suggestions = FindViewById<ListView>(Resource.Id.suggestions);
+
+
+            _viewAllSuggestions.Text = "VIEW ALL " + Client.SelectedOffice?.SuggestionsCount;
+            _viewAllReviews.Text = "VIEW ALL " + Client.SelectedOffice?.RatingCount;
 
             SetupOffice();
             GetReviews();

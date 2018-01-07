@@ -3,16 +3,18 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using norsu.ass.Network;
+using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass
 {
-    [Activity(Icon = "@drawable/ic_launcher", Label = "Sign In", Theme = "@style/Theme",
+    [Activity(Icon = "@drawable/ic_launcher", Label = "Sign In", Theme = "@style/AppTheme",
         ScreenOrientation = ScreenOrientation.Portrait,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
-    public class LoginActivity : Activity
+    public class LoginActivity : AppCompatActivity
     {
         private Button _loginButton;
         private Button _register;

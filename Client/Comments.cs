@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Label = "RatingsActivity", Theme = "@style/Theme",
+    [Activity(Label = "RatingsActivity", Theme = "@style/AppTheme",
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
-    public class CommentsActivity : ListActivity
+    public class CommentsActivity : AppCompatActivity
     {
         private long SuggestionId = 0;
         private EditText _comment;
@@ -20,6 +21,7 @@ namespace norsu.ass
         private CommentsAdapter _adapter;
         private Comments _comments;
         private ImageButton _dislike,_like;
+        private ListView _commentsView;
         
         protected override async void OnCreate(Bundle savedInstanceState)
         {
@@ -56,7 +58,7 @@ namespace norsu.ass
             if (_comments != null)
             {
                 _adapter = new CommentsAdapter(this,_comments.Items);
-                ListAdapter = _adapter;
+                _commentsView.Adapter = _adapter;
             }
             
             
@@ -139,7 +141,7 @@ namespace norsu.ass
                     Sender = Client.Username,
                 });
                 _adapter = new CommentsAdapter(this, _comments.Items);
-                ListAdapter = _adapter;
+                _commentsView.Adapter = _adapter;
             }
             _send.Enabled = true;
             _comment.Enabled = true;

@@ -19,5 +19,11 @@ namespace norsu.ass.Network
         
         [ProtoMember(4)]
         public bool IsAnonymous { get; set; }
+
+        [ProtoMember(5)]
+        public string UserName { get; set; }
+
+        [ProtoMember(6)]
+        public long Id { get; set; }
     }
 }

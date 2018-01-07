@@ -7,13 +7,14 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
+using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 
 namespace norsu.ass
 {
     [Activity(Label = "SuggestionsActivity")]
-    public class SuggestionsActivity : Activity
+    public class SuggestionsActivity : AppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {

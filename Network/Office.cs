@@ -20,6 +20,9 @@ namespace norsu.ass.Network
 
         [ProtoMember(5)]
         public long RatingCount { get; set; } = 0;
+
+        [ProtoMember(6)]
+        public long SuggestionsCount { get; set; }
     }
 
     [ProtoContract]

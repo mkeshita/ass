@@ -25,5 +25,8 @@ namespace norsu.ass.Network
         
         [ProtoMember(7)]
         public bool IsPrivate { get; set; }
+
+        [ProtoMember(8)]
+        public long UserId { get; set; }
     }
 }

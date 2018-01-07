@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Android.App;
+using Android.Graphics;
 using Android.Views;
 using Android.Widget;
 using norsu.ass.Network;
@@ -37,6 +38,22 @@ namespace norsu.ass
             view.FindViewById<TextView>(Resource.Id.message).Text = item.Message;
             view.FindViewById<RatingBar>(Resource.Id.rating).Rating = item.Rating;
 
+            var usr = Client.GetPicture(item.UserId);
+            if (usr != null)
+                view.FindViewById<ImageView>(Resource.Id.picture)
+                    .SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+            else
+            {
+                Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived,
+                    user =>
+                    {
+                        if (user.UserId != item.UserId) return;
+                        _context.RunOnUiThread(() =>
+                            view.FindViewById<ImageView>(Resource.Id.picture)
+                                .SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length)));
+                    });
+            }
+            
             return view;
         }
     }

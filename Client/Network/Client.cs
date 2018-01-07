@@ -42,6 +42,7 @@ namespace norsu.ass.Network
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
         }
+        
         private readonly List<OfficePicture> OfficePictures = new List<OfficePicture>();
         private void AddOfficePicture(OfficePicture picture)
         {
@@ -220,6 +221,9 @@ namespace norsu.ass.Network
         private string _Username { get; set; }
         public static string Username => Instance._Username;
         
+        public static string Fullname { get; set; }
+        public static long UserId { get; set; }
+        
         private async Task<LoginResult> _Login(string username, string password, bool annonymous = false)
         {
             if (Server == null)
@@ -234,7 +238,10 @@ namespace norsu.ass.Network
                     NetworkComms.RemoveGlobalIncomingPacketHandler(LoginResult.Header);
                     result = r;
                     Session = r.Success ? r.Session : 0;
-                    _Username = r.Student.Name;
+                    _Username = r.Student.UserName;
+                    Fullname = r.Student.Name;
+                    UserId = r.Student.Id;
+                    FetchUserPicture(r.Student.Id);
                 });
             
             await new LoginRequest()
@@ -303,6 +310,7 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
                     result = res;
+                    FetchUserPictures(res.Ratings.Select(x=>x.UserId));
                 });
 
             await new GetRatings()
@@ -400,7 +408,14 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
-        
+
+        private async void FetchUserPicture(long id)
+        {
+            if (Server == null) await _FindServer();
+            if (Server == null) return;
+            if (Pictures.Any(x => x.UserId == id)) return;
+            await new GetPicture() {Session = Session, UserId = id}.Send(Server.IP, Server.Port);
+        }
         private async void FetchUserPictures(IEnumerable<long> userIds)
         {
             if (Server == null)

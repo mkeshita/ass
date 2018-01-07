@@ -249,7 +249,8 @@ namespace norsu.ass.Network
                         Message = item.Message,
                         OfficeId = item.OfficeId,
                         StudentName = item.User.IsAnnonymous ? "Anonymous" : item.User?.Fullname,
-                        MyRating = item.UserId == user.Id
+                        MyRating = item.UserId == user.Id,
+                        UserId = item.UserId,
                     }
                 );
             }
@@ -272,7 +273,9 @@ namespace norsu.ass.Network
                     Id = office.Id,
                     LongName = office.LongName,
                     Rating = avgRating,
-                    ShortName = office.ShortName
+                    ShortName = office.ShortName,
+                    RatingCount = Rating.Cache.Count(x=>x.OfficeId==office.Id),
+                    SuggestionsCount = Models.Suggestion.Cache.Count(x=>x.OfficeId==office.Id),
                 });
             }
 
@@ -338,8 +341,14 @@ namespace norsu.ass.Network
                     sid = SessionID.Next(7, int.MaxValue);
 
                 Sessions.Add(sid, user);
-                var name = user.IsAnnonymous ? $"{request.Username} [Anonymous]" : user.Fullname;
-                result = new LoginResult(new Student() {Name = name, IsAnonymous = user.IsAnnonymous}, sid);
+                var name = user.IsAnnonymous ? $"Anonymous" : user.Fullname;
+                result = new LoginResult(new Student()
+                {
+                    Name = name,
+                    UserName = user.Username,
+                    IsAnonymous = user.IsAnnonymous,
+                    Id = user.Id,
+                }, sid);
             }
             await result.Send(dev.IP, dev.Port);
         }
