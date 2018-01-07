@@ -37,6 +37,9 @@ namespace norsu.ass.Network
         
         [ProtoMember(10)]
         public long UserId { get; set; }
+
+        [ProtoMember(11)]
+        public long Comments { get; set; }
     }
 
     [ProtoContract]
@@ -47,6 +50,9 @@ namespace norsu.ass.Network
         
         [ProtoMember(2)]
         public long OfficeId { get; set; }
+
+        [ProtoMember(3)]
+        public long Count { get; set; }
     }
 
     [ProtoContract]

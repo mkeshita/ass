@@ -13,5 +13,8 @@ namespace norsu.ass.Network
         
         [ProtoMember(2)]
         public long OfficeId { get; set; }
+
+        [ProtoMember(3)]
+        public long Count { get; set; }
     }
 }

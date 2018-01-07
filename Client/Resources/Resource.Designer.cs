@@ -2427,8 +2427,8 @@ namespace norsu.ass
 			// aapt resource value: 0x7f07007c
 			public const int action_context_bar = 2131165308;
 			
-			// aapt resource value: 0x7f0700d4
-			public const int action_dislike = 2131165396;
+			// aapt resource value: 0x7f0700d5
+			public const int action_dislike = 2131165397;
 			
 			// aapt resource value: 0x7f0700b1
 			public const int action_divider = 2131165361;
@@ -2436,8 +2436,8 @@ namespace norsu.ass
 			// aapt resource value: 0x7f0700ab
 			public const int action_image = 2131165355;
 			
-			// aapt resource value: 0x7f0700d3
-			public const int action_like = 2131165395;
+			// aapt resource value: 0x7f0700d4
+			public const int action_like = 2131165396;
 			
 			// aapt resource value: 0x7f070003
 			public const int action_menu_divider = 2131165187;
@@ -2528,6 +2528,9 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f07008c
 			public const int comment = 2131165324;
+			
+			// aapt resource value: 0x7f0700cf
+			public const int comments = 2131165391;
 			
 			// aapt resource value: 0x7f070098
 			public const int container = 2131165336;
@@ -2661,8 +2664,8 @@ namespace norsu.ass
 			// aapt resource value: 0x7f07001c
 			public const int listMode = 2131165212;
 			
-			// aapt resource value: 0x7f0700cf
-			public const int listView = 2131165391;
+			// aapt resource value: 0x7f0700d0
+			public const int listView = 2131165392;
 			
 			// aapt resource value: 0x7f070060
 			public const int list_item = 2131165280;
@@ -2670,8 +2673,8 @@ namespace norsu.ass
 			// aapt resource value: 0x7f0700a9
 			public const int login = 2131165353;
 			
-			// aapt resource value: 0x7f0700d2
-			public const int masked = 2131165394;
+			// aapt resource value: 0x7f0700d3
+			public const int masked = 2131165395;
 			
 			// aapt resource value: 0x7f0700b0
 			public const int media_actions = 2131165360;
@@ -2697,8 +2700,8 @@ namespace norsu.ass
 			// aapt resource value: 0x7f07003a
 			public const int never = 2131165242;
 			
-			// aapt resource value: 0x7f0700d0
-			public const int newSuggestion = 2131165392;
+			// aapt resource value: 0x7f0700d1
+			public const int newSuggestion = 2131165393;
 			
 			// aapt resource value: 0x7f0700a6
 			public const int nickName = 2131165350;
@@ -3009,8 +3012,8 @@ namespace norsu.ass
 			// aapt resource value: 0x7f070016
 			public const int view_offset_helper = 2131165206;
 			
-			// aapt resource value: 0x7f0700d1
-			public const int visible = 2131165393;
+			// aapt resource value: 0x7f0700d2
+			public const int visible = 2131165394;
 			
 			// aapt resource value: 0x7f07003b
 			public const int withText = 2131165243;

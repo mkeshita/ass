@@ -56,6 +56,26 @@ namespace norsu.ass.Network
                 return;
             var usr = User.Cache.FirstOrDefault(x => x.Id == i.UserId);
             if (usr == null) return;
+            if (!usr.HasPicture)
+            {
+                var gen = new IdenticonGenerator()
+                    .WithBlocks(7, 7)
+                    .WithSize(128, 128)
+                    .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
+                    .WithBackgroundColor(Color.White);
+                //.WithBrushGenerator(new StaticColorBrushGenerator(Color.DodgerBlue));
+
+                using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
+                {
+                    using (var stream = new MemoryStream())
+                    {
+                        pic.Save(stream, ImageFormat.Jpeg);
+                        usr.Picture = stream.ToArray();
+                        usr.Save();
+                    }
+                }
+
+            }
             await new UserPicture()
             {
                 UserId = usr.Id,
@@ -102,8 +122,9 @@ namespace norsu.ass.Network
             
             like.Dislike = i.Dislike;
             like.Save();
-
-            await Packet.Send(Requests.LIKE_SUGGESTION, true, dev.IP, dev.Port);
+            var likes = Like.Cache.Count(x => !x.Dislike && x.SuggestionId == i.SuggestionId) -
+                        Like.Cache.Count(x => x.Dislike && x.SuggestionId == i.SuggestionId);
+            await Packet.Send(Requests.LIKE_SUGGESTION, likes, dev.IP, dev.Port);
         }
 
         private void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
@@ -138,28 +159,30 @@ namespace norsu.ass.Network
                 return;
             var student = Sessions[i.Session];
 
-            SendSuggestions(i.OfficeId, dev, student);
+            SendSuggestions(i.OfficeId, dev, student,i.Count);
         }
 
-        private async void SendSuggestions(long id, AndroidDevice dev, User student)
+        private async void SendSuggestions(long id, AndroidDevice dev, User student, long count = -1)
         {
             var result = new Suggestions();
             var comments = Models.Suggestion.Cache.
                 Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id)).ToList();
             foreach (var item in comments)
             {
+                var likes = Like.Cache.Count(x => !x.Dislike && x.SuggestionId == item.Id) -
+                            Like.Cache.Count(x => x.Dislike && x.SuggestionId == item.Id);
                 result.Items.Add(new Suggestion()
                 {
                     Body = item.Body,
                     StudentName = item.User.IsAnnonymous ? "Anonymous" : item.User.Fullname,
                     Title = item.Title,
-                    Likes = item.Likes,
-                    Dislikes = item.Dislikes,
+                    Likes = likes,
                     Id = item.Id,
                     UserId = item.UserId,
                  //   Liked = Like.Cache.Any(x=>x.SuggestionId == id && x.UserId == student.Id && !x.Dislike),
                    // Disliked = Like.Cache.Any(x => x.SuggestionId == id && x.UserId == student.Id && x.Dislike)
                 });
+                if(count>0 && result.Items.Count>=count) break;
             }
             await result.Send(dev.IP, dev.Port);
         }
@@ -204,7 +227,7 @@ namespace norsu.ass.Network
                 return;
             var student = Sessions[incomingobject.Session];
             
-            SendRatings(incomingobject.OfficeId, dev, student);
+            SendRatings(incomingobject.OfficeId, dev, student,incomingobject.Count);
         }
 
         private void OfficeRatingHandler(PacketHeader packetheader, Connection connection, RateOffice rating)
@@ -232,7 +255,7 @@ namespace norsu.ass.Network
             SendRatings(rating.OfficeId, dev, student);
         }
 
-        private async void SendRatings(long officeId, AndroidDevice dev, User user)
+        private async void SendRatings(long officeId, AndroidDevice dev, User user, long count = -1)
         {
             var result = new OfficeRatings();
             result.OfficeId = officeId;
@@ -253,6 +276,7 @@ namespace norsu.ass.Network
                         UserId = item.UserId,
                     }
                 );
+                if(count>0 && result.Ratings.Count>=count) break;
             }
 
             await result.Send(dev.IP, dev.Port);
@@ -298,13 +322,14 @@ namespace norsu.ass.Network
                 if (Settings.Default.AllowAnnonymousUser)
                 {
                     user = new User();
-                    
+                    var rnd = new Random();
+                    var color = Color.FromArgb(255, rnd.Next(0, 255), rnd.Next(0, 255), rnd.Next(0, 255));
                     var gen = new IdenticonGenerator()
                         .WithBlocks(7, 7)
                         .WithSize(128, 128)
-                        .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig);
-                        //.WithBackgroundColor(Color.White)
-                        //.WithBrushGenerator(new StaticColorBrushGenerator(Color.DodgerBlue));
+                        .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
+                        .WithBackgroundColor(Color.White)
+                        .WithBrushGenerator(new StaticColorBrushGenerator(color));
 
                     using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
                     {

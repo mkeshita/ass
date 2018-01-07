@@ -97,7 +97,7 @@ namespace norsu.ass
             var msg = (dislike ? "Dislike" : "Like");
             var toast = Toast.MakeText(Application.Context, msg, ToastLength.Short);
             
-            if (await Client.LikeSuggestion(SuggestionId, dislike))
+            if (await Client.LikeSuggestion(SuggestionId, dislike)!=null)
             {
                 toast.SetText(msg+ " successful");
                 

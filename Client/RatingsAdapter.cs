@@ -11,7 +11,7 @@ namespace norsu.ass
     {
         private List<OfficeRating> _items;
         private Activity _context;
-
+        
         public RatingsAdapter(Activity context, List<OfficeRating> items)
         {
             if (items == null)
@@ -34,6 +34,11 @@ namespace norsu.ass
 
             var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.RatingRow, null);
 
+            return GetView(convertView, item, _context);
+        }
+
+        public static View GetView(View view,OfficeRating item, Activity _context)
+        {
             view.FindViewById<TextView>(Resource.Id.name).Text = item.StudentName;
             view.FindViewById<TextView>(Resource.Id.message).Text = item.Message;
             view.FindViewById<RatingBar>(Resource.Id.rating).Rating = item.Rating;
@@ -47,13 +52,13 @@ namespace norsu.ass
                 Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived,
                     user =>
                     {
-                        if (user.UserId != item.UserId) return;
+                        if (user.UserId != item.UserId)
+                            return;
                         _context.RunOnUiThread(() =>
                             view.FindViewById<ImageView>(Resource.Id.picture)
                                 .SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length)));
                     });
             }
-            
             return view;
         }
     }

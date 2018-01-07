@@ -292,11 +292,11 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<OfficeRatings> GetRatings(long officeId)
+        public static async Task<OfficeRatings> GetRatings(long officeId, long count = -1)
         {
-            return await Instance._GetRatings(officeId);
+            return await Instance._GetRatings(officeId,count);
         }
-        private async Task<OfficeRatings> _GetRatings(long officeId)
+        private async Task<OfficeRatings> _GetRatings(long officeId,long count = -1)
         {
             if (Server == null)
                 await _FindServer();
@@ -316,7 +316,8 @@ namespace norsu.ass.Network
             await new GetRatings()
             {
                 OfficeId = officeId,
-                Session = Session
+                Session = Session,
+                Count = count
             }.Send(Server.IP, Server.Port);
             
             var start = DateTime.Now;
@@ -370,12 +371,12 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<Suggestions> GetSuggestions(long officeId)
+        public static async Task<Suggestions> GetSuggestions(long officeId, long count = -1)
         {
-            return await Instance._GetSuggestions(officeId);
+            return await Instance._GetSuggestions(officeId,count);
         }
 
-        private async Task<Suggestions> _GetSuggestions(long officeId)
+        private async Task<Suggestions> _GetSuggestions(long officeId, long count = -1)
         {
             if (Server == null)
                 await _FindServer();
@@ -396,6 +397,7 @@ namespace norsu.ass.Network
             {
                 OfficeId = officeId,
                 Session = Session,
+                Count = count,
             }.Send(Server.IP, Server.Port);
 
             var start = DateTime.Now;
@@ -479,20 +481,18 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<bool> LikeSuggestion(long suggestionId, bool dislike)
+        public static async Task<long?> LikeSuggestion(long suggestionId, bool dislike)
         {
             return await Instance._LikeSuggestion(suggestionId, dislike);
         }
-        private async Task<bool> _LikeSuggestion(long suggestionId, bool dislike)
+        private async Task<long?> _LikeSuggestion(long suggestionId, bool dislike)
         {
-            if (Server == null)
-                await _FindServer();
-            if (Server == null)
-                return false;
+            if (Server == null) await _FindServer();
+            if (Server == null) return null;
 
-            bool? result = null;
+            long? result = null;
 
-            NetworkComms.AppendGlobalIncomingPacketHandler<bool>(Requests.LIKE_SUGGESTION,
+            NetworkComms.AppendGlobalIncomingPacketHandler<long>(Requests.LIKE_SUGGESTION,
                 (h, c, res) =>
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(Requests.LIKE_SUGGESTION);
@@ -510,11 +510,11 @@ namespace norsu.ass.Network
             while ((DateTime.Now - start).TotalSeconds < 17)
             {
                 if (result != null)
-                    return result??false;
+                    return result;
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
             Server = null;
-            return false;
+            return null;
         }
 
         public static async Task<Comments> GetComments(long suggestionId)

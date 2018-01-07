@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.App;
 using Android.Graphics;
 using Android.Views;
@@ -34,25 +35,36 @@ namespace norsu.ass
 
             var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null);
 
+            return GetView(convertView, item, _context);
+        }
+
+        public static View GetView(View view, Suggestion item, Activity _context)
+        {
             var usr = Client.GetPicture(item.UserId);
             if (usr != null)
                 view.FindViewById<ImageView>(Resource.Id.userPicture)
                     .SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
             else
             {
-                Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived, 
+                Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived,
                     user =>
                     {
-                        if (user.UserId != item.Id) return;
-                        _context.RunOnUiThread(()=>
+                        if (user.UserId != item.Id)
+                            return;
+                        _context.RunOnUiThread(() =>
                             view.FindViewById<ImageView>(Resource.Id.userPicture)
                                 .SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length)));
                     });
             }
-            
+
             view.FindViewById<TextView>(Resource.Id.userName).Text = item.StudentName;
             view.FindViewById<TextView>(Resource.Id.title).Text = item.Title;
+            view.FindViewById<TextView>(Resource.Id.comments).Text = item.Comments.ToString();
             view.FindViewById<TextView>(Resource.Id.likes).Text = item.Likes.ToString();
+            view.FindViewById<ImageView>(Resource.Id.like)
+                .Click += async (sender, args) => await Client.LikeSuggestion(item.Id, false);
+            view.FindViewById<ImageView>(Resource.Id.dislike)
+                .Click += async (sender, args) => await Client.LikeSuggestion(item.Id, true);
 
             return view;
         }

@@ -1,8 +1,10 @@
-﻿using Android.App;
+﻿using System;
+using Android.App;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.App;
+using Android.Views;
 using Android.Widget;
 using norsu.ass.Network;
 
@@ -14,10 +16,10 @@ namespace norsu.ass
     {
 
         private ImageView _officePicture;
-        private TextView _officeShortName, _officeLongName, _officeRatingCount;
+        private TextView _officeShortName, _officeLongName, _officeRatingCount, _officeSuggestions;
         private RatingBar _officeRating;
         private Button _viewAllReviews,_viewAllSuggestions,_suggest,_review;
-        private ListView _reviews, _suggestions;
+        private LinearLayout _reviews, _suggestions;
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -32,14 +34,15 @@ namespace norsu.ass
             _officePicture = FindViewById<ImageView>(Resource.Id.officePicture);
             _officeShortName = FindViewById<TextView>(Resource.Id.officeShortName);
             _officeLongName = FindViewById<TextView>(Resource.Id.officeLongName);
+            _officeSuggestions = FindViewById<TextView>(Resource.Id.officeSuggestions);
             _officeRatingCount = FindViewById<TextView>(Resource.Id.officeRatingCount);
             _officeRating = FindViewById<RatingBar>(Resource.Id.officeRating);
             _viewAllReviews = FindViewById<Button>(Resource.Id.viewAllReviews);
             _viewAllSuggestions = FindViewById<Button>(Resource.Id.viewAllSuggestions);
             _suggest = FindViewById<Button>(Resource.Id.suggest);
             _review = FindViewById<Button>(Resource.Id.review);
-            _reviews = FindViewById<ListView>(Resource.Id.reviews);
-            _suggestions = FindViewById<ListView>(Resource.Id.suggestions);
+            _reviews = FindViewById<LinearLayout>(Resource.Id.reviews);
+            _suggestions = FindViewById<LinearLayout>(Resource.Id.suggestions);
 
 
             _viewAllSuggestions.Text = "VIEW ALL " + Client.SelectedOffice?.SuggestionsCount;
@@ -51,14 +54,35 @@ namespace norsu.ass
 
         private async void GetReviews()
         {
-            var result = await Client.GetRatings(Client.SelectedOffice.Id);
+            var result = await Client.GetRatings(Client.SelectedOffice.Id,7);
+            foreach (var item in result.Ratings)
+                _reviews.AddView(
+                    RatingsAdapter.GetView(
+                        LayoutInflater.Inflate(Resource.Layout.RatingRow, null, false),
+                        item,
+                        this
+                    )
+                );
 
-            var adapter = new RatingsAdapter(this, result.Ratings);
 
-            _reviews.Adapter = adapter;
+            var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,7);
+            
+            foreach (var item in suggestions.Items)
+                _suggestions.AddView(
+                    SuggestionsAdapter.GetView(
+                        LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false),
+                        item,
+                        this
+                    )
+                );
 
-            _suggestions.Adapter = new SuggestionsAdapter(this,
-                (await Client.GetSuggestions(Client.SelectedOffice.Id)).Items);
+        }
+        
+        private void SetListViewSize(ListView view)
+        {
+            var adapter = view.Adapter;
+            
+            
         }
 
         private void SetupOffice()
@@ -67,7 +91,8 @@ namespace norsu.ass
             _officeLongName.Text = Client.SelectedOffice.LongName;
             _officeRatingCount.Text = Client.SelectedOffice.RatingCount.ToString();
             _officeRating.Rating = Client.SelectedOffice.Rating;
-
+            _officeSuggestions.Text = Client.SelectedOffice.SuggestionsCount.ToString();
+            
             var pic = Client.GetOfficePicture(Client.SelectedOffice.Id);
 
             if(pic != null)
