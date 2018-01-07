@@ -22,20 +22,39 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <md:PackIcon Kind="Star" Height="64" Width="64" />
-            <StackPanel Orientation="Horizontal" Grid.Column="1">
-                <Viewbox Margin="0 0 20 0">
-                    <TextBlock Text="{Binding Offices/Rating,StringFormat={}0.0}"
-                               FontSize="47pt"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center" />
-                </Viewbox>
-                <StackPanel Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Offices/ShortName}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
-                    <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"/>
-                </StackPanel>
-               
+            <Image Source="pack://application:,,,/norsu.png"
+                   Height="100"
+                   Width="100"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding Offices/HasPicture,Converter={cnv:BooleanToVisibility Collapsed,Visible}}"/>
+            <Image Source="{Binding Offices/Picture,Converter={cnv:BytesToImage}}"
+                   Height="100"
+                   Width="100"
+                   VerticalAlignment="Center" />
+            <StackPanel Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center"
+                        x:Name="Panel">
+                <TextBlock Text="{Binding Offices/ShortName}"
+                           FontWeight="Bold"
+                               Style="{StaticResource MaterialDesignHeadlineTextBlock}" />
+                <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}" />
+                
+                    <StackPanel Orientation="Horizontal">
+                        <md:RatingBar Value="{Binding Offices/Rating}"
+                                      Margin="0 0 10 0"
+                                      IsHitTestVisible="False"/>
+                        
+                        <md:PackIcon Kind="Account"
+                                     VerticalAlignment="Center"
+                                     Margin="10 0 4 0"/>
+                        <TextBlock Text="{Binding Offices/RatingCount,StringFormat={}#\,##0}"
+                                   FontSize="10pt"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                        
+                    </StackPanel>
+                
             </StackPanel>
+            
             <ListBox Grid.Column="2" x:Name="Box"
                      VerticalAlignment="Center">
                 <ListBox.ItemsPanel>
@@ -43,7 +62,22 @@
                         <UniformGrid Rows="1"/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
-                <ListBoxItem IsSelected="True" >
+                <ListBoxItem IsSelected="True">
+                    <StackPanel>
+                        <md:PackIcon Kind="Information" Height="24" Width="24" HorizontalAlignment="Center"
+                                     Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
+                                            Path=IsSelected,Converter={cnv:BooleanToVisibility Collapsed,Visible}}" />
+                        <md:PackIcon Kind="Information" Height="24" Width="24" HorizontalAlignment="Center"
+                                     Foreground="{StaticResource PrimaryHueMidBrush}"
+                                     Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
+                                            Path=IsSelected,Converter={cnv:BooleanToVisibility}}" />
+                        <TextBlock Text="Information"
+                                   Margin="0 0 0 0" />
+                        <!--<Rectangle Fill="{StaticResource PrimaryHueDarkBrush}" Height="4"
+                                   Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsSelected,Converter={cnv:BooleanToVisibility}}"/>-->
+                    </StackPanel>
+                </ListBoxItem>
+                <ListBoxItem>
                     <StackPanel>
                         <md:PackIcon Kind="Message" Height="24" Width="24" HorizontalAlignment="Center"
                                      Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
@@ -77,6 +111,15 @@
         </Grid>
         <Grid Grid.Row="1">
         <md:Transitioner SelectedIndex="{Binding ElementName=Box,Path=SelectedIndex}">
+                <md:TransitionerSlide>
+                    <md:TransitionerSlide.ForwardWipe>
+                        <md:FadeWipe />
+                    </md:TransitionerSlide.ForwardWipe>
+                    <md:TransitionerSlide.BackwardWipe>
+                        <md:FadeWipe />
+                    </md:TransitionerSlide.BackwardWipe>
+                    <views:OfficeInfoView/>
+                </md:TransitionerSlide>
             <md:TransitionerSlide>
                     <md:TransitionerSlide.ForwardWipe>
                         <md:FadeWipe/>
@@ -84,100 +127,7 @@
                     <md:TransitionerSlide.BackwardWipe>
                         <md:FadeWipe/>
                     </md:TransitionerSlide.BackwardWipe>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <DataGrid ItemsSource="{Binding Suggestions}"
-                                  AutoGenerateColumns="False"
-                                  IsReadOnly="True"
-                                  RowDetailsVisibilityMode="VisibleWhenSelected"
-                                  CanUserDeleteRows="False"
-                                  CanUserAddRows="False">
-                            <DataGrid.RowDetailsTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Body}" TextWrapping="WrapWithOverflow"
-                                               Margin="10"/>
-                                </DataTemplate>
-                            </DataGrid.RowDetailsTemplate>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name"/>
-                                <DataGridTextColumn Header="Subject" Binding="{Binding Title}"/>
-                                <DataGridTextColumn Binding="{Binding Likes}" Header="{md:PackIcon ThumbUp}"/>
-                                <DataGridTextColumn Binding="{Binding Dislikes}" Header="{md:PackIcon ThumbDown}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                        <GroupBox Grid.Column="1" Padding="1">
-                            <GroupBox.Header>
-                                <StackPanel Orientation="Horizontal" Margin="10">
-                                    <md:PackIcon Kind="Comment" Foreground="White"/>
-                                    <TextBlock Text=" COMMENTS" Foreground="White"/>
-                                </StackPanel>
-                            </GroupBox.Header>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                <ItemsControl ItemsSource="{Binding Suggestions/Comments}"
-                                         ScrollViewer.CanContentScroll="False">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderThickness="0 0 0 1" BorderBrush="{StaticResource MaterialDesignDivider}">
-                                                <Grid Margin="10">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel Grid.RowSpan="2" Margin="0 0 20 0">
-                                                        <md:PackIcon Kind="Account" Height="48" Width="48"
-                                                                     Visibility="{Binding User.HasPicture,Converter={cnv:BooleanToVisibility Collapsed,Visible}}"
-                                                                     HorizontalAlignment="Center"/>
-                                                        <Image Source="{Binding User.Picture, Converter={cnv:BytesToImage}}"
-                                                               Stretch="UniformToFill"
-                                                               Height="48"
-                                                               Width="48"/>
-                                                        <TextBlock Text="{Binding User.Access}"
-                                                                   FontSize="7pt"
-                                                                   HorizontalAlignment="Center"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1">
-                                                        <TextBlock Text="{Binding User.Fullname}" 
-                                                                   FontWeight="Bold"/>
-                                                        <TextBlock Text="{Binding Message}"
-                                                                   TextWrapping="WrapWithOverflow" />
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                </ScrollViewer>
-                                <Grid Grid.Row="1" Margin="10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox md:HintAssist.Hint="Type your message here."
-                                             Text="{Binding ReplyText,UpdateSourceTrigger=PropertyChanged}"
-                                             x:Name="ReplyTextBox"
-                                             MaxHeight="74"
-                                             VerticalScrollBarVisibility="Auto"
-                                             HorizontalScrollBarVisibility="Disabled"
-                                             AcceptsReturn="True"/>
-                                    <Button Grid.Column="1" Margin="10 0 0 0" Command="{Binding ReplyCommand}"
-                                            VerticalAlignment="Top">
-                                        <StackPanel Orientation="Horizontal">
-                                            <md:PackIcon Kind="Send"/>
-                                            <TextBlock Text=" SEND"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </GroupBox>
-                    </Grid>
+                    <views:SuggestionsView/>
                 </md:TransitionerSlide>
             <md:TransitionerSlide>
                 <md:TransitionerSlide.ForwardWipe>

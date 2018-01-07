@@ -76,6 +76,8 @@ namespace norsu.ass.Server.ViewModels
 
         }));
 
+        
+
         private ICommand _logoutCommand;
 
         public ICommand LogoutCommand => _logoutCommand ?? (_logoutCommand = new DelegateCommand(d =>
@@ -235,8 +237,45 @@ namespace norsu.ass.Server.ViewModels
             OnPropertyChanged(nameof(ThreeStars));
             OnPropertyChanged(nameof(FourStars));
             OnPropertyChanged(nameof(FiveStars));
+            OnPropertyChanged(nameof(LatestRating));
+            OnPropertyChanged(nameof(LatestSuggestion));
+            OnPropertyChanged(nameof(TopSuggestion));
+            OfficeAdmins.Filter = FilterOfficeAdmins;
+        }
+
+        private bool FilterOfficeAdmins(object o)
+        {
+            if (Offices.CurrentItem == null) return false;
+            var adm = o as User;
+            return adm?.Access == User.AccessLevels.OfficeAdmin && adm?.OfficeId == ((Office) Offices.CurrentItem).Id;
+        }
+
+        private ListCollectionView _officeAdmins;
+
+        public ListCollectionView OfficeAdmins
+        {
+            get
+            {
+                if (_officeAdmins != null) return _officeAdmins;
+                _officeAdmins = new ListCollectionView(User.Cache);
+                _officeAdmins.Filter = FilterOfficeAdmins;
+                return _officeAdmins;
+            }
         }
         
+        public Rating LatestRating => Rating.Cache
+            .OrderByDescending(x => x.Time)
+            .FirstOrDefault(x => x.OfficeId ==((Office)Offices.CurrentItem).Id);
+
+        public Suggestion LatestSuggestion => Suggestion.Cache
+            .OrderByDescending(x => x.Time)
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices.CurrentItem).Id);
+        
+        public Suggestion TopSuggestion => Suggestion.Cache
+            .OrderByDescending(x => x.Votes)
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices.CurrentItem).Id);
+        
+        //  public long RatingCount => Rating.Cache.Count(d => d.OfficeId == ((Office) Offices.CurrentItem).Id);
         public long OneStar => Rating.Cache.Count(d=>d.Value==1 && d.OfficeId==((Office) Offices.CurrentItem).Id);
         public long TwoStars => Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
 

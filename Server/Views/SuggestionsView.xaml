@@ -1,0 +1,104 @@
+﻿<UserControl x:Class="norsu.ass.Server.Views.SuggestionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:norsu.ass.Server.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <DataGrid ItemsSource="{Binding Suggestions}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  RowDetailsVisibilityMode="VisibleWhenSelected"
+                                  CanUserDeleteRows="False"
+                                  CanUserAddRows="False">
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Body}" TextWrapping="WrapWithOverflow"
+                                               Margin="10"/>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Votes}" Header="Votes" />
+                <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name"/>
+                <DataGridTextColumn Header="Subject" Binding="{Binding Title}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <GroupBox Grid.Column="1" Padding="1">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal" Margin="10">
+                    <materialDesign:PackIcon Kind="Comment" Foreground="White"/>
+                    <TextBlock Text=" COMMENTS" Foreground="White"/>
+                </StackPanel>
+            </GroupBox.Header>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Suggestions/Comments}"
+                                         ScrollViewer.CanContentScroll="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="0 0 0 1" BorderBrush="{StaticResource MaterialDesignDivider}">
+                                    <Grid Margin="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.RowSpan="2" Margin="0 0 20 0">
+                                            <materialDesign:PackIcon Kind="Account" Height="48" Width="48"
+                                                                     Visibility="{Binding User.HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                                                                     HorizontalAlignment="Center"/>
+                                            <Image Source="{Binding User.Picture, Converter={converters:BytesToImage}}"
+                                                               Stretch="UniformToFill"
+                                                               Height="48"
+                                                               Width="48"/>
+                                            <TextBlock Text="{Binding User.Access}"
+                                                                   FontSize="7pt"
+                                                                   HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding User.Fullname}" 
+                                                                   FontWeight="Bold"/>
+                                            <TextBlock Text="{Binding Message}"
+                                                                   TextWrapping="WrapWithOverflow" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <Grid Grid.Row="1" Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox materialDesign:HintAssist.Hint="Type your message here."
+                                             Text="{Binding ReplyText,UpdateSourceTrigger=PropertyChanged}"
+                                             x:Name="ReplyTextBox"
+                                             MaxHeight="74"
+                                             VerticalScrollBarVisibility="Auto"
+                                             HorizontalScrollBarVisibility="Disabled"
+                                             AcceptsReturn="True"/>
+                    <Button Grid.Column="1" Margin="10 0 0 0" Command="{Binding ReplyCommand}"
+                                            VerticalAlignment="Top">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Send"/>
+                            <TextBlock Text=" SEND"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

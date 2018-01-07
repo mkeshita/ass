@@ -54,7 +54,7 @@ namespace norsu.ass.Network
 
             if (!Sessions.ContainsKey(i.Session))
                 return;
-            var usr = User.Cache.FirstOrDefault(x => x.Id == i.UserId);
+            var usr = User.GetById(i.UserId);
             if (usr == null) return;
             if (!usr.HasPicture)
             {
@@ -122,9 +122,8 @@ namespace norsu.ass.Network
             
             like.Dislike = i.Dislike;
             like.Save();
-            var likes = Like.Cache.Count(x => !x.Dislike && x.SuggestionId == i.SuggestionId) -
-                        Like.Cache.Count(x => x.Dislike && x.SuggestionId == i.SuggestionId);
-            await Packet.Send(Requests.LIKE_SUGGESTION, likes, dev.IP, dev.Port);
+            
+            await Packet.Send(Requests.LIKE_SUGGESTION, GetLikes(i.SuggestionId), dev.IP, dev.Port);
         }
 
         private void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
@@ -161,6 +160,22 @@ namespace norsu.ass.Network
 
             SendSuggestions(i.OfficeId, dev, student,i.Count);
         }
+        
+        private long GetLikes(long id)
+        {
+            while (true)
+            {
+                try
+                {
+                    return Like.Cache.Count(x => !x.Dislike && x.SuggestionId == id) -
+                            Like.Cache.Count(x => x.Dislike && x.SuggestionId == id);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+        }
 
         private async void SendSuggestions(long id, AndroidDevice dev, User student, long count = -1)
         {
@@ -169,18 +184,14 @@ namespace norsu.ass.Network
                 Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id)).ToList();
             foreach (var item in comments)
             {
-                var likes = Like.Cache.Count(x => !x.Dislike && x.SuggestionId == item.Id) -
-                            Like.Cache.Count(x => x.Dislike && x.SuggestionId == item.Id);
                 result.Items.Add(new Suggestion()
                 {
                     Body = item.Body,
                     StudentName = item.User.IsAnnonymous ? "Anonymous" : item.User.Fullname,
                     Title = item.Title,
-                    Likes = likes,
+                    Likes = GetLikes(item.Id),
                     Id = item.Id,
                     UserId = item.UserId,
-                 //   Liked = Like.Cache.Any(x=>x.SuggestionId == id && x.UserId == student.Id && !x.Dislike),
-                   // Disliked = Like.Cache.Any(x => x.SuggestionId == id && x.UserId == student.Id && x.Dislike)
                 });
                 if(count>0 && result.Items.Count>=count) break;
             }
@@ -291,7 +302,21 @@ namespace norsu.ass.Network
             foreach (var office in Models.Office.Cache)
             {
                 var ratings = Models.Rating.Cache.Where(x => x.OfficeId == office.Id).ToList();
-                var avgRating = ratings.Count>0 ? (float) ratings.Average(x => x.Value) : 0f;
+                var avgRating = 0f;
+                
+                while (true)
+                {
+                    try
+                    {
+                        avgRating = ratings.Count > 0 ? (float) ratings.Average(x => x.Value) : 0f;
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        //
+                    }
+                }
+                
                 offices.Items.Add(new Office()
                 {
                     Id = office.Id,

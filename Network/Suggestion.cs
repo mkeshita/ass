@@ -19,7 +19,7 @@ namespace norsu.ass.Network
         public string StudentName { get; set; }
 
         [ProtoMember(5)]
-        public int Likes { get; set; }
+        public long Likes { get; set; }
         
         [ProtoMember(6)]
         public int Dislikes { get; set; }
