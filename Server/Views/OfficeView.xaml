@@ -50,6 +50,13 @@
                                    FontSize="10pt"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center" />
+
+                    <Button Margin="20 0 0 0" Command="{Binding EditOfficeCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <md:PackIcon Kind="Pencil"/>
+                            <TextBlock Text=" UPDATE INFO"/>
+                        </StackPanel>
+                    </Button>
                         
                     </StackPanel>
                 

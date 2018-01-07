@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:norsu.ass.Server.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -33,9 +34,14 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Margin="4">
-                                <materialDesign:PackIcon Kind="Bank"
-                                                 Height="32" Width="32"
-                                                 HorizontalAlignment="Center"/>
+                                <Grid>
+                                    <materialDesign:PackIcon Kind="Bank"
+                                                             Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                                                     Height="32" Width="32"
+                                                     HorizontalAlignment="Center"/>
+                                    <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
+                                           Height="32" Width="32"/>
+                                </Grid>
                                 <TextBlock Text="{Binding ShortName}" TextAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
                                    MaxWidth="74"

@@ -362,5 +362,37 @@ namespace norsu.ass.Server.ViewModels
             }.Save();
             ReplyText = string.Empty;
         }));
+
+        private ICommand _editOfficeCommand;
+
+        public ICommand EditOfficeCommand => _editOfficeCommand ?? (_editOfficeCommand = new DelegateCommand(async d =>
+        {
+            var office = Offices.CurrentItem as Office;
+            if (office == null) return;
+            
+            var dummy = new Office()
+            {
+                ShortName = office.ShortName,
+                LongName = office.LongName,
+                Picture = office.Picture
+            };
+            
+            var dlg = new OfficeEditorDialog() {DataContext = dummy};
+
+            await DialogHost.Show(dlg, "DialogHost", (sender, args) =>
+            {
+                
+            }, (sender, args) =>
+            {
+                if (!(args.Parameter as bool?) ?? false) return;
+                
+                office.Picture = dummy.Picture;
+                office.ShortName = dummy.ShortName;
+                office.LongName = dummy.LongName;
+                office.Save();
+            });
+            
+
+        },d=>Offices.CurrentItem!=null));
     }
 }

@@ -9,8 +9,8 @@ namespace norsu.ass.Server.Converters
     {
         protected override object Convert(object value, Type targetType, object parameter)
         {
-            if (value == null) return Binding.DoNothing;
-
+            if (value == null) return null;
+            if ((value as byte[])?.Length == 0) return null;
             var bmp = new BitmapImage();
             bmp.BeginInit();
             bmp.CacheOption = BitmapCacheOption.OnLoad;

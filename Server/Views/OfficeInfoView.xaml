@@ -250,6 +250,9 @@
             </Grid.RowDefinitions>
                 <TextBlock Text="Office Administrators" Style="{StaticResource MaterialDesignTitleTextBlock}"/>
             <ListBoxItem Grid.Row="1" Margin="0 7 0 0">
+                <ListBoxItem.InputBindings>
+                    <MouseBinding MouseAction="LeftClick" Command="{Binding AddNewOfficeAdminCommand}"/>
+                </ListBoxItem.InputBindings>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
