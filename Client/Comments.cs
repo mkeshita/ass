@@ -9,7 +9,8 @@ using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Label = "RatingsActivity",ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
+    [Activity(Label = "RatingsActivity", Theme = "@style/Theme",
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class CommentsActivity : ListActivity
     {
@@ -130,7 +131,8 @@ namespace norsu.ass
 
             if (await Client.AddComment(SuggestionId, _comment.Text))
             {
-                Toast.MakeText(this, "Comment sent", ToastLength.Short);
+                Toast.MakeText(this, "Comment sent", ToastLength.Short).Show();
+                
                 _comments.Items.Add(new Comment()
                 {
                     Message = _comment.Text,

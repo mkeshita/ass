@@ -20,6 +20,9 @@ namespace norsu.ass.Network
         
         [ProtoMember(5)]
         public long ParentId { get; set; }
+
+        [ProtoMember(6)]
+        public long UserId { get; set; }
     }
 
     [ProtoContract]

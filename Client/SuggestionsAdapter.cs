@@ -33,11 +33,25 @@ namespace norsu.ass
             var item = _items[position];
 
             var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null);
+
+            var usr = Client.GetPicture(item.UserId);
+            if (usr != null)
+                view.FindViewById<ImageView>(Resource.Id.userPicture)
+                    .SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+            else
+            {
+                Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived, 
+                    user =>
+                    {
+                        if (user.UserId != item.Id) return;
+                        _context.RunOnUiThread(()=>
+                            view.FindViewById<ImageView>(Resource.Id.userPicture)
+                                .SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length)));
+                    });
+            }
             
-            view.FindViewById<TextView>(Resource.Id.name).Text = item.StudentName;
-            
+            view.FindViewById<TextView>(Resource.Id.userName).Text = item.StudentName;
             view.FindViewById<TextView>(Resource.Id.title).Text = item.Title;
-            view.FindViewById<TextView>(Resource.Id.dislikes).Text = item.Dislikes.ToString();
             view.FindViewById<TextView>(Resource.Id.likes).Text = item.Likes.ToString();
 
             return view;

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Android.Graphics;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
 using NetworkCommsDotNet.DPSBase;
@@ -29,6 +30,10 @@ namespace norsu.ass.Network
                 NetworkComms.DefaultSendReceiveOptions.DataProcessors, NetworkComms.DefaultSendReceiveOptions.Options);
 
             NetworkComms.AppendGlobalIncomingPacketHandler<ServerInfo>(ServerInfo.Header, ServerInfoReceived);
+            NetworkComms.AppendGlobalIncomingPacketHandler<UserPicture>(UserPicture.Header,
+                (h, c, res) =>AddPicture(res));
+            NetworkComms.AppendGlobalIncomingPacketHandler<OfficePicture>(OfficePicture.Header,
+                (h, c, res) => AddOfficePicture(res));
 
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
@@ -36,6 +41,46 @@ namespace norsu.ass.Network
             Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+        }
+        private readonly List<OfficePicture> OfficePictures = new List<OfficePicture>();
+        private void AddOfficePicture(OfficePicture picture)
+        {
+            while (true)
+            {
+                try
+                {
+                    var pic = OfficePictures.FirstOrDefault(x => x.OfficeId == picture.OfficeId);
+                    if (pic == null)
+                    {
+                        OfficePictures.Add(picture);
+                    }
+                    else
+                    {
+                        pic.Picture = pic.Picture;
+                    }
+                    Messenger.Default.Broadcast(Messages.OfficePictureReceived, pic);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+        }
+
+        public static OfficePicture GetOfficePicture(long officeId)
+        {
+            while (true)
+            {
+                try
+                {
+                    return Instance.OfficePictures.FirstOrDefault(x => x.OfficeId == officeId);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
         }
 
         ~Client()
@@ -77,6 +122,8 @@ namespace norsu.ass.Network
                 _server = value;
             }
         }
+
+        public static Office SelectedOffice { get; set; }
 
         private void ServerInfoReceived(PacketHeader packetheader, Connection connection, ServerInfo incomingobject)
         {
@@ -334,6 +381,7 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(Suggestions.Header);
                     result = res;
+                    FetchUserPictures(res.Items.Select(x=>x.UserId));
                 });
 
             await new GetSuggestions()
@@ -351,6 +399,28 @@ namespace norsu.ass.Network
             }
             Server = null;
             return null;
+        }
+        
+        private async void FetchUserPictures(IEnumerable<long> userIds)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null) return;
+           
+            try
+            {
+                foreach (var id in userIds)
+                {
+                    if(Pictures.Any(x=>x.UserId==id)) continue;
+                    await new GetPicture() {Session = Session, UserId = id}
+                        .Send(Server.IP,Server.Port);
+                }
+            }
+            catch (Exception e)
+            {
+               //
+            }
+            
         }
 
         public static async Task<Suggestions> Suggest(long officeId, string subject, string body,bool isPrivate)
@@ -450,6 +520,7 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(Comments.Header);
                     result = res;
+                    FetchUserPictures(res.Items.Select(x => x.UserId));
                 });
 
             await new GetComments()
@@ -507,5 +578,51 @@ namespace norsu.ass.Network
             return false;
 
         }
+
+        private readonly List<UserPicture> Pictures = new List<UserPicture>();
+
+        private void AddPicture(UserPicture picture)
+        {
+            while (true)
+            {
+                try
+                {
+                    var pic = Pictures.FirstOrDefault(x => x.UserId == picture.UserId);
+                    if (pic == null)
+                    {
+                        Pictures.Add(picture);
+                    }
+                    else
+                    {
+                        pic.Picture = pic.Picture;
+                    }
+                    Messenger.Default.Broadcast(Messages.PictureReceived, pic);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+        }
+
+        public static UserPicture GetPicture(long userId)
+        {
+            while (true)
+            {
+                try
+                {
+                    var pic = Instance.Pictures.FirstOrDefault(x => x.UserId == userId);
+                    if (pic != null) return pic;
+                    break;
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+            return null;
+        }
+        
     }
 }

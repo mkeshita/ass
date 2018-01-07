@@ -17,6 +17,9 @@ namespace norsu.ass.Network
         
         [ProtoMember(4)]
         public long Id { get; set; }
+
+        [ProtoMember(5)]
+        public long RatingCount { get; set; } = 0;
     }
 
     [ProtoContract]

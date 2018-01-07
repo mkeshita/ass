@@ -82,7 +82,7 @@ namespace norsu.ass
             }
             else
             {
-                Toast.MakeText(Activity, "Rating successfully submitted.", ToastLength.Short);
+                Toast.MakeText(Activity, "Rating successfully submitted.", ToastLength.Short).Show();
                 ListAdapter = new RatingsAdapter(Activity,result.Ratings);
             }
             

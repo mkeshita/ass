@@ -38,10 +38,29 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<AddComment>(AddComment.Header, AddCommentHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetSuggestions>(GetSuggestions.Header,GetSuggestionsHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<Suggest>(Suggest.Header,SuggestionHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetPicture>(GetPicture.Header, GetPictureHandler);
+
             NetworkComms.AppendGlobalIncomingPacketHandler<LikeSuggestion>(LikeSuggestion.Header, LikeSuggestionHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void GetPictureHandler(PacketHeader packetheader, Connection connection, GetPicture i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null)
+                return;
+
+            if (!Sessions.ContainsKey(i.Session))
+                return;
+            var usr = User.Cache.FirstOrDefault(x => x.Id == i.UserId);
+            if (usr == null) return;
+            await new UserPicture()
+            {
+                UserId = usr.Id,
+                Picture = usr.Picture,
+            }.Send(dev.IP,dev.Port);
         }
 
         private async void AddCommentHandler(PacketHeader packetheader, Connection connection, AddComment i)
@@ -137,6 +156,7 @@ namespace norsu.ass.Network
                     Likes = item.Likes,
                     Dislikes = item.Dislikes,
                     Id = item.Id,
+                    UserId = item.UserId,
                  //   Liked = Like.Cache.Any(x=>x.SuggestionId == id && x.UserId == student.Id && !x.Dislike),
                    // Disliked = Like.Cache.Any(x => x.SuggestionId == id && x.UserId == student.Id && x.Dislike)
                 });
@@ -168,7 +188,8 @@ namespace norsu.ass.Network
                     Message = comment.Message,
                     ParentId = comment.ParentId,
                     Sender = comment.User.IsAnnonymous ? "Anonymous" : comment.User.Fullname,
-                    SuggestionId = id
+                    SuggestionId = id,
+                    UserId = comment.UserId,
                 });
             }
             await result.Send(dev.IP, dev.Port);

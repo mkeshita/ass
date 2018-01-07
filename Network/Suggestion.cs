@@ -34,6 +34,9 @@ namespace norsu.ass.Network
         public long Id { get; set; }
 
         public int RowId { get; set; }
+        
+        [ProtoMember(10)]
+        public long UserId { get; set; }
     }
 
     [ProtoContract]

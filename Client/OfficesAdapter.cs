@@ -34,8 +34,10 @@ namespace norsu.ass
 
             var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.OfficesRow, null);
 
-            view.FindViewById<TextView>(Resource.Id.name).Text = item.ShortName;
-            view.FindViewById<RatingBar>(Resource.Id.rating).Rating = item.Rating;
+            view.FindViewById<TextView>(Resource.Id.officeShortName).Text = item.ShortName;
+            view.FindViewById<TextView>(Resource.Id.officeLongName).Text = item.LongName;
+            view.FindViewById<RatingBar>(Resource.Id.officeRating).Rating = item.Rating;
+            view.FindViewById<TextView>(Resource.Id.officeRatingCount).Text = item.RatingCount.ToString();
 
             return view;
         }

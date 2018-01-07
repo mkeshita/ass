@@ -10,7 +10,7 @@ using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Label = "Username", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
+    [Activity(Label = "Username", Theme = "@style/Theme", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class OfficesActivity : ListActivity
     {
@@ -54,10 +54,8 @@ namespace norsu.ass
             base.OnListItemClick(l, v, position, id);
             var office = ((OfficesAdapter) ListAdapter)[position];
             
-            var intent = new Intent(Application.Context, typeof(RatingsActivity));
-            intent.PutExtra("name", office.ShortName);
-            intent.PutExtra("officeId", office.Id);
-            StartActivity(intent);
+            Client.SelectedOffice = office;
+            StartActivity(typeof(OfficeActivity));
             
         }
     }
