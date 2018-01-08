@@ -1,0 +1,7 @@
+[submodule "NetworkComms.Net"]
+	path = NetworkComms.Net
+	url = https://github.com/awooo-ph/NetworkComms.Net.git
+[submodule "MaterialDesignInXamlToolkit"]
+	path = MaterialDesignInXamlToolkit
+	url = https://github.com/awooo-ph/MaterialDesignInXamlToolkit.git
+	branch = net40
