@@ -11,7 +11,7 @@ using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass
 {
-    [Activity(Icon = "@drawable/ic_launcher",Label = "NORSU ASS",  Theme = "@style/AppTheme.Splash", MainLauncher = true,
+    [Activity(Icon = "@drawable/ic_launcher",  Theme = "@style/AppTheme.Splash", MainLauncher = true,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
     public class MainActivity : Activity
     {

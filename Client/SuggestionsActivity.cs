@@ -13,7 +13,7 @@ using Android.Widget;
 
 namespace norsu.ass
 {
-    [Activity(Label = "SuggestionsActivity")]
+    [Activity()]
     public class SuggestionsActivity : AppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)

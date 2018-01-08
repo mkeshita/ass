@@ -3421,6 +3421,9 @@ namespace norsu.ass
 			// aapt resource value: 0x7f080012
 			public const int abc_toolbar_collapse_description = 2131230738;
 			
+			// aapt resource value: 0x7f08002c
+			public const int app_description = 2131230764;
+			
 			// aapt resource value: 0x7f08002b
 			public const int app_name = 2131230763;
 			

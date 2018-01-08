@@ -14,7 +14,7 @@ using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass
 {
-    [Activity(Label = "Username", Theme = "@style/AppTheme.NoActionBar", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
+    [Activity(Theme = "@style/AppTheme.NoActionBar", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class OfficesActivity : Activity
     {

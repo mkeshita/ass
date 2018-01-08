@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">ASS Client</string>
+  <string name="app_name">Insight</string>
+  <string name="app_description">NORSU-G Suggestion App</string>
 </resources>
