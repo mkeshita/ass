@@ -91,7 +91,7 @@ namespace norsu.ass.Server.ViewModels
         public ICommand LoginCommand => _loginCommand ?? (_loginCommand = new DelegateCommand<PasswordBox>(d =>
         {
             var user = Models.User.Cache.FirstOrDefault(x => x.Username?.ToLower() == Username.ToLower());
-            if (user == null && Models.User.Cache.Count(x => x.Access == User.AccessLevels.SuperAdmin) == 0)
+            if (user == null && Models.User.Cache.Count(x => x.Access == AccessLevels.SuperAdmin) == 0)
             {
                 var gen = new IdenticonGenerator()
                     .WithBlocks(7, 7)
@@ -109,7 +109,7 @@ namespace norsu.ass.Server.ViewModels
                         {
                             Username = Username,
                             Password = d.Password,
-                            Access = User.AccessLevels.SuperAdmin,
+                            Access = AccessLevels.SuperAdmin,
                             Picture = stream.ToArray(),
                         };
                         user.Save();
@@ -247,7 +247,7 @@ namespace norsu.ass.Server.ViewModels
         {
             if (Offices.CurrentItem == null) return false;
             var adm = o as User;
-            return adm?.Access == User.AccessLevels.OfficeAdmin && adm?.OfficeId == ((Office) Offices.CurrentItem).Id;
+            return adm?.Access == AccessLevels.OfficeAdmin && adm?.OfficeId == ((Office) Offices.CurrentItem).Id;
         }
 
         private ListCollectionView _officeAdmins;
@@ -258,6 +258,10 @@ namespace norsu.ass.Server.ViewModels
             {
                 if (_officeAdmins != null) return _officeAdmins;
                 _officeAdmins = new ListCollectionView(User.Cache);
+                User.Cache.CollectionChanged += (sender, args) =>
+                {
+                    _officeAdmins.Filter = FilterOfficeAdmins;
+                };
                 _officeAdmins.Filter = FilterOfficeAdmins;
                 return _officeAdmins;
             }
@@ -394,5 +398,31 @@ namespace norsu.ass.Server.ViewModels
             
 
         },d=>Offices.CurrentItem!=null));
+
+        private ICommand _AddNewOfficeAdminCommand;
+
+        public ICommand AddNewOfficeAdminCommand =>
+            _AddNewOfficeAdminCommand ?? (_AddNewOfficeAdminCommand = new DelegateCommand(
+                async d =>
+                {
+                    var dummy = new User()
+                    {
+                        Access = AccessLevels.OfficeAdmin,
+                        OfficeId = ((Office)Offices.CurrentItem).Id
+                    };
+                    
+                    var dlg = new UserEditorDialog("NEW OFFICE ADMIN", dummy, Visibility.Collapsed);
+
+                    await DialogHost.Show(dlg, "DialogHost", (sender, args) =>
+                    {
+
+                    }, (sender, args) =>
+                    {
+                        if (!(args.Parameter as bool?) ?? false)
+                            return;
+                        
+                        dummy.Save();
+                    });
+                }));
     }
 }

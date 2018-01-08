@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,7 +11,22 @@ namespace norsu.ass.Server
 {
     static class ImageProcessor
     {
+        public const string ACCEPTED_EXTENSIONS = @".BMP.JPG.JPEG.GIF.PNG.BMP.DIB.RLE.JPE.JFIF";
+
+        public static bool IsAccepted(string file)
+        {
+            if (file == null) return false;
+            var ext = System.IO.Path.GetExtension(file)?.ToUpper();
+            return File.Exists(file) && (ACCEPTED_EXTENSIONS.Contains(ext));
+            
+        }
+
         public static Image Resize(Image imgPhoto, int size)
+        {
+            return Resize(imgPhoto, size, Color.White);
+        }
+
+        public static Image Resize(Image imgPhoto, int size, Color background)
         {
             var sourceWidth = imgPhoto.Width;
             var sourceHeight = imgPhoto.Height;
@@ -36,7 +52,7 @@ namespace norsu.ass.Server
 
             var grPhoto = Graphics.FromImage(bmPhoto);
             grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            grPhoto.Clear(Color.White);
+            grPhoto.Clear(background);
             grPhoto.DrawImage(imgPhoto,
                 new Rectangle(destX, destY, destWidth, destHeight),
                 new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),

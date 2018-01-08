@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Windows;
 
 namespace norsu.ass.Server.Converters
@@ -75,5 +76,6 @@ namespace norsu.ass.Server.Converters
                 return value.Equals(Operand) ? FalseValue : TrueValue;
             return value.Equals(Operand) ? TrueValue : FalseValue;
         }
+        
     }
 }

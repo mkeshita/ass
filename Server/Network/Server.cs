@@ -365,7 +365,7 @@ namespace norsu.ass.Network
                             {
                                 Username = request.Username,
                                 Password = request.Password,
-                                Access = User.AccessLevels.Student,
+                                Access = AccessLevels.Student,
                                 IsAnnonymous = true,
                                 Picture = stream.ToArray(),
                             };
