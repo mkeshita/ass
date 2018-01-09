@@ -3,20 +3,25 @@
                     xmlns:local="clr-namespace:norsu.ass.Server.Views"
                     xmlns:vm="clr-namespace:norsu.ass.Server.ViewModels"
                     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:converters="clr-namespace:norsu.ass.Server.Converters">
     <DataTemplate DataType="{x:Type vm:NewOfficeViewModel}">
         <StackPanel MinWidth="471">
             <TextBlock Text="NEW OFFICE" Style="{StaticResource MaterialDesignTitleTextBlock}"
+                       Foreground="{StaticResource PrimaryHueLightBrush}"
                        Margin="20"/>
+            <Rectangle Fill="{StaticResource PrimaryHueLightBrush}" Height="2"/>
             <TextBox Text="{Binding ShortName,UpdateSourceTrigger=PropertyChanged}"
+                     MaxLength="74"
                      materialDesign:HintAssist.Hint="SHORT NAME"
                      materialDesign:HintAssist.IsFloating="True"
-                     Margin="20"/>
+                     Margin="40 10"/>
             <TextBox Text="{Binding LongName,UpdateSourceTrigger=PropertyChanged}"
+                     MaxLength="174"
                      materialDesign:HintAssist.Hint="LONG NAME"
                      materialDesign:HintAssist.IsFloating="True"
-                     Margin="20" />
-            <UniformGrid Margin="20" Columns="2">
+                     Margin="40 10" />
+            <UniformGrid Margin="0 20 0 0" Rows="1">
                 <Button Margin="0 20 10 0" Content="CANCEL" IsCancel="True"
                         Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
                         Style="{StaticResource MaterialDesignFlatButton}">
@@ -26,6 +31,7 @@
                 </Button>
                 <Button Margin="0 20 10 0" Content="ACCEPT" IsDefault="True"
                         Style="{StaticResource MaterialDesignFlatButton}" 
+                        IsEnabled="{Binding HasError,Converter={converters:Inverter}}"
                         Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
                     <Button.CommandParameter>
                         <system:Boolean>True</system:Boolean>

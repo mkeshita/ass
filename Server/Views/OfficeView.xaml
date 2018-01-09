@@ -31,36 +31,43 @@
                    Height="100"
                    Width="100"
                    VerticalAlignment="Center" />
-            <StackPanel Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center"
+            <Grid Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center"
                         x:Name="Panel">
-                <TextBlock Text="{Binding Offices/ShortName}"
-                           FontWeight="Bold"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <WrapPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Offices/ShortName}"
+                               FontWeight="Bold"
                                Style="{StaticResource MaterialDesignHeadlineTextBlock}" />
-                <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}" />
+                    <Button Margin="20 0 0 0" Command="{Binding EditOfficeCommand}"
+                            VerticalAlignment="Bottom"
+                            Style="{StaticResource MaterialDesignFlatAccentButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <md:PackIcon Kind="Pencil" />
+                            <TextBlock Text=" Edit" />
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
                 
-                    <StackPanel Orientation="Horizontal">
-                        <md:RatingBar Value="{Binding Offices/Rating}"
+                <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                           Grid.Row="1"/>
+                <WrapPanel Orientation="Horizontal" Grid.Row="2">
+                    <md:RatingBar Value="{Binding Offices/Rating}"
                                       Margin="0 0 10 0"
                                       IsHitTestVisible="False"/>
-                        
-                        <md:PackIcon Kind="Account"
+
+                    <md:PackIcon Kind="Account"
                                      VerticalAlignment="Center"
                                      Margin="10 0 4 0"/>
-                        <TextBlock Text="{Binding Offices/RatingCount,StringFormat={}#\,##0}"
+                    <TextBlock Text="{Binding Offices/RatingCount,StringFormat={}#\,##0}"
                                    FontSize="10pt"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center" />
-
-                    <Button Margin="20 0 0 0" Command="{Binding EditOfficeCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <md:PackIcon Kind="Pencil"/>
-                            <TextBlock Text=" UPDATE INFO"/>
-                        </StackPanel>
-                    </Button>
-                        
-                    </StackPanel>
-                
-            </StackPanel>
+                </WrapPanel>
+            </Grid>
             
             <ListBox Grid.Column="2" x:Name="Box"
                      VerticalAlignment="Center">
@@ -158,10 +165,10 @@
                             </Grid>
                         </Viewbox>
                         <DataGrid ItemsSource="{Binding Ratings}" Grid.Column="0"
-                          AutoGenerateColumns="False"
-                          CanUserAddRows="False"
-                          CanUserDeleteRows="False"
-                          IsReadOnly="True">
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn SortMemberPath="Value" Header="Rating">
                                     <DataGridTemplateColumn.CellTemplate>

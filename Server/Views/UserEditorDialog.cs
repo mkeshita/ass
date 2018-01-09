@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -17,12 +18,16 @@ namespace norsu.ass.Server.Views
     /// </summary>
     public partial class UserEditorDialog : UserControl
     {
-        public UserEditorDialog(string title, User dataContext, Visibility levelSelectorVisibility = Visibility.Collapsed)
+        public UserEditorDialog(string title, User user, Visibility levelSelectorVisibility = Visibility.Collapsed)
         {
             InitializeComponent();
             Title.Text = title;
-            DataContext = dataContext;
+            DataContext = user;
             AccessListBox.Visibility = levelSelectorVisibility;
+            user.PropertyChanged += (sender, args) =>
+            {
+                Button.IsEnabled = user.CanSave();
+            };
         }
 
         private void UIElement_OnPreviewDrop(object sender, DragEventArgs e)
@@ -47,7 +52,7 @@ namespace norsu.ass.Server.Views
             var rnd = new Random();
             var gen = new IdenticonGenerator()
                 .WithBlocks(7, 7)
-                .WithSize(128, 128)
+                .WithSize(174, 174)
                 .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
                 .WithBackgroundColor(Color.White)
                 .WithBrushGenerator(new StaticColorBrushGenerator(Color.FromArgb(255,rnd.Next(0,255),rnd.Next(0,255),rnd.Next(0,255))));
@@ -88,22 +93,11 @@ namespace norsu.ass.Server.Views
                 }
             }
         }
-
-        private void PasswordBox2_OnPasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (PasswordBox.Password != PasswordBox2.Password)
-            {
-                Button.IsEnabled = false;
-                return;
-            }
-
-            ((User) DataContext).Password = PasswordBox.Password;
-            Button.IsEnabled = true;
-        }
         
         private void Button_OnClick(object sender, RoutedEventArgs e)
         {
             var usr  = (User) DataContext;
+            if (string.IsNullOrEmpty(usr.Username)) return;
             if (!usr.CanSave()) return;
             if (usr.Id == 0 && User.Cache.Any(x => x.Username.ToLower() == usr.Username.ToLower()))
             {
