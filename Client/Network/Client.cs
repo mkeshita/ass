@@ -262,6 +262,40 @@ namespace norsu.ass.Network
             return null;
         }
 
+        private async void FetchOfficePicture(long id)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return;
+            if (OfficePictures.Any(x => x.OfficeId == id)) return;
+            await new GetOfficePicture() {Session = Session, OfficeId = id}.Send(Server.IP, Server.Port);
+        }
+
+        private async void FetchOfficePictures(IEnumerable<long> officeIds)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return;
+
+            try
+            {
+                foreach (var id in officeIds)
+                {
+                    if (OfficePictures.Any(x => x.OfficeId == id))
+                        continue;
+                    await new GetOfficePicture() {Session = Session, OfficeId = id}
+                        .Send(Server.IP, Server.Port);
+                }
+            }
+            catch (Exception e)
+            {
+                //
+            }
+
+        }
+
         public static async Task<Offices> GetOffices()
         {
             return await Instance._GetOffices();
@@ -277,6 +311,7 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(Offices.Header);
                     result = res;
+                    FetchOfficePictures(res.Items.Select(x => x.Id));
                 });
 
             await Packet.Send(Requests.GET_OFFICES,Server.IP,Server.Port);

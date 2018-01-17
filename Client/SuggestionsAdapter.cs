@@ -66,32 +66,42 @@ namespace norsu.ass
             view.FindViewById<ImageView>(Resource.Id.like)
                 .Click += async (sender, args) =>
             {
+                if (item.Liked) return;
+                item.Liked = true;
                 var votes = await Client.LikeSuggestion(item.Id, false);
                 var msg = "";
                 if (votes == null)
                 {
                     msg = "Up vote failed";
+                    item.Liked = false;
                 }
                 else
                 {
                     msg = "Up vote successful";
-                    likes.Text = votes.ToString();
+                    _context.RunOnUiThread(()=>likes.Text = votes.ToString());
+                    item.Liked = true;
+                    item.Disliked = false;
                 }
                 Toast.MakeText(_context,msg,ToastLength.Short).Show();
             };
             view.FindViewById<ImageView>(Resource.Id.dislike)
                 .Click += async (sender, args) =>
             {
+                if (item.Disliked) return;
+                item.Disliked = true;
                 var votes = await Client.LikeSuggestion(item.Id, true);
                 var msg = "";
                 if (votes == null)
                 {
                     msg = "Down vote failed";
+                    item.Disliked = false;
                 }
                 else
                 {
                     msg = "Down vote successful";
-                    likes.Text = votes.ToString();
+                    _context.RunOnUiThread(() => likes.Text = votes.ToString());
+                    item.Disliked = true;
+                    item.Liked = false;
                 }
                 Toast.MakeText(_context, msg, ToastLength.Short).Show();
             };

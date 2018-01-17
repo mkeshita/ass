@@ -39,11 +39,31 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<GetSuggestions>(GetSuggestions.Header,GetSuggestionsHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<Suggest>(Suggest.Header,SuggestionHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetPicture>(GetPicture.Header, GetPictureHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetOfficePicture>(GetOfficePicture.Header, GetOfficePictureHandler);
 
             NetworkComms.AppendGlobalIncomingPacketHandler<LikeSuggestion>(LikeSuggestion.Header, LikeSuggestionHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void GetOfficePictureHandler(PacketHeader packetheader, Connection connection, GetOfficePicture i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null)
+                return;
+
+            if (!Sessions.ContainsKey(i.Session)) return;
+            var office = Models.Office.GetById(i.OfficeId);
+            if (office == null) return;
+
+            if (!office.HasPicture) return;
+            
+            await new OfficePicture()
+            {
+                OfficeId = office.Id,
+                Picture = office.Picture,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void GetPictureHandler(PacketHeader packetheader, Connection connection, GetPicture i)
