@@ -139,11 +139,13 @@ namespace norsu.ass.Network
                 SuggestionId = i.SuggestionId,
                 UserId = student.Id
             };
-            
+
+            var likes = GetLikes(i.SuggestionId);
             like.Dislike = i.Dislike;
             like.Save();
+            likes = GetLikes(i.SuggestionId);
             
-            await Packet.Send(Requests.LIKE_SUGGESTION, GetLikes(i.SuggestionId), dev.IP, dev.Port);
+            await Packet.Send(Requests.LIKE_SUGGESTION, likes, dev.IP, dev.Port);
         }
 
         private void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
@@ -201,7 +203,8 @@ namespace norsu.ass.Network
         {
             var result = new Suggestions();
             var comments = Models.Suggestion.Cache.
-                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id)).ToList();
+                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id))
+                .OrderByDescending(x=> GetLikes(x.Id)).ToList();
             foreach (var item in comments)
             {
                 result.Items.Add(new Suggestion()
@@ -215,6 +218,7 @@ namespace norsu.ass.Network
                 });
                 if(count>0 && result.Items.Count>=count) break;
             }
+            result.TotalCount = Models.Suggestion.Cache.Count(x => x.OfficeId == id);
             await result.Send(dev.IP, dev.Port);
         }
 
@@ -283,14 +287,31 @@ namespace norsu.ass.Network
             studentRating.Value = rating.Rating;
             studentRating.Save();
 
-            SendRatings(rating.OfficeId, dev, student);
+            SendRatings(rating.OfficeId, dev, student, rating.ReturnCount);
         }
 
         private async void SendRatings(long officeId, AndroidDevice dev, User user, long count = -1)
         {
             var result = new OfficeRatings();
             result.OfficeId = officeId;
-            var ratings = Models.Rating.Cache.Where(x => x.OfficeId == officeId).ToList();
+
+            var myRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == officeId && x.UserId == user.Id);
+            if(myRating!=null)
+                result.Ratings.Add(
+                    new OfficeRating()
+                    {
+                        IsPrivate = myRating.IsPrivate,
+                        Rating = myRating.Value,
+                        Message = myRating.Message,
+                        OfficeId = myRating.OfficeId,
+                        StudentName = user.IsAnnonymous ? "Anonymous" : user?.Fullname,
+                        MyRating = true,
+                        UserId = user.Id,
+                    }
+                );
+
+            var ratings = Models.Rating.Cache.Where(x => x.OfficeId == officeId && x.UserId != user.Id && !x.IsPrivate)
+                .OrderByDescending(x=>x.Id).ToList();
 
             foreach (var item in ratings)
             {
@@ -309,7 +330,8 @@ namespace norsu.ass.Network
                 );
                 if(count>0 && result.Ratings.Count>=count) break;
             }
-
+            result.TotalCount = Models.Rating.Cache.Count(x => x.OfficeId == officeId);
+            result.Rating = Models.Rating.Cache.Where(x => x.OfficeId == officeId).Average(x => x.Value * 1f);
             await result.Send(dev.IP, dev.Port);
         }
 

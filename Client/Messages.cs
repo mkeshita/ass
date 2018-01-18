@@ -3,6 +3,7 @@
     public enum Messages : byte
     {
         PictureReceived,
-        OfficePictureReceived
+        OfficePictureReceived,
+        OfficeUpdate
     }
 }

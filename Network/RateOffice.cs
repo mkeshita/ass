@@ -22,5 +22,8 @@ namespace norsu.ass.Network
 
         [ProtoMember(5)]
         public bool IsPrivate { get; set; }
+
+        [ProtoMember(6)]
+        public long ReturnCount { get; set; } = -1;
     }
 }

@@ -37,8 +37,11 @@ namespace norsu.ass
 
             view.FindViewById<TextView>(Resource.Id.officeShortName).Text = item.ShortName;
             view.FindViewById<TextView>(Resource.Id.officeLongName).Text = item.LongName;
-            view.FindViewById<RatingBar>(Resource.Id.officeRating).Rating = item.Rating;
-            view.FindViewById<TextView>(Resource.Id.officeRatingCount).Text = item.RatingCount.ToString();
+            var ratingBar  = view.FindViewById<RatingBar>(Resource.Id.officeRating);
+            ratingBar.Rating = item.Rating;
+            
+            var ratingCount = view.FindViewById<TextView>(Resource.Id.officeRatingCount);
+            ratingCount.Text = item.RatingCount.ToString();
 
             var pic = view.FindViewById<ImageView>(Resource.Id.officePicture);
             var usr = Client.GetOfficePicture(item.Id);
@@ -55,6 +58,19 @@ namespace norsu.ass
                     });
             }
 
+            Messenger.Default.AddListener<Office>(Messages.OfficeUpdate,
+                office =>
+                {
+                    if (office.Id != item.Id)
+                        return;
+                    _context.RunOnUiThread(() =>
+                    {
+                        ratingBar.Rating = office.Rating;
+                        ratingCount.Text = office.RatingCount.ToString("#,##0");
+                        
+                    });
+                });
+            
             return view;
         }
     }

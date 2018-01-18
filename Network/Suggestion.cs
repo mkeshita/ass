@@ -63,6 +63,9 @@ namespace norsu.ass.Network
 
         [ProtoMember(2)]
         public List<Suggestion> Items { get; set; } = new List<Suggestion>();
+
+        [ProtoMember(3)]
+        public long TotalCount { get; set; }
     }
 
     [ProtoContract]

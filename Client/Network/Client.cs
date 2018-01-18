@@ -345,6 +345,10 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
                     result = res;
+                    
+                    var rating = res.Ratings.FirstOrDefault(x => x.MyRating);
+                    if(rating!=null) AddRating(rating.OfficeId,rating);
+                    
                     FetchUserPictures(res.Ratings.Select(x=>x.UserId));
                 });
 
@@ -366,11 +370,11 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<OfficeRatings> RateOffice(long officeId, int rating, string message, bool isPrivate)
+        public static async Task<OfficeRatings> RateOffice(long officeId, int rating, string message, bool isPrivate, long returnCount = -1)
         {
-            return await Instance._RateOffice(officeId, rating, message, isPrivate);
+            return await Instance._RateOffice(officeId, rating, message, isPrivate, returnCount);
         }
-        private async Task<OfficeRatings> _RateOffice(long officeId, int rating, string message, bool isPrivate = false)
+        private async Task<OfficeRatings> _RateOffice(long officeId, int rating, string message, bool isPrivate = false, long returnCount = -1)
         {
             if (Server == null)
                 await _FindServer();
@@ -393,6 +397,7 @@ namespace norsu.ass.Network
                 OfficeId = officeId,
                 Rating = rating,
                 Session = Session,
+                ReturnCount = returnCount,
             }.Send(Server.IP, Server.Port);
             
             var start = DateTime.Now;
@@ -673,6 +678,35 @@ namespace norsu.ass.Network
             }
             return null;
         }
+
+        private Dictionary<long,OfficeRating> MyRatings = new Dictionary<long, OfficeRating>();
+
+        private void AddRating(long id, OfficeRating rating)
+        {
+            if (MyRatings.ContainsKey(id))
+                MyRatings[id] = rating;
+            else
+                MyRatings.Add(id,rating);
+        }
         
+        public static OfficeRating GetMyRating(long id)
+        {
+            return Instance._GetMyRating(id);
+        }
+
+        private OfficeRating _GetMyRating(long id)
+        {
+            while (true)
+            {
+                try
+                {
+                    return MyRatings[id];
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+        }
     }
 }

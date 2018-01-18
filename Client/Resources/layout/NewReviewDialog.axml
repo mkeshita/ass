@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+  <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+    <LinearLayout
+        android:padding="20dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+      <ImageView
+          android:id="@+id/officePicture"
+          android:layout_marginRight="10dp"
+          android:layout_width="48dp"
+          android:layout_height="48dp" />
+      <LinearLayout
+          android:orientation="vertical"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/officeShortName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Short Name"
+            android:textColor="@color/primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+        <TextView
+            android:text="Long Name"
+            android:textSize="15sp"
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/primary"
+            android:id="@+id/officeLongName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+      </LinearLayout>
+    </LinearLayout>
+    <View
+        android:background="@color/primary"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"/>
+    <ScrollView
+        android:layout_weight="7"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+      <LinearLayout
+          android:layout_marginTop="20dp"
+          android:layout_marginBottom="20dp"
+          android:orientation="vertical"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+
+        <RatingBar
+            android:layout_margin="10dp"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/rating"
+            android:stepSize="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:layout_margin="10dp"
+            android:scrollbars="vertical"
+            android:id="@+id/review_text"
+            android:hint="Write your review here."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+      </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+      <Button
+          android:id="@+id/cancel"
+          android:layout_weight="7"
+          android:text="CANCEL"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />
+      <Button
+          android:id="@+id/save"
+          android:layout_weight="7"
+          android:text="SAVE"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />
+    </LinearLayout>
+  </LinearLayout>
+
+  <RelativeLayout
+      android:visibility="gone"
+      android:id="@+id/progressView"
+      android:background="#77ffffff"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/progressBar"
+        android:text="Submitting review..."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+  </RelativeLayout>
+</RelativeLayout>
