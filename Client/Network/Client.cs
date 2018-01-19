@@ -479,6 +479,8 @@ namespace norsu.ass.Network
             }
             
         }
+        
+        public static Suggestion SelectedSuggestion { get; set; }
 
         public static async Task<Suggestions> Suggest(long officeId, string subject, string body,bool isPrivate)
         {

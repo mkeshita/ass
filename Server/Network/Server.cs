@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Devcorner.NIdenticon;
 using Devcorner.NIdenticon.BrushGenerators;
 using norsu.ass.Models;
@@ -143,12 +144,26 @@ namespace norsu.ass.Network
             var likes = GetLikes(i.SuggestionId);
             like.Dislike = i.Dislike;
             like.Save();
-            likes = GetLikes(i.SuggestionId);
+
+            while (true)
+            {
+                try
+                {
+                    if(Like.Cache.Any(x=>x.Id==like.Id)) break;
+                    await TaskEx.Delay(10);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
             
+            likes = GetLikes(i.SuggestionId);
+
             await Packet.Send(Requests.LIKE_SUGGESTION, likes, dev.IP, dev.Port);
         }
 
-        private void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
+        private async void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
         {
             var dev = GetDevice(connection);
             if (dev == null)
@@ -158,16 +173,30 @@ namespace norsu.ass.Network
                 return;
             var student = Sessions[i.Session];
             
-            new Models.Suggestion()
-            {
-                Body = i.Body,
-                IsPrivate = i.IsPrivate,
-                OfficeId = i.OfficeId,
-                UserId = student.Id,
-                Title = i.Subject
-            }.Save();
+            var s = new Models.Suggestion()
+                {
+                    Body = i.Body,
+                    IsPrivate = i.IsPrivate,
+                    OfficeId = i.OfficeId,
+                    UserId = student.Id,
+                    Title = i.Subject
+                };
+            s.Save();
 
-            SendSuggestions(i.OfficeId, dev, student);
+            while (true)
+            {
+                try
+                {
+                    if(Models.Suggestion.Cache.Any(x=>x.Id==s.Id)) break;
+                    await TaskEx.Delay(10);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+            
+            SendSuggestions(i.OfficeId, dev, student, 7);
         }
 
         private void GetSuggestionsHandler(PacketHeader packetheader, Connection connection, GetSuggestions i)
@@ -247,6 +276,7 @@ namespace norsu.ass.Network
                     ParentId = comment.ParentId,
                     Sender = comment.User.IsAnnonymous ? "Anonymous" : comment.User.Fullname,
                     SuggestionId = id,
+                    Time = comment.Time,
                     UserId = comment.UserId,
                 });
             }

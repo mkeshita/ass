@@ -137,13 +137,19 @@ namespace norsu.ass
             if (_suggestions.ChildCount == 7) return;
             _suggestions.RemoveAllViews();
             foreach (var item in result.Items)
-                _suggestions.AddView(
-                    SuggestionsAdapter.GetView(
-                        LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false),
-                        item,
-                        this
-                    )
-                );
+            {
+                var row = SuggestionsAdapter.GetView(
+                    LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
+
+                row.Clickable = true;
+                row.Click += (s, args) =>
+                {
+                    Client.SelectedSuggestion = item;
+                    StartActivity(typeof(SuggestionView));
+                };
+
+                _suggestions.AddView(row);
+            }
         }
 
         private void SuggestOnClick(object sender, EventArgs eventArgs)
@@ -258,13 +264,19 @@ namespace norsu.ass
             
             if(suggestions!=null)
             foreach (var item in suggestions.Items)
-                _suggestions.AddView(
-                    SuggestionsAdapter.GetView(
-                        LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false),
-                        item,
-                        this
-                    )
-                );
+                {
+                    var row = SuggestionsAdapter.GetView(
+                        LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false),item,this);
+
+                    row.Clickable = true;
+                    row.Click += (sender, args) =>
+                    {
+                        Client.SelectedSuggestion = item;
+                        StartActivity(typeof(SuggestionView));
+                    };
+                    
+                    _suggestions.AddView(row);
+                }
 
         }
         
