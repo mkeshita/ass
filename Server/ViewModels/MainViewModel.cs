@@ -145,6 +145,8 @@ namespace norsu.ass.Server.ViewModels
                     return;
                 _CurrentUser = value;
                 OnPropertyChanged(nameof(CurrentUser));
+                Offices.Filter = FilterOffices;
+                Offices.MoveCurrentToFirst();
             }
         }
 
@@ -212,6 +214,7 @@ namespace norsu.ass.Server.ViewModels
             {
                 if (_offices != null) return _offices;                
                 _offices = new ListCollectionView(Office.Cache);
+                _offices.Filter = FilterOffices;
                 _offices.CurrentChanged += (sender, args) =>
                 {
                     Suggestions.Filter = FilterSuggestion;
@@ -227,6 +230,19 @@ namespace norsu.ass.Server.ViewModels
                 };
                 return _offices;
             }
+        }
+
+        private bool FilterOffices(object o)
+        {
+            if (CurrentUser == null)
+                return false;
+            var office = o as Office;
+            if (CurrentUser.Access == AccessLevels.SuperAdmin) return true;
+            if (CurrentUser.Access == AccessLevels.OfficeAdmin)
+            {
+                return office?.Id == CurrentUser.OfficeId;
+            }
+            return false;
         }
 
         private void RatingsChanged()
@@ -269,28 +285,28 @@ namespace norsu.ass.Server.ViewModels
         
         public Rating LatestRating => Rating.Cache
             .OrderByDescending(x => x.Time)
-            .FirstOrDefault(x => x.OfficeId ==((Office)Offices.CurrentItem).Id);
+            .FirstOrDefault(x => x.OfficeId ==((Office)Offices?.CurrentItem)?.Id);
 
         public Suggestion LatestSuggestion => Suggestion.Cache
             .OrderByDescending(x => x.Time)
-            .FirstOrDefault(x => x.OfficeId == ((Office) Offices.CurrentItem).Id);
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
         
         public Suggestion TopSuggestion => Suggestion.Cache
             .OrderByDescending(x => x.Votes)
-            .FirstOrDefault(x => x.OfficeId == ((Office) Offices.CurrentItem).Id);
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
         
         //  public long RatingCount => Rating.Cache.Count(d => d.OfficeId == ((Office) Offices.CurrentItem).Id);
-        public long OneStar => Rating.Cache.Count(d=>d.Value==1 && d.OfficeId==((Office) Offices.CurrentItem).Id);
-        public long TwoStars => Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+        public long OneStar => Rating.Cache.Count(d=>d.Value==1 && d.OfficeId==((Office) Offices?.CurrentItem)?.Id);
+        public long TwoStars => Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long ThreeStars =>
-            Rating.Cache.Count(d => d.Value == 3 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+            Rating.Cache.Count(d => d.Value == 3 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long FourStars =>
-            Rating.Cache.Count(d => d.Value == 4 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+            Rating.Cache.Count(d => d.Value == 4 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long FiveStars =>
-            Rating.Cache.Count(d => d.Value == 5 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+            Rating.Cache.Count(d => d.Value == 5 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
         
         private ListCollectionView _suggestions;
 
@@ -424,5 +440,25 @@ namespace norsu.ass.Server.ViewModels
                         dummy.Save();
                     });
                 }));
+
+        private ICommand _editUserCommand;
+
+        public ICommand EditUserCommand => _editUserCommand ?? (_editUserCommand = new DelegateCommand<User>(
+        async d =>
+        {
+            var dlg = new UserEditorDialog("NEW OFFICE ADMIN", d, Visibility.Collapsed);
+
+            await DialogHost.Show(dlg, "DialogHost", (sender, args) =>
+            {
+
+            }, (sender, args) =>
+            {
+                if (!(args.Parameter as bool?) ?? false)
+                    return;
+
+                d.Save();
+            });
+            
+        },d=>CurrentUser.Access == AccessLevels.SuperAdmin));
     }
 }

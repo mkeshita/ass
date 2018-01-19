@@ -33,10 +33,27 @@
         </DataGrid>
         <GroupBox Grid.Column="1" Padding="1">
             <GroupBox.Header>
-                <StackPanel Orientation="Horizontal" Margin="10">
-                    <materialDesign:PackIcon Kind="Comment" Foreground="White"/>
-                    <TextBlock Text=" COMMENTS" Foreground="White"/>
-                </StackPanel>
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <materialDesign:PackIcon Kind="Comment" Foreground="White"
+                                             Margin="5"
+                                             VerticalAlignment="Center"/>
+                    <TextBlock Text=" COMMENTS" Foreground="White"
+                               VerticalAlignment="Center"
+                               Grid.Column="1"/>
+                    <Button Content="DISABLE COMMENTS" Grid.Column="2"
+                            Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility}}"
+                            Command="{Binding Suggestions/DisableCommentsCommand}"/>
+                    <Button Content="ENABLE COMMENTS" Grid.Column="2"
+                            Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                            Command="{Binding Suggestions/EnableCommentsCommand}" />
+                </Grid>
             </GroupBox.Header>
             <Grid>
                 <Grid.RowDefinitions>
