@@ -24,6 +24,7 @@ namespace norsu.ass
         private RelativeLayout _reviewView,_suggestionView;
         private EditText _myReview,_suggestionSubject,_suggestionBody;
         private CheckBox _privateBox,_suggestionPrivate;
+        private ProgressBar _reviewsProgress, _suggestionsProgress;
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -34,11 +35,15 @@ namespace norsu.ass
 
             SetContentView(Resource.Layout.Office);
 
+            _reviewsProgress = FindViewById<ProgressBar>(Resource.Id.reviews_progress);
+            _suggestionsProgress = FindViewById<ProgressBar>(Resource.Id.suggestions_progress);
+            
             _submitSuggestion = FindViewById<Button>(Resource.Id.submit_suggestion);
             _suggestionProgress = FindViewById<LinearLayout>(Resource.Id.suggestion_progress);
             _suggestionView = FindViewById<RelativeLayout>(Resource.Id.suggestion_view);
             _suggestionSubject = FindViewById<EditText>(Resource.Id.suggestion_subject);
             _suggestionBody = FindViewById<EditText>(Resource.Id.suggestion_body);
+            _suggestionPrivate = FindViewById<CheckBox>(Resource.Id.suggestion_private);
 
             _officePicture = FindViewById<ImageView>(Resource.Id.officePicture);
             _officeShortName = FindViewById<TextView>(Resource.Id.officeShortName);
@@ -46,8 +51,13 @@ namespace norsu.ass
             _officeSuggestions = FindViewById<TextView>(Resource.Id.officeSuggestions);
             _officeRatingCount = FindViewById<TextView>(Resource.Id.officeRatingCount);
             _officeRating = FindViewById<RatingBar>(Resource.Id.officeRating);
+
             _viewAllReviews = FindViewById<Button>(Resource.Id.viewAllReviews);
+            _viewAllReviews.Visibility = ViewStates.Gone;
+            
             _viewAllSuggestions = FindViewById<Button>(Resource.Id.viewAllSuggestions);
+            _viewAllSuggestions.Visibility = ViewStates.Gone;
+            
             _suggest = FindViewById<Button>(Resource.Id.suggest);
             _review = FindViewById<Button>(Resource.Id.review);
             _reviews = FindViewById<LinearLayout>(Resource.Id.reviews);
@@ -116,15 +126,16 @@ namespace norsu.ass
                 return;
             }
             dlg.SetTitle("Congratulations!");
-            dlg.SetMessage($"Your suggestion have been submitted.");
+            dlg.SetMessage($"Your suggestion has been submitted.");
             dlg.SetCancelable(true);
             dlg.Show();
 
             _suggestionView.Visibility = ViewStates.Gone;
             _suggest.Enabled = true;
             _officeSuggestions.Text = result.TotalCount.ToString("#,##0");
-            
-            if(_suggestions.ChildCount<7)
+
+            if (_suggestions.ChildCount == 7) return;
+            _suggestions.RemoveAllViews();
             foreach (var item in result.Items)
                 _suggestions.AddView(
                     SuggestionsAdapter.GetView(
@@ -180,7 +191,8 @@ namespace norsu.ass
                 return;
             }
             
-            dlg.SetMessage($"Thank you for reviewing {Client.SelectedOffice.ShortName}.");
+            dlg.SetTitle("Congratulations!");
+            dlg.SetMessage($"Your review for {Client.SelectedOffice.ShortName} has been submitted.");
             dlg.SetCancelable(true);
             dlg.Show();
             _reviewView.Visibility = ViewStates.Gone;
@@ -217,6 +229,9 @@ namespace norsu.ass
         private async void GetReviews()
         {
             var result = await Client.GetRatings(Client.SelectedOffice.Id,7);
+
+            _reviewsProgress.Visibility = ViewStates.Gone;
+            
             if (result != null)
             {
                 Client.SelectedOffice.Rating = result.Rating;
@@ -227,19 +242,20 @@ namespace norsu.ass
                 Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
 
                 foreach (var item in result.Ratings)
-                    _reviews.AddView(
-                        RatingsAdapter.GetView(
-                            LayoutInflater.Inflate(Resource.Layout.RatingRow, null, false),
-                            item,
-                            this
-                        )
-                    );
-
+                {
+                    var row = RatingsAdapter.GetView(
+                        LayoutInflater.Inflate(Resource.Layout.RatingRow, null, false),
+                        item,
+                        this);
+                    _reviews.AddView(row);
+                }
             }
 
 
             var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,7);
 
+            _suggestionsProgress.Visibility = ViewStates.Gone;
+            
             if(suggestions!=null)
             foreach (var item in suggestions.Items)
                 _suggestions.AddView(
