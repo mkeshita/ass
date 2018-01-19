@@ -439,7 +439,7 @@ namespace norsu.ass.Server.ViewModels
                         
                         dummy.Save();
                     });
-                }));
+                },d=> CurrentUser.Access == AccessLevels.SuperAdmin));
 
         private ICommand _editUserCommand;
 
