@@ -40,6 +40,9 @@ namespace norsu.ass.Network
 
         [ProtoMember(11)]
         public long Comments { get; set; }
+        
+        [ProtoMember(12)]
+        public bool AllowComment { get; set; }
     }
 
     [ProtoContract]

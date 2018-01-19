@@ -244,6 +244,7 @@ namespace norsu.ass.Network
                     Likes = GetLikes(item.Id),
                     Id = item.Id,
                     UserId = item.UserId,
+                    AllowComment = item.AllowComments,
                 });
                 if(count>0 && result.Items.Count>=count) break;
             }

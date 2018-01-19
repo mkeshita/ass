@@ -43,6 +43,11 @@ namespace norsu.ass
             _commentProgress = FindViewById<ProgressBar>(Resource.Id.comment_progress);
             _sendComment.Click += SendCommentOnClick;
             _scrollView = FindViewById<ScrollView>(Resource.Id.scrollview);
+
+            if (!Client.SelectedSuggestion.AllowComment)
+            {
+                FindViewById<LinearLayout>(Resource.Id.comment_view).Visibility = ViewStates.Gone;
+            }
             
             SetupValues();
             SetupVotingHandler();
