@@ -90,7 +90,7 @@ namespace norsu.ass.Server.ViewModels
 
         public ICommand LoginCommand => _loginCommand ?? (_loginCommand = new DelegateCommand<PasswordBox>(d =>
         {
-            var user = Models.User.Cache.FirstOrDefault(x => x.Username?.ToLower() == Username.ToLower());
+            var user = Models.User.Cache.FirstOrDefault(x => x.Username?.ToLower() == Username.ToLower() && x.Access>=AccessLevels.OfficeAdmin);
             if (user == null && Models.User.Cache.Count(x => x.Access == AccessLevels.SuperAdmin) == 0)
             {
                 var gen = new IdenticonGenerator()

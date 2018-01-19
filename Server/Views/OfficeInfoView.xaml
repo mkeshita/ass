@@ -310,6 +310,16 @@
                                     <TextBlock Text="{Binding Username}" FontWeight="Bold"/>
                                     <TextBlock Text="{Binding Fullname}"/>
                                 </StackPanel>
+                                <Button Grid.Column="1"
+                                        Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsMouseOver,Converter={converters:BooleanToVisibility}}"
+                                        VerticalAlignment="Top"
+                                        Padding="4"
+                                        Height="Auto"
+                                        Width="Auto"
+                                        Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                                        Command="{Binding DeleteCommand}"
+                                        Content="{md:PackIcon Close}"
+                                        HorizontalAlignment="Right"/>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

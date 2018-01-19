@@ -142,5 +142,17 @@ namespace norsu.ass.Server.Properties {
                 this["ReplyDepth"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ModerateComments {
+            get {
+                return ((bool)(this["ModerateComments"]));
+            }
+            set {
+                this["ModerateComments"] = value;
+            }
+        }
     }
 }

@@ -245,6 +245,7 @@ namespace norsu.ass.Network
                     Id = item.Id,
                     UserId = item.UserId,
                     AllowComment = item.AllowComments,
+                    CommentsDisabledBy = item.CommentsDisabledBy
                 });
                 if(count>0 && result.Items.Count>=count) break;
             }
