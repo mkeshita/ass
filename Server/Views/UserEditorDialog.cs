@@ -9,6 +9,7 @@ using Devcorner.NIdenticon;
 using Devcorner.NIdenticon.BrushGenerators;
 using MaterialDesignThemes.Wpf;
 using norsu.ass.Models;
+using norsu.ass.Server.ViewModels;
 using Color = System.Drawing.Color;
 
 namespace norsu.ass.Server.Views
@@ -27,6 +28,19 @@ namespace norsu.ass.Server.Views
             user.PropertyChanged += (sender, args) =>
             {
                 Button.IsEnabled = user.CanSave();
+            };
+        }
+
+        internal UserEditorDialog(string title, UserSelector user)
+        {
+            InitializeComponent();
+            Title.Text = title;
+            DataContext = user;
+            AccessListBox.Visibility = Visibility.Visible;
+            AccessListBox.IsHitTestVisible = false;
+            user.PropertyChanged += (sender, args) =>
+            {
+                Button.IsEnabled = !string.IsNullOrEmpty(user.Username) && MainViewModel.Instance.CurrentUser?.Access>user.Access;
             };
         }
 
@@ -61,9 +75,13 @@ namespace norsu.ass.Server.Views
             {
                 using (var stream = new MemoryStream())
                 {
-                    var usr = (User) DataContext;
                     pic.Save(stream, ImageFormat.Jpeg);
-                    usr.Picture = stream.ToArray();
+                    
+                    if(DataContext is User user)
+                        user.Picture = stream.ToArray();
+                    else if(DataContext is UserSelector selector)
+                        selector.Picture = stream.ToArray();
+                    
                 }
             }
 
@@ -96,15 +114,24 @@ namespace norsu.ass.Server.Views
         
         private void Button_OnClick(object sender, RoutedEventArgs e)
         {
-            var usr  = (User) DataContext;
-            if (string.IsNullOrEmpty(usr.Username)) return;
-            if (!usr.CanSave()) return;
-            if (usr.Id == 0 && User.Cache.Any(x => x.Username.ToLower() == usr.Username.ToLower()))
+            if (DataContext is User)
             {
-                //TODO dialog
-                MessageBox.Show("Username is already taken.");
-                return;
+                var usr = (User) DataContext;
+                if (string.IsNullOrEmpty(usr.Username)) return;
+                if (!usr.CanSave()) return;
+                if (usr.Id == 0 && User.Cache.Any(x => x.Username.ToLower() == usr.Username.ToLower()))
+                {
+                    //TODO dialog
+                    MessageBox.Show("Username is already taken.");
+                    return;
+                }
+            } else if (DataContext is UserSelector)
+            {
+                var selector = (UserSelector)DataContext;
+                if (string.IsNullOrEmpty(selector.Username)) return;
+                
             }
+            else return;
             DialogHost.CloseDialogCommand.Execute(true,this);
         }
     }

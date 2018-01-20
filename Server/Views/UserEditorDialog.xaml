@@ -136,7 +136,7 @@
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Content="SAVE" Margin="5 0 0 0"
+            <Button Content="ACCEPT" Margin="5 0 0 0"
                     Style="{StaticResource MaterialDesignFlatButton}"
                     x:Name="Button"
                     Click="Button_OnClick">

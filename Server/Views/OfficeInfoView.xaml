@@ -293,22 +293,22 @@
                                     <MouseBinding MouseAction="LeftDoubleClick"
                                                   Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},
                                         Path=EditUserCommand}"
-                                                  CommandParameter="{Binding}"/>
+                                                  CommandParameter="{Binding User}"/>
                                     <MouseBinding MouseAction="RightClick"
                                                   Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},
                                         Path=EditUserCommand}"
-                                                  CommandParameter="{Binding}" />
+                                                  CommandParameter="{Binding User}" />
                                 </Grid.InputBindings>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
+                                <Image Source="{Binding User.Picture,Converter={converters:BytesToImage}}"
                                        Height="24" Width="24"
                                        Margin="0 0 10 0"/>
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{Binding Username}" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Fullname}"/>
+                                <TextBlock Text="{Binding User.Username}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding User.Fullname}"/>
                                 </StackPanel>
                                 <Button Grid.Column="1"
                                         Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsMouseOver,Converter={converters:BooleanToVisibility}}"
@@ -317,7 +317,7 @@
                                         Height="Auto"
                                         Width="Auto"
                                         Style="{StaticResource MaterialDesignRaisedAccentButton}"
-                                        Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=DeleteUserCommand}"
+                                        Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=DeleteOfficeAdminCommand}"
                                         CommandParameter="{Binding}"
                                         Content="{md:PackIcon Close}"
                                         HorizontalAlignment="Right"/>
