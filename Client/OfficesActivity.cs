@@ -10,7 +10,6 @@ using Android.Views;
 using Android.Widget;
 using norsu.ass;
 using norsu.ass.Network;
-using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass
 {
@@ -24,6 +23,17 @@ namespace norsu.ass
         
         protected override async void OnCreate(Bundle savedInstanceState)
         {
+            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            if (Client.Server == null)
+            {
+                dlg.SetTitle("Connection to server is not established.");
+                dlg.SetMessage("Please make sure you are connected to the server and try again.");
+                dlg.SetNegativeButton("Exit", (sender, args) =>
+                {
+                    FinishAffinity();
+                });
+                dlg.Show();
+            }
             base.OnCreate(savedInstanceState);
 
             if (string.IsNullOrEmpty(Client.Username))
@@ -58,13 +68,7 @@ namespace norsu.ass
             }
 
             var offices = await Client.GetOffices();
-            var dlg = new AlertDialog.Builder(this);
-            dlg.SetTitle("Connection to server is not established.");
-            dlg.SetMessage("Please make sure you are connected to the server and try again.");
-            dlg.SetNegativeButton("Exit", (sender, args) =>
-            {
-                Finish();
-            });
+            
             while (offices == null)
             {
                 
@@ -76,6 +80,8 @@ namespace norsu.ass
 
             var progress = FindViewById<ProgressBar>(Resource.Id.progress);
             progress.Visibility = ViewStates.Gone;
+
+            
         }
 
         private void OfficesOnItemClick(object o, AdapterView.ItemClickEventArgs e)

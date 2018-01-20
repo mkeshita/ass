@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 
 namespace norsu.ass.Server.Views
 {
@@ -10,6 +11,12 @@ namespace norsu.ass.Server.Views
         public MainView()
         {
             InitializeComponent();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            Network.Server.Instance.Stop();
+            base.OnClosing(e);
         }
     }
 }

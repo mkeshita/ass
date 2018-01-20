@@ -22,6 +22,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Registration.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Requests.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ServerInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Shutdown.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Student.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Suggestion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UserPicture.cs" />

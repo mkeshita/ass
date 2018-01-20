@@ -2,7 +2,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
     android:animateLayoutChanges="true"
     android:orientation="vertical">
 
@@ -24,57 +23,51 @@
         <LinearLayout android:orientation="vertical"
             android:layout_marginTop="20dp"
             android:id="@+id/userView"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
+          <EditText android:visibility="gone"
+                    android:id="@+id/nickName"
+                    android:layout_width="fill_parent"
+                    android:maxLines="1"
+                    android:inputType="textCapWords"
+                    android:layout_height="47dp"
+                    android:padding="5dp"
+                    android:imeOptions="actionDone"
+                    android:hint="Your nickname" />
+          
           <EditText
               android:id="@+id/userName"
               android:inputType="text"
               android:maxLines="1"
-              android:layout_width="fill_parent"
-              android:layout_height="45dp"
+              android:layout_width="match_parent"
+              android:layout_height="47dp"
               android:padding="5dp"
-              android:hint="Your username"
-              android:background="@android:color/white" />
-          <View
-              android:layout_width="fill_parent"
-              android:layout_height="2dp"
-              android:background="#f7f7f7" />
+              android:imeOptions="actionNext"
+              android:hint="Your ID" />
+
           <EditText
               android:id="@+id/password"
               android:maxLines="1"
-              android:layout_width="fill_parent"
-              android:layout_height="45dp"
+              android:layout_width="match_parent"
+              android:layout_height="47dp"
               android:padding="5dp"
+              android:imeOptions="actionDone"
+              android:layout_marginTop="20dp"
               android:hint="Your password"
-              android:background="@android:color/white"
-              android:inputType="textPassword" />
+              android:inputType="numberPassword" />
         </LinearLayout>
 
-        <EditText android:visibility="gone"
-            android:id="@+id/nickName"
-            android:layout_width="fill_parent"
-            android:maxLines="1"
-            android:inputType="textCapWords"
-            android:layout_height="45dp"
-            android:padding="5dp"
-            android:hint="Your nickname"
-            android:background="@android:color/white" />
-
-        <LinearLayout android:background="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_marginBottom="20dp"
-            android:layout_height="wrap_content">
+        <CheckBox
+            android:id="@+id/anonymous"
+            android:focusable="false"
+          android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_alignParentRight="true"
+            android:text="Anonymous" />
 
 
-          <CheckBox
-              android:id="@+id/anonymous"
-              android:visibility="gone"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="10dp"
-              android:layout_alignParentRight="true"
-              android:text="Anonymous" />
-        </LinearLayout>
 
       </LinearLayout>
     </ScrollView>
@@ -97,7 +90,6 @@
           android:id="@+id/login"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:layout_marginLeft="10dp"
           android:layout_marginTop="10dp"
           android:text="Login"
           style="@style/Widget.AppCompat.Button.Colored" />

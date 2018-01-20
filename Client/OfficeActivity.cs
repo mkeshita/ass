@@ -28,6 +28,17 @@ namespace norsu.ass
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            if (Client.Server == null)
+            {
+                dlg.SetTitle("Connection to server is not established.");
+                dlg.SetMessage("Please make sure you are connected to the server and try again.");
+                dlg.SetNegativeButton("Exit", (sender, args) =>
+                {
+                    FinishAffinity();
+                });
+                dlg.Show();
+            }
             if(Client.SelectedOffice == null)
                 Finish();
 

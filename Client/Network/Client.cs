@@ -5,11 +5,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Graphics;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
 using NetworkCommsDotNet.DPSBase;
 using NetworkCommsDotNet.Tools;
+using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace norsu.ass.Network
 {
@@ -42,7 +44,6 @@ namespace norsu.ass.Network
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
         }
-        
         private readonly List<OfficePicture> OfficePictures = new List<OfficePicture>();
         private void AddOfficePicture(OfficePicture picture)
         {
@@ -173,11 +174,11 @@ namespace norsu.ass.Network
             }
         }
 
-        public static async Task<RegistrationResult> Register(string username, string password, string name,string course)
+        public static async Task<RegistrationResult> Register(string username, string password, string firstname,string lastname,string course)
         {
-            return await Instance._Register(username, password, name, course);
+            return await Instance._Register(username, password, firstname,lastname, course);
         }
-        private async Task<RegistrationResult> _Register(string username, string password, string name, string course)
+        private async Task<RegistrationResult> _Register(string username, string password, string firstname,string lastname, string course)
         {
             if (Server == null)
                 await _FindServer();
@@ -190,13 +191,22 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(RegistrationResult.Header);
                     result = r;
+                    if (result?.Success??false)
+                    {
+                        UserId = result.UserId;
+                        Session = result.Session;
+                        Username = username;
+                        Fullname = $"{firstname} {lastname}";
+                        FetchUserPicture(result.UserId);
+                    }
                 });
 
             await new RegistrationRequest()
             {
                 Username = username,
                 Password = password,
-                Name=name,
+                Firstname= firstname,
+                Lastname = lastname,
                 Course= course,
             }.Send(Server.IP, Server.Port);
 
@@ -219,7 +229,12 @@ namespace norsu.ass.Network
         private int Session { get; set; }
         
         private string _Username { get; set; }
-        public static string Username => Instance._Username;
+
+        public static string Username
+        {
+            get => Instance._Username;
+            set => Instance._Username = value;
+        }
         
         public static string Fullname { get; set; }
         public static long UserId { get; set; }
