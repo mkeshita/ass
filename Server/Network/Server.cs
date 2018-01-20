@@ -139,17 +139,32 @@ namespace norsu.ass.Network
                 return;
 
             if (!Sessions.ContainsKey(i.Session)) return;
-            
-            var usr = User.GetById(i.UserId);
-            if (usr == null) return;
-            
-            if (!usr.HasPicture) usr.Update(nameof(User.Picture), ImageProcessor.Generate());
 
-            await new UserPicture()
+            if (i.UserId > 0)
             {
-                UserId = usr.Id,
-                Picture = usr.Picture,
-            }.Send(dev.IP,dev.Port);
+                var usr = User.GetById(i.UserId);
+                if (usr == null) return;
+
+                if (!usr.HasPicture) usr.Update(nameof(User.Picture), ImageProcessor.Generate());
+
+                await new UserPicture()
+                {
+                    UserId = usr.Id,
+                    Picture = usr.Picture,
+                }.Send(dev.IP, dev.Port);
+            } else if (i.UserId < 0)
+            {
+                var office = Models.Office.GetById(Math.Abs(i.UserId));
+                if (office == null) return;
+
+                if (!office.HasPicture) return;
+
+                await new UserPicture()
+                {
+                    UserId = i.UserId,
+                    Picture = office.Picture,
+                }.Send(dev.IP, dev.Port);
+            }
         }
 
         private async void AddCommentHandler(PacketHeader packetheader, Connection connection, AddComment i)
@@ -315,11 +330,14 @@ namespace norsu.ass.Network
 
         private async void SendComments(long id, AndroidDevice dev)
         {
+            var suggestion = Models.Suggestion.Cache.FirstOrDefault(x => x.Id == id);
+            if (suggestion == null) return;
+            
             var result = new Comments();
             var comments = Models.Comment.Cache.Where(x => x.SuggestionId == id).ToList();
             foreach (var comment in comments)
             {
-                result.Items.Add(new Comment()
+                var com = new Comment()
                 {
                     Id = comment.Id,
                     Message = comment.Message,
@@ -328,7 +346,20 @@ namespace norsu.ass.Network
                     SuggestionId = id,
                     Time = comment.Time,
                     UserId = comment.UserId,
-                });
+                };
+                
+                if (Settings.Default.OfficeAdminCommentAsOffice)
+                {
+                    var usr = OfficeAdmin.Cache.FirstOrDefault(x =>
+                        x.OfficeId == suggestion.OfficeId && x.UserId == comment.UserId);
+                    if (usr != null)
+                    {
+                        com.Sender = Models.Office.GetById(suggestion.OfficeId).ShortName;
+                        com.UserId = -suggestion.OfficeId;
+                    }
+                }
+                
+                result.Items.Add(com);
             }
             await result.Send(dev.IP, dev.Port);
         }
