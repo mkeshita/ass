@@ -41,11 +41,73 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<Suggest>(Suggest.Header,SuggestionHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetPicture>(GetPicture.Header, GetPictureHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetOfficePicture>(GetOfficePicture.Header, GetOfficePictureHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<RegistrationRequest>(RegistrationRequest.Header, RegistrationHandler);
 
             NetworkComms.AppendGlobalIncomingPacketHandler<LikeSuggestion>(LikeSuggestion.Header, LikeSuggestionHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void RegistrationHandler(PacketHeader packetHeader, Connection connection, RegistrationRequest i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null) return;
+
+            var user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == i.Username.ToLower() && !x.IsAnnonymous);
+            if (user != null)
+            {
+                await new RegistrationResult()
+                {
+                    Message = "Student ID already registered!",
+                    Success = false,
+                }.Send(dev.IP, dev.Port);
+                return;
+            }
+            
+            var rnd = new Random();
+            var color = Color.FromArgb(255, rnd.Next(0, 255), rnd.Next(0, 255), rnd.Next(0, 255));
+            var gen = new IdenticonGenerator()
+                .WithBlocks(7, 7)
+                .WithSize(128, 128)
+                .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
+                .WithBackgroundColor(Color.White)
+                .WithBrushGenerator(new StaticColorBrushGenerator(color));
+
+            using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
+            {
+                using (var stream = new MemoryStream())
+                {
+                    pic.Save(stream, ImageFormat.Jpeg);
+                  
+                    user = new User()
+                    {
+                        Username = i.Username,
+                        Access = AccessLevels.Student,
+                        Course = i.Course,
+                        Firstname = i.Firstname,
+                        Lastname = i.Lastname,
+                        IsAnnonymous = false,
+                        Password = i.Password,
+                        Picture = stream.ToArray(),
+                    };
+                    user.Save();
+                }
+            }
+
+            var sid = SessionID.Next(7, int.MaxValue);
+
+            while (Sessions.ContainsKey(sid))
+                sid = SessionID.Next(7, int.MaxValue);
+
+            Sessions.Add(sid, user);
+            
+            await new RegistrationResult()
+            {
+                Success = true,
+                UserId = user.Id,
+                Session = sid,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void GetOfficePictureHandler(PacketHeader packetheader, Connection connection, GetOfficePicture i)
@@ -459,20 +521,27 @@ namespace norsu.ass.Network
             var result = new LoginResult();
             if(user != null)
             {
-                var sid = SessionID.Next(7, int.MaxValue);
-
-                while (Sessions.ContainsKey(sid))
-                    sid = SessionID.Next(7, int.MaxValue);
-
-                Sessions.Add(sid, user);
-                var name = user.IsAnnonymous ? $"Anonymous" : user.Fullname;
-                result = new LoginResult(new Student()
+                if (user.Password == request.Password)
                 {
-                    Name = name,
-                    UserName = user.Username,
-                    IsAnonymous = user.IsAnnonymous,
-                    Id = user.Id,
-                }, sid);
+                    var sid = SessionID.Next(7, int.MaxValue);
+
+                    while (Sessions.ContainsKey(sid))
+                        sid = SessionID.Next(7, int.MaxValue);
+
+                    Sessions.Add(sid, user);
+                    var name = user.IsAnnonymous ? $"Anonymous" : user.Fullname;
+                    result = new LoginResult(new Student()
+                    {
+                        Name = name,
+                        UserName = user.Username,
+                        IsAnonymous = user.IsAnnonymous,
+                        Id = user.Id,
+                    }, sid);
+                }
+                else
+                {
+                    result.Success = false;
+                }
             }
             await result.Send(dev.IP, dev.Port);
         }
@@ -559,8 +628,13 @@ namespace norsu.ass.Network
             OnPropertyChanged(nameof(LocalEndPoints));
         }
 
-        public void Stop()
+        public async void Stop()
         {
+            var msg = new Shutdown();
+            List<AndroidDevice> devs;
+            lock (Devices) devs = Devices.ToList();
+            foreach (var dev in devs) if(dev!=null) await msg.Send(dev.IP, dev.Port);
+            
             Connection.StopListening();
         }
 

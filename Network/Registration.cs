@@ -12,10 +12,13 @@ namespace norsu.ass.Network
         public string Password { get; set; }
         
         [ProtoMember(3)]
-        public string Name { get; set; }
+        public string Firstname { get; set; }
         
         [ProtoMember(4)]
         public string Course { get; set; }
+        
+        [ProtoMember(5)]
+        public string Lastname { get; set; }
     }
 
     [ProtoContract]
@@ -29,6 +32,9 @@ namespace norsu.ass.Network
         
         [ProtoMember(3)]
         public int Session { get; set; }
+        
+        [ProtoMember(4)]
+        public long UserId { get; set; }
         
     }
 }

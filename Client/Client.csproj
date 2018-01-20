@@ -129,6 +129,7 @@
     <Compile Include="OfficesAdapter.cs" />
     <Compile Include="Comments.cs" />
     <Compile Include="CommentsAdapter.cs" />
+    <Compile Include="RegisterActivity.cs" />
     <Compile Include="SuggestionsActivity.cs" />
     <Compile Include="SuggestionsAdapter.cs" />
     <Compile Include="RatingsAdapter.cs" />
@@ -178,6 +179,9 @@
       <SubType>Designer</SubType>
     </AndroidResource>
     <AndroidResource Include="Resources\layout\SuggestionView.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+    <AndroidResource Include="Resources\layout\Register.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>
