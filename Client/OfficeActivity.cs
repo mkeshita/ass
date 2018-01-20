@@ -38,6 +38,7 @@ namespace norsu.ass
                     FinishAffinity();
                 });
                 dlg.Show();
+                return;
             }
             Messenger.Default.AddListener(Messages.Shutdown, () =>
             {
@@ -110,6 +111,7 @@ namespace norsu.ass
             
             _suggest.Click += SuggestOnClick;
             _submitSuggestion.Click += SubmitSuggestionOnClick;
+            
         }
 
         private async void SubmitSuggestionOnClick(object sender, EventArgs eventArgs)
@@ -130,7 +132,7 @@ namespace norsu.ass
                 _suggestionPrivate.Checked);
 
             _suggestionProgress.Visibility = ViewStates.Gone;
-            _suggestionPrivate.Visibility = ViewStates.Visible;
+            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
             _suggestionBody.Enabled = true;
             _suggestionSubject.Enabled = true;
             _submitSuggestion.Enabled = true;
@@ -186,7 +188,7 @@ namespace norsu.ass
             _suggestionView.Visibility = ViewStates.Visible;
             _reviewView.Visibility = ViewStates.Gone;
             _suggestionProgress.Visibility = ViewStates.Gone;
-            _suggestionPrivate.Visibility = ViewStates.Visible;
+            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
         }
 
         private async void SubmitReviewOnClick(object sender, EventArgs eventArgs)
@@ -201,7 +203,7 @@ namespace norsu.ass
             var result = await Client.RateOffice(Client.SelectedOffice.Id,(int) _myRating.Rating, _myReview.Text, _privateBox.Checked, 7);
             
             _reviewProgress.Visibility = ViewStates.Gone;
-            _privateBox.Visibility = ViewStates.Visible;
+            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
             _submitReview.Enabled = true;
             _myReview.Enabled = true;
             _myRating.Enabled = true;
@@ -254,7 +256,7 @@ namespace norsu.ass
             _suggestionView.Visibility = ViewStates.Gone;
             _reviewView.Visibility = ViewStates.Visible;
             _reviewProgress.Visibility = ViewStates.Gone;
-            _privateBox.Visibility = ViewStates.Visible;
+            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
             _review.Enabled = false;
             _suggest.Enabled = true;
         }

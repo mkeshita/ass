@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Devcorner.NIdenticon;
 using Devcorner.NIdenticon.BrushGenerators;
 using norsu.ass.Models;
+using norsu.ass.Server;
 using norsu.ass.Server.Properties;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
@@ -54,9 +55,22 @@ namespace norsu.ass.Network
             var dev = GetDevice(connection);
             if (dev == null) return;
 
+            //Check if registration is enabled
+            if (!Settings.Default.AllowAndroidRegistration)
+            {
+                await new RegistrationResult()
+                {
+                    Success = false,
+                    Message = "Registration is disabled"
+                }.Send(dev.IP, dev.Port);
+                return;
+            }
+            
+            //Check if username is taken.
             var user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == i.Username.ToLower() && !x.IsAnnonymous);
             if (user != null)
             {
+                //return failed registration
                 await new RegistrationResult()
                 {
                     Message = "Student ID already registered!",
@@ -65,49 +79,38 @@ namespace norsu.ass.Network
                 return;
             }
             
-            var rnd = new Random();
-            var color = Color.FromArgb(255, rnd.Next(0, 255), rnd.Next(0, 255), rnd.Next(0, 255));
-            var gen = new IdenticonGenerator()
-                .WithBlocks(7, 7)
-                .WithSize(128, 128)
-                .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
-                .WithBackgroundColor(Color.White)
-                .WithBrushGenerator(new StaticColorBrushGenerator(color));
-
-            using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
+            //Add new user
+            user = new User()
             {
-                using (var stream = new MemoryStream())
-                {
-                    pic.Save(stream, ImageFormat.Jpeg);
-                  
-                    user = new User()
-                    {
-                        Username = i.Username,
-                        Access = AccessLevels.Student,
-                        Course = i.Course,
-                        Firstname = i.Firstname,
-                        Lastname = i.Lastname,
-                        IsAnnonymous = false,
-                        Password = i.Password,
-                        Picture = stream.ToArray(),
-                    };
-                    user.Save();
-                }
-            }
+                Username = i.Username,
+                Access = AccessLevels.Student,
+                Course = i.Course,
+                Firstname = i.Firstname,
+                Lastname = i.Lastname,
+                IsAnnonymous = false,
+                Password = i.Password,
+                Picture = ImageProcessor.Generate(),
+            };
+            user.Save();
 
-            var sid = SessionID.Next(7, int.MaxValue);
-
-            while (Sessions.ContainsKey(sid))
-                sid = SessionID.Next(7, int.MaxValue);
-
-            Sessions.Add(sid, user);
+            var sid = GenerateSession(user);
             
+            //return successful registration
             await new RegistrationResult()
             {
                 Success = true,
                 UserId = user.Id,
                 Session = sid,
             }.Send(dev.IP, dev.Port);
+        }
+
+        private int GenerateSession(User user)
+        {
+            var sid = SessionID.Next(7, int.MaxValue);
+            while (Sessions.ContainsKey(sid))
+                sid = SessionID.Next(7, int.MaxValue);
+            Sessions.Add(sid, user);
+            return sid;
         }
 
         private async void GetOfficePictureHandler(PacketHeader packetheader, Connection connection, GetOfficePicture i)
@@ -135,30 +138,13 @@ namespace norsu.ass.Network
             if (dev == null)
                 return;
 
-            if (!Sessions.ContainsKey(i.Session))
-                return;
+            if (!Sessions.ContainsKey(i.Session)) return;
+            
             var usr = User.GetById(i.UserId);
             if (usr == null) return;
-            if (!usr.HasPicture)
-            {
-                var gen = new IdenticonGenerator()
-                    .WithBlocks(7, 7)
-                    .WithSize(128, 128)
-                    .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
-                    .WithBackgroundColor(Color.White);
-                //.WithBrushGenerator(new StaticColorBrushGenerator(Color.DodgerBlue));
+            
+            if (!usr.HasPicture) usr.Update(nameof(User.Picture), ImageProcessor.Generate());
 
-                using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        pic.Save(stream, ImageFormat.Jpeg);
-                        usr.Picture = stream.ToArray();
-                        usr.Save();
-                    }
-                }
-
-            }
             await new UserPicture()
             {
                 UserId = usr.Id,
@@ -473,62 +459,43 @@ namespace norsu.ass.Network
         private async void LoginHandler(PacketHeader packetheader, Connection connection, LoginRequest request)
         {
             var dev = GetDevice(connection);
-            
             if (dev == null) return;
             
             User user = null;
             if (request.Annonymous)
             {
-
+                //Create new anonymous user if allowed.
                 if (Settings.Default.AllowAnnonymousUser)
                 {
-                    user = new User();
-                    var rnd = new Random();
-                    var color = Color.FromArgb(255, rnd.Next(0, 255), rnd.Next(0, 255), rnd.Next(0, 255));
-                    var gen = new IdenticonGenerator()
-                        .WithBlocks(7, 7)
-                        .WithSize(128, 128)
-                        .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
-                        .WithBackgroundColor(Color.White)
-                        .WithBrushGenerator(new StaticColorBrushGenerator(color));
-
-                    using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
+                    user = new User()
                     {
-                        using (var stream = new MemoryStream())
-                        {
-                            pic.Save(stream, ImageFormat.Jpeg);
-                            user = new User()
-                            {
-                                Username = request.Username,
-                                Password = request.Password,
-                                Access = AccessLevels.Student,
-                                IsAnnonymous = true,
-                                Picture = stream.ToArray(),
-                            };
-                            user.Save();
-                        }
-                    }
-                    
+                        Username = request.Username,
+                        Password = request.Password,
+                        Access = AccessLevels.Student,
+                        IsAnnonymous = true,
+                        Picture = ImageProcessor.Generate(),
+                    };
+                    user.Save();
+                }
+                else
+                {
+                    await new LoginResult {Success = false}.Send(dev.IP, dev.Port);
+                    return;
                 }
 
             }
             else
             {
                 user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == request.Username.ToLower());
-                
             }
 
             var result = new LoginResult();
+            
             if(user != null)
             {
                 if (user.Password == request.Password)
                 {
-                    var sid = SessionID.Next(7, int.MaxValue);
-
-                    while (Sessions.ContainsKey(sid))
-                        sid = SessionID.Next(7, int.MaxValue);
-
-                    Sessions.Add(sid, user);
+                    var sid = GenerateSession(user);
                     var name = user.IsAnnonymous ? $"Anonymous" : user.Fullname;
                     result = new LoginResult(new Student()
                     {

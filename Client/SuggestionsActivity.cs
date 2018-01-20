@@ -29,6 +29,7 @@ namespace norsu.ass
                     FinishAffinity();
                 });
                 dlg.Show();
+                return;
             }
             Messenger.Default.AddListener(Messages.Shutdown, () =>
             {
