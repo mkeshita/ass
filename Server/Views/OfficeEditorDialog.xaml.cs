@@ -16,11 +16,7 @@ namespace norsu.ass.Server.Views
     /// </summary>
     public partial class OfficeEditorDialog : UserControl
     {
-        private const string ACCEPTED_EXTENSIONS = @"*.BMP;*.JPG;*.JPEG;*.GIF;*.PNG|
-        BMP Files|*.BMP;*.DIB;*.RLE|
-        JPEG Files|*.JPG;*.JPEG;*.JPE;*.JFIF|
-        GIF Files|*.GIF|
-        PNG Files|*.PNG";
+      
         public OfficeEditorDialog()
         {
             InitializeComponent();
@@ -28,7 +24,19 @@ namespace norsu.ass.Server.Views
 
         private void UIElement_OnPreviewDragOver(object sender, DragEventArgs e)
         {
-            
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[]) e.Data.GetData(DataFormats.FileDrop);
+                var file = files?.FirstOrDefault();
+                if (!ImageProcessor.IsAccepted(file))
+                {
+                    e.Effects = DragDropEffects.None;
+                    e.Handled = true;
+                    return;
+                }
+                e.Effects = DragDropEffects.All;
+            }
+            e.Effects = DragDropEffects.None;
         }
 
         private void UIElement_OnPreviewDrop(object sender, DragEventArgs e)
@@ -38,10 +46,8 @@ namespace norsu.ass.Server.Views
                 var files =(string[]) e.Data.GetData(DataFormats.FileDrop);
                 var file = files?.FirstOrDefault();
                 if (file == null) return;
-                var ext = System.IO.Path.GetExtension(file)?.ToUpper();
-                if (!ACCEPTED_EXTENSIONS.Contains(ext)) return;
-                if (!File.Exists(file)) return;
-
+                if(!ImageProcessor.IsAccepted(file)) return;
+                
                 using(var img = System.Drawing.Image.FromFile(file))
                 {
                     using (var bmp = ImageProcessor.Resize(img, 128))
@@ -83,5 +89,6 @@ namespace norsu.ass.Server.Views
                 }
             }
         }
+        
     }
 }

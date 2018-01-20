@@ -6,69 +6,92 @@
              xmlns:local="clr-namespace:norsu.ass.Server.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <materialDesign:ColorZone Mode="Light" CornerRadius="4" Padding="4"
-                                  Margin="20"
+
+    <materialDesign:ColorZone Mode="Light" CornerRadius="4" Padding="4"
                                   VerticalAlignment="Stretch">
-        <ListBox ItemsSource="{Binding Offices}"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ListBox ItemsSource="{Binding Offices}"
                  IsSynchronizedWithCurrentItem="True"
                  Grid.IsSharedSizeScope="True"
+                 HorizontalContentAlignment="Stretch"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <WrapPanel IsItemsHost="True"/>
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition SharedSizeGroup="a"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Margin="4">
-                                <Grid>
-                                    <materialDesign:PackIcon Kind="Bank"
-                                                             Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
-                                                     Height="32" Width="32"
-                                                     HorizontalAlignment="Center"/>
-                                    <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
-                                           Height="32" Width="32"/>
-                                </Grid>
-                                <TextBlock Text="{Binding ShortName}" TextAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"
-                                   MaxWidth="74"
-                                   MaxHeight="74" />
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Grid Margin="4" Grid.RowSpan="2"
+                                  HorizontalAlignment="Center">
+                                <Image Source="pack://application:,,,/norsu.png"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
+                                                         Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                                                         Height="48" Width="48"
+                                                         HorizontalAlignment="Center" />
+                                <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
+                                       Height="48" Width="48" />
+                            </Grid>
+
+
+                            <TextBlock Text="{Binding ShortName}" 
+                                       Margin="0 0 4 0"
+                                       FontSize="12pt"
+                                       TextTrimming="CharacterEllipsis"
+                                           Grid.Column="1"
+                                           Grid.Row="0"/>
+
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1"
+                                        Margin="0 0 4 0"
+                                        HorizontalAlignment="Right">
+                                <materialDesign:PackIcon Kind="Message"
+                                                         VerticalAlignment="Center"
+                                                         SnapsToDevicePixels="True"
+                                                         Height="12"
+                                                         Width="12" />
+                                <TextBlock Text="{Binding SuggestionCount}"
+                                           FontSize="7pt"
+                                           VerticalAlignment="Center"
+                                           Margin="0 0 10 0"/>
+                                <materialDesign:PackIcon Kind="Star"
+                                                         VerticalAlignment="Center"
+                                                         SnapsToDevicePixels="True"
+                                                         Height="12"
+                                                         Width="12" />
+                                <TextBlock VerticalAlignment="Center"
+                                           FontSize="7pt" >
+                                    <Run Text="{Binding Rating,StringFormat={} 0.0,Mode=OneWay}" />
+                                    <Run Text="/"/>
+                                    <Run Text="{Binding RatingCount,Mode=OneWay}"/>
+                                </TextBlock>
                             </StackPanel>
-                            <materialDesign:ColorZone IsHitTestVisible="False" CornerRadius="4"
-                                                      Mode="Accent"
-                                                      VerticalAlignment="Top"
-                                                      Padding="2 0"
-                                                      HorizontalAlignment="Left">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Star"
-                                                             SnapsToDevicePixels="True"
-                                                             Height="12"
-                                                             Width="12"/>
-                                    <TextBlock Text="{Binding Rating,StringFormat={}0.0}"
-                                               VerticalAlignment="Center"
-                                               FontSize="7pt"/>
-                                </StackPanel>
-                            </materialDesign:ColorZone>
                         </Grid>
                     </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        </materialDesign:ColorZone>
-        <Button Grid.Row="1" Content="NEW OFFICE"
-                Margin="20 0 20 20"
-                Command="{Binding AddOfficeCommand}"/>
-    </Grid>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Button Grid.Row="1" Content="NEW OFFICE"
+                    Visibility="{Binding CurrentUser.Access,
+            Converter={converters:EqualityConverter Operand={x:Static models:AccessLevels.SuperAdmin}}}"
+                    Margin="20 0 20 20"
+                    Command="{Binding AddOfficeCommand}" />
+
+        </Grid>
+    </materialDesign:ColorZone>
+
+
 </UserControl>

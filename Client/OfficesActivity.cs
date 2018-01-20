@@ -10,11 +10,10 @@ using Android.Views;
 using Android.Widget;
 using norsu.ass;
 using norsu.ass.Network;
-using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass
 {
-    [Activity(Label = "Username", Theme = "@style/AppTheme.NoActionBar", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
+    [Activity(Theme = "@style/AppTheme.NoActionBar", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class OfficesActivity : Activity
     {
@@ -24,6 +23,43 @@ namespace norsu.ass
         
         protected override async void OnCreate(Bundle savedInstanceState)
         {
+            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            if (Client.Server == null)
+            {
+                dlg.SetTitle("Connection to server is not established.");
+                dlg.SetMessage("Please make sure you are connected to the server and try again.");
+                dlg.SetNegativeButton("Exit", (sender, args) =>
+                {
+                    FinishAffinity();
+                });
+                dlg.Show();
+                return;
+            }
+            Messenger.Default.AddListener(Messages.Shutdown, () =>
+            {
+                RunOnUiThread(() =>
+                {
+                    try
+                    {
+
+                        dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                        dlg.SetMessage("Disconnected from server.");
+                        dlg.SetMessage("The server has shutdown. Please try again later.");
+                        dlg.SetPositiveButton("EXIT", (sender, args) =>
+                        {
+                            FinishAffinity();
+                        });
+                        dlg.SetCancelable(false);
+                        dlg.Show();
+
+                    }
+                    catch (Exception e)
+                    {
+                        FinishAffinity();
+                    }
+                });
+            });
+
             base.OnCreate(savedInstanceState);
 
             if (string.IsNullOrEmpty(Client.Username))
@@ -58,13 +94,7 @@ namespace norsu.ass
             }
 
             var offices = await Client.GetOffices();
-            var dlg = new AlertDialog.Builder(this);
-            dlg.SetTitle("Connection to server is not established.");
-            dlg.SetMessage("Please make sure you are connected to the server and try again.");
-            dlg.SetNegativeButton("Exit", (sender, args) =>
-            {
-                Finish();
-            });
+            
             while (offices == null)
             {
                 
@@ -76,6 +106,8 @@ namespace norsu.ass
 
             var progress = FindViewById<ProgressBar>(Resource.Id.progress);
             progress.Visibility = ViewStates.Gone;
+
+            
         }
 
         private void OfficesOnItemClick(object o, AdapterView.ItemClickEventArgs e)

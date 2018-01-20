@@ -10,6 +10,7 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:views="clr-namespace:norsu.ass.Server.Views"
              xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -24,6 +25,7 @@
             </Grid.ColumnDefinitions>
             <Image Source="pack://application:,,,/norsu.png"
                    Height="100"
+                   RenderOptions.BitmapScalingMode="HighQuality"
                    Width="100"
                    VerticalAlignment="Center"
                    Visibility="{Binding Offices/HasPicture,Converter={cnv:BooleanToVisibility Collapsed,Visible}}"/>
@@ -31,36 +33,43 @@
                    Height="100"
                    Width="100"
                    VerticalAlignment="Center" />
-            <StackPanel Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center"
+            <Grid Margin="20 0 0 0" Grid.Column="1" VerticalAlignment="Center"
                         x:Name="Panel">
-                <TextBlock Text="{Binding Offices/ShortName}"
-                           FontWeight="Bold"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <WrapPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Offices/ShortName}"
+                               FontWeight="Bold"
                                Style="{StaticResource MaterialDesignHeadlineTextBlock}" />
-                <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}" />
+                    <Button Margin="20 0 0 0" Command="{Binding EditOfficeCommand}"
+                            VerticalAlignment="Bottom"
+                            Style="{StaticResource MaterialDesignFlatAccentButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <md:PackIcon Kind="Pencil" />
+                            <TextBlock Text=" Edit" />
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
                 
-                    <StackPanel Orientation="Horizontal">
-                        <md:RatingBar Value="{Binding Offices/Rating}"
-                                      Margin="0 0 10 0"
+                <TextBlock Text="{Binding Offices/LongName}" Style="{StaticResource MaterialDesignSubheadingTextBlock}"
+                           Grid.Row="1"/>
+                <WrapPanel Orientation="Horizontal" Grid.Row="2">
+                    <md:RatingBar Value="{Binding Offices/Rating}"
+                                      Margin="0 0 10 0" Focusable="False"
                                       IsHitTestVisible="False"/>
-                        
-                        <md:PackIcon Kind="Account"
+
+                    <md:PackIcon Kind="Account"
                                      VerticalAlignment="Center"
                                      Margin="10 0 4 0"/>
-                        <TextBlock Text="{Binding Offices/RatingCount,StringFormat={}#\,##0}"
+                    <TextBlock Text="{Binding Offices/RatingCount,StringFormat={}#\,##0}"
                                    FontSize="10pt"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center" />
-
-                    <Button Margin="20 0 0 0" Command="{Binding EditOfficeCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <md:PackIcon Kind="Pencil"/>
-                            <TextBlock Text=" UPDATE INFO"/>
-                        </StackPanel>
-                    </Button>
-                        
-                    </StackPanel>
-                
-            </StackPanel>
+                </WrapPanel>
+            </Grid>
             
             <ListBox Grid.Column="2" x:Name="Box"
                      VerticalAlignment="Center">
@@ -158,10 +167,10 @@
                             </Grid>
                         </Viewbox>
                         <DataGrid ItemsSource="{Binding Ratings}" Grid.Column="0"
-                          AutoGenerateColumns="False"
-                          CanUserAddRows="False"
-                          CanUserDeleteRows="False"
-                          IsReadOnly="True">
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  IsReadOnly="True">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn SortMemberPath="Value" Header="Rating">
                                     <DataGridTemplateColumn.CellTemplate>
@@ -184,7 +193,27 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name" />
+                                <DataGridTemplateColumn Header="Name" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <TextBlock Text="{Binding User.Fullname}"
+                                                           Visibility="{Binding IsPrivate,Converter={cnv:BooleanToVisibility Collapsed,Visible}}" />
+                                            <Grid Visibility="{Binding IsPrivate,Converter={cnv:BooleanToVisibility}}">
+                                                <TextBlock Text="{Binding User.Fullname}"
+                                                           Visibility="{Binding Source={x:Static viewModels:MainViewModel.Instance},
+                                        Path=ShowPrivateName,
+                                        Converter={cnv:BooleanToVisibility}}" />
+                                                <md:PackIcon Kind="School"
+                                                                         Height="16" Width="16"
+                                                                         Visibility="{Binding Source={x:Static viewModels:MainViewModel.Instance},
+                                        Path=ShowPrivateName,
+                                        Converter={cnv:BooleanToVisibility Collapsed,Visible}}" />
+                                            </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Binding="{Binding User.Course}" Header="Course" />
                                 <DataGridTextColumn Binding="{Binding Message}" Header="Message"/>
                             </DataGrid.Columns>

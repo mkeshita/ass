@@ -14,5 +14,8 @@ namespace norsu.ass.Network
         public List<OfficeRating> Ratings { get; set; } = new List<OfficeRating>();
         [ProtoMember(3)]
         public float Rating { get; set; }
+        
+        [ProtoMember(4)]
+        public long TotalCount { get; set; }
     }
 }

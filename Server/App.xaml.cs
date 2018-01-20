@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Windows;
+using norsu.ass.Server.Properties;
 
 namespace norsu.ass.Server
 {
@@ -14,6 +15,13 @@ namespace norsu.ass.Server
             awooo.Context = SynchronizationContext.Current;
             awooo.IsRunning = true;
             Network.Server.Instance.Start();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Settings.Default.Save();
+            Network.Server.Instance.Stop();
+            base.OnExit(e);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
@@ -17,12 +18,53 @@ namespace norsu.ass
 
         private ImageView _officePicture;
         private TextView _officeShortName, _officeLongName, _officeRatingCount, _officeSuggestions;
-        private RatingBar _officeRating;
-        private Button _viewAllReviews,_viewAllSuggestions,_suggest,_review;
-        private LinearLayout _reviews, _suggestions;
+        private RatingBar _officeRating,_myRating;
+        private Button _viewAllReviews,_viewAllSuggestions,_suggest,_review,_submitReview,_submitSuggestion;
+        private LinearLayout _reviews, _suggestions, _reviewProgress,_suggestionProgress;
+        private RelativeLayout _reviewView,_suggestionView;
+        private EditText _myReview,_suggestionSubject,_suggestionBody;
+        private CheckBox _privateBox,_suggestionPrivate;
+        private ProgressBar _reviewsProgress, _suggestionsProgress;
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            if (Client.Server == null)
+            {
+                dlg.SetTitle("Connection to server is not established.");
+                dlg.SetMessage("Please make sure you are connected to the server and try again.");
+                dlg.SetNegativeButton("Exit", (sender, args) =>
+                {
+                    FinishAffinity();
+                });
+                dlg.Show();
+                return;
+            }
+            Messenger.Default.AddListener(Messages.Shutdown, () =>
+            {
+                RunOnUiThread(() =>
+                {
+                    try
+                    {
+
+                        dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                        dlg.SetMessage("Disconnected from server.");
+                        dlg.SetMessage("The server has shutdown. Please try again later.");
+                        dlg.SetPositiveButton("EXIT", (sender, args) =>
+                        {
+                            FinishAffinity();
+                        });
+                        dlg.SetCancelable(false);
+                        dlg.Show();
+
+                    }
+                    catch (Exception e)
+                    {
+                        FinishAffinity();
+                    }
+                });
+            });
+            
             if(Client.SelectedOffice == null)
                 Finish();
 
@@ -30,6 +72,15 @@ namespace norsu.ass
 
             SetContentView(Resource.Layout.Office);
 
+            _reviewsProgress = FindViewById<ProgressBar>(Resource.Id.reviews_progress);
+            _suggestionsProgress = FindViewById<ProgressBar>(Resource.Id.suggestions_progress);
+            
+            _submitSuggestion = FindViewById<Button>(Resource.Id.submit_suggestion);
+            _suggestionProgress = FindViewById<LinearLayout>(Resource.Id.suggestion_progress);
+            _suggestionView = FindViewById<RelativeLayout>(Resource.Id.suggestion_view);
+            _suggestionSubject = FindViewById<EditText>(Resource.Id.suggestion_subject);
+            _suggestionBody = FindViewById<EditText>(Resource.Id.suggestion_body);
+            _suggestionPrivate = FindViewById<CheckBox>(Resource.Id.suggestion_private);
 
             _officePicture = FindViewById<ImageView>(Resource.Id.officePicture);
             _officeShortName = FindViewById<TextView>(Resource.Id.officeShortName);
@@ -37,24 +88,168 @@ namespace norsu.ass
             _officeSuggestions = FindViewById<TextView>(Resource.Id.officeSuggestions);
             _officeRatingCount = FindViewById<TextView>(Resource.Id.officeRatingCount);
             _officeRating = FindViewById<RatingBar>(Resource.Id.officeRating);
+
             _viewAllReviews = FindViewById<Button>(Resource.Id.viewAllReviews);
+            _viewAllReviews.Visibility = ViewStates.Gone;
+            
             _viewAllSuggestions = FindViewById<Button>(Resource.Id.viewAllSuggestions);
+            _viewAllSuggestions.Visibility = ViewStates.Gone;
+            
             _suggest = FindViewById<Button>(Resource.Id.suggest);
             _review = FindViewById<Button>(Resource.Id.review);
             _reviews = FindViewById<LinearLayout>(Resource.Id.reviews);
             _suggestions = FindViewById<LinearLayout>(Resource.Id.suggestions);
+            _privateBox = FindViewById<CheckBox>(Resource.Id.privateCheckbox);
 
-
+            _reviewView = FindViewById<RelativeLayout>(Resource.Id.review_view);
+            _reviewView.Visibility = ViewStates.Gone;
+            
+            _reviewProgress = FindViewById<LinearLayout>(Resource.Id.reviewProgress);
+            _submitReview = FindViewById<Button>(Resource.Id.submit_review);
+            _myRating = FindViewById<RatingBar>(Resource.Id.rating);
+            _myReview = FindViewById<EditText>(Resource.Id.review_text);
+            
             _viewAllSuggestions.Text = "VIEW ALL " + Client.SelectedOffice?.SuggestionsCount;
             _viewAllReviews.Text = "VIEW ALL " + Client.SelectedOffice?.RatingCount;
 
             SetupOffice();
             GetReviews();
+            
+            _review.Click += ReviewOnClick;
+            _submitReview.Click += SubmitReviewOnClick;
+            
+            _suggest.Click += SuggestOnClick;
+            _submitSuggestion.Click += SubmitSuggestionOnClick;
+            
         }
 
-        private async void GetReviews()
+        private async void SubmitSuggestionOnClick(object sender, EventArgs eventArgs)
         {
-            var result = await Client.GetRatings(Client.SelectedOffice.Id,7);
+            if (_suggestionBody.Text.Length == 0) return;
+            if (_suggestionSubject.Text.Length == 0) return;
+            
+            _review.Enabled = false;
+            _suggestionProgress.Visibility = ViewStates.Visible;
+            _suggestionPrivate.Visibility = ViewStates.Gone;
+            _suggestionSubject.Enabled = false;
+            _suggestionBody.Enabled = false;
+            _submitSuggestion.Enabled = false;
+            
+            var result = await Client.Suggest(Client.SelectedOffice.Id, 
+                _suggestionSubject.Text, 
+                _suggestionBody.Text,
+                _suggestionPrivate.Checked);
+
+            _suggestionProgress.Visibility = ViewStates.Gone;
+            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+            _suggestionBody.Enabled = true;
+            _suggestionSubject.Enabled = true;
+            _submitSuggestion.Enabled = true;
+            _review.Enabled = true;
+
+            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            if (result == null)
+            {
+                dlg.SetMessage("Please make sure you are connected to the server.");
+                dlg.SetTitle("Failed to submit your suggestion. Retry?");
+                dlg.SetPositiveButton("RETRY", (o, args) =>
+                {
+                    SubmitSuggestionOnClick(sender, eventArgs);
+                });
+                dlg.SetNegativeButton("CANCEL", (o, args) =>
+                {
+
+                });
+                dlg.Show();
+                return;
+            }
+            dlg.SetTitle("Congratulations!");
+            dlg.SetMessage($"Your suggestion has been submitted.");
+            dlg.SetCancelable(true);
+            dlg.Show();
+
+            _suggestionView.Visibility = ViewStates.Gone;
+            _suggest.Enabled = true;
+            _officeSuggestions.Text = result.TotalCount.ToString("#,##0");
+
+            if (_suggestions.ChildCount == 7) return;
+            _suggestions.RemoveAllViews();
+            foreach (var item in result.Items)
+            {
+                var row = SuggestionsAdapter.GetView(
+                    LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
+
+                row.Clickable = true;
+                row.Click += (s, args) =>
+                {
+                    Client.SelectedSuggestion = item;
+                    StartActivity(typeof(SuggestionView));
+                };
+
+                _suggestions.AddView(row);
+            }
+        }
+
+        private void SuggestOnClick(object sender, EventArgs eventArgs)
+        {
+            _suggest.Enabled = false;
+            _review.Enabled = true;
+            _suggestionView.Visibility = ViewStates.Visible;
+            _reviewView.Visibility = ViewStates.Gone;
+            _suggestionProgress.Visibility = ViewStates.Gone;
+            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+        }
+
+        private async void SubmitReviewOnClick(object sender, EventArgs eventArgs)
+        {
+            _reviewProgress.Visibility = ViewStates.Visible;
+            _privateBox.Visibility = ViewStates.Gone;
+            _submitReview.Enabled = false;
+            _myReview.Enabled = false;
+            _myRating.Enabled = false;
+            _suggest.Enabled = false;
+            
+            var result = await Client.RateOffice(Client.SelectedOffice.Id,(int) _myRating.Rating, _myReview.Text, _privateBox.Checked, 7);
+            
+            _reviewProgress.Visibility = ViewStates.Gone;
+            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+            _submitReview.Enabled = true;
+            _myReview.Enabled = true;
+            _myRating.Enabled = true;
+            _suggest.Enabled = true;
+            
+            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            if (result == null)
+            {   
+                dlg.SetMessage("Please make sure you are connected to the server.");
+                dlg.SetTitle("Failed to submit your review. Retry?");
+                dlg.SetPositiveButton("RETRY", (o, args) =>
+                {
+                    SubmitReviewOnClick(sender,eventArgs);
+                });
+                dlg.SetNegativeButton("CANCEL", (o, args) =>
+                {
+
+                });
+                dlg.Show();
+                return;
+            }
+            
+            dlg.SetTitle("Congratulations!");
+            dlg.SetMessage($"Your review for {Client.SelectedOffice.ShortName} has been submitted.");
+            dlg.SetCancelable(true);
+            dlg.Show();
+            _reviewView.Visibility = ViewStates.Gone;
+            _review.Enabled = true;
+            
+            Client.SelectedOffice.Rating = result.Rating;
+            Client.SelectedOffice.RatingCount = result.TotalCount;
+            
+            _officeRatingCount.Text = result.TotalCount.ToString("#,##0");
+            _officeRating.Rating = result.Rating;
+            Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
+            
+            _reviews.RemoveAllViews();
             foreach (var item in result.Ratings)
                 _reviews.AddView(
                     RatingsAdapter.GetView(
@@ -63,18 +258,63 @@ namespace norsu.ass
                         this
                     )
                 );
+        }
+
+        private void ReviewOnClick(object sender, EventArgs eventArgs)
+        {
+            _suggestionView.Visibility = ViewStates.Gone;
+            _reviewView.Visibility = ViewStates.Visible;
+            _reviewProgress.Visibility = ViewStates.Gone;
+            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+            _review.Enabled = false;
+            _suggest.Enabled = true;
+        }
+
+        private async void GetReviews()
+        {
+            var result = await Client.GetRatings(Client.SelectedOffice.Id,7);
+
+            _reviewsProgress.Visibility = ViewStates.Gone;
+            
+            if (result != null)
+            {
+                Client.SelectedOffice.Rating = result.Rating;
+                Client.SelectedOffice.RatingCount = result.TotalCount;
+
+                _officeRating.Rating = result.Rating;
+                _officeRatingCount.Text = result.TotalCount.ToString("#,##0");
+                Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
+
+                foreach (var item in result.Ratings)
+                {
+                    var row = RatingsAdapter.GetView(
+                        LayoutInflater.Inflate(Resource.Layout.RatingRow, null, false),
+                        item,
+                        this);
+                    _reviews.AddView(row);
+                }
+            }
 
 
             var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,7);
+
+            _suggestionsProgress.Visibility = ViewStates.Gone;
             
+            if(suggestions!=null)
             foreach (var item in suggestions.Items)
-                _suggestions.AddView(
-                    SuggestionsAdapter.GetView(
-                        LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false),
-                        item,
-                        this
-                    )
-                );
+                {
+                    var row = SuggestionsAdapter.GetView(
+                        LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false),item,this);
+
+                    row.Clickable = true;
+                    row.Click += (sender, args) =>
+                    {
+                        Client.SelectedSuggestion = item;
+                        StartActivity(typeof(SuggestionView));
+                    };
+                    
+                    _suggestions.AddView(row);
+                }
 
         }
         

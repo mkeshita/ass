@@ -27,6 +27,11 @@ namespace norsu.ass.Network
         {
             await Packet.Send(this, ep);
         }
+
+        public async Task Send(AndroidDevice dev)
+        {
+            await Send(dev.IP, dev.Port);
+        }
     }
 
     class Packet

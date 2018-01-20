@@ -40,6 +40,12 @@ namespace norsu.ass.Network
 
         [ProtoMember(11)]
         public long Comments { get; set; }
+        
+        [ProtoMember(12)]
+        public bool AllowComment { get; set; }
+        
+        [ProtoMember(13)]
+        public long CommentsDisabledBy { get; set; }
     }
 
     [ProtoContract]
@@ -63,6 +69,9 @@ namespace norsu.ass.Network
 
         [ProtoMember(2)]
         public List<Suggestion> Items { get; set; } = new List<Suggestion>();
+
+        [ProtoMember(3)]
+        public long TotalCount { get; set; }
     }
 
     [ProtoContract]

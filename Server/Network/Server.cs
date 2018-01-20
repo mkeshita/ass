@@ -9,9 +9,11 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Devcorner.NIdenticon;
 using Devcorner.NIdenticon.BrushGenerators;
 using norsu.ass.Models;
+using norsu.ass.Server;
 using norsu.ass.Server.Properties;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
@@ -39,11 +41,95 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<GetSuggestions>(GetSuggestions.Header,GetSuggestionsHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<Suggest>(Suggest.Header,SuggestionHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetPicture>(GetPicture.Header, GetPictureHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetOfficePicture>(GetOfficePicture.Header, GetOfficePictureHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<RegistrationRequest>(RegistrationRequest.Header, RegistrationHandler);
 
             NetworkComms.AppendGlobalIncomingPacketHandler<LikeSuggestion>(LikeSuggestion.Header, LikeSuggestionHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void RegistrationHandler(PacketHeader packetHeader, Connection connection, RegistrationRequest i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null) return;
+
+            //Check if registration is enabled
+            if (!Settings.Default.AllowAndroidRegistration)
+            {
+                await new RegistrationResult()
+                {
+                    Success = false,
+                    Message = "Registration is disabled"
+                }.Send(dev.IP, dev.Port);
+                return;
+            }
+            
+            //Check if username is taken.
+            var user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == i.Username.ToLower() && !x.IsAnnonymous);
+            if (user != null)
+            {
+                //return failed registration
+                await new RegistrationResult()
+                {
+                    Message = "Student ID already registered!",
+                    Success = false,
+                }.Send(dev.IP, dev.Port);
+                return;
+            }
+            
+            //Add new user
+            user = new User()
+            {
+                Username = i.Username,
+                Access = AccessLevels.Student,
+                Course = i.Course,
+                Firstname = i.Firstname,
+                Lastname = i.Lastname,
+                IsAnnonymous = false,
+                Password = i.Password,
+                Picture = ImageProcessor.Generate(),
+            };
+            user.Save();
+
+            var sid = GenerateSession(user);
+            
+            //return successful registration
+            await new RegistrationResult()
+            {
+                Success = true,
+                UserId = user.Id,
+                Session = sid,
+            }.Send(dev.IP, dev.Port);
+        }
+
+        private int GenerateSession(User user)
+        {
+            var sid = SessionID.Next(7, int.MaxValue);
+            while (Sessions.ContainsKey(sid))
+                sid = SessionID.Next(7, int.MaxValue);
+            Sessions.Add(sid, user);
+            return sid;
+        }
+
+        private async void GetOfficePictureHandler(PacketHeader packetheader, Connection connection, GetOfficePicture i)
+        {
+            var dev = GetDevice(connection);
+            if (dev == null)
+                return;
+
+            if (!Sessions.ContainsKey(i.Session)) return;
+            var office = Models.Office.GetById(i.OfficeId);
+            if (office == null) return;
+
+            if (!office.HasPicture) return;
+            
+            await new OfficePicture()
+            {
+                OfficeId = office.Id,
+                Picture = office.Picture,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void GetPictureHandler(PacketHeader packetheader, Connection connection, GetPicture i)
@@ -52,35 +138,33 @@ namespace norsu.ass.Network
             if (dev == null)
                 return;
 
-            if (!Sessions.ContainsKey(i.Session))
-                return;
-            var usr = User.GetById(i.UserId);
-            if (usr == null) return;
-            if (!usr.HasPicture)
-            {
-                var gen = new IdenticonGenerator()
-                    .WithBlocks(7, 7)
-                    .WithSize(128, 128)
-                    .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
-                    .WithBackgroundColor(Color.White);
-                //.WithBrushGenerator(new StaticColorBrushGenerator(Color.DodgerBlue));
+            if (!Sessions.ContainsKey(i.Session)) return;
 
-                using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
+            if (i.UserId > 0)
+            {
+                var usr = User.GetById(i.UserId);
+                if (usr == null) return;
+
+                if (!usr.HasPicture) usr.Update(nameof(User.Picture), ImageProcessor.Generate());
+
+                await new UserPicture()
                 {
-                    using (var stream = new MemoryStream())
-                    {
-                        pic.Save(stream, ImageFormat.Jpeg);
-                        usr.Picture = stream.ToArray();
-                        usr.Save();
-                    }
-                }
-
-            }
-            await new UserPicture()
+                    UserId = usr.Id,
+                    Picture = usr.Picture,
+                }.Send(dev.IP, dev.Port);
+            } else if (i.UserId < 0)
             {
-                UserId = usr.Id,
-                Picture = usr.Picture,
-            }.Send(dev.IP,dev.Port);
+                var office = Models.Office.GetById(Math.Abs(i.UserId));
+                if (office == null) return;
+
+                if (!office.HasPicture) return;
+
+                await new UserPicture()
+                {
+                    UserId = i.UserId,
+                    Picture = office.Picture,
+                }.Send(dev.IP, dev.Port);
+            }
         }
 
         private async void AddCommentHandler(PacketHeader packetheader, Connection connection, AddComment i)
@@ -119,14 +203,30 @@ namespace norsu.ass.Network
                 SuggestionId = i.SuggestionId,
                 UserId = student.Id
             };
-            
+
+            var likes = GetLikes(i.SuggestionId);
             like.Dislike = i.Dislike;
             like.Save();
+
+            while (true)
+            {
+                try
+                {
+                    if(Like.Cache.Any(x=>x.Id==like.Id)) break;
+                    await TaskEx.Delay(10);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
             
-            await Packet.Send(Requests.LIKE_SUGGESTION, GetLikes(i.SuggestionId), dev.IP, dev.Port);
+            likes = GetLikes(i.SuggestionId);
+
+            await Packet.Send(Requests.LIKE_SUGGESTION, likes, dev.IP, dev.Port);
         }
 
-        private void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
+        private async void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
         {
             var dev = GetDevice(connection);
             if (dev == null)
@@ -136,16 +236,30 @@ namespace norsu.ass.Network
                 return;
             var student = Sessions[i.Session];
             
-            new Models.Suggestion()
-            {
-                Body = i.Body,
-                IsPrivate = i.IsPrivate,
-                OfficeId = i.OfficeId,
-                UserId = student.Id,
-                Title = i.Subject
-            }.Save();
+            var s = new Models.Suggestion()
+                {
+                    Body = i.Body,
+                    IsPrivate = i.IsPrivate,
+                    OfficeId = i.OfficeId,
+                    UserId = student.Id,
+                    Title = i.Subject
+                };
+            s.Save();
 
-            SendSuggestions(i.OfficeId, dev, student);
+            while (true)
+            {
+                try
+                {
+                    if(Models.Suggestion.Cache.Any(x=>x.Id==s.Id)) break;
+                    await TaskEx.Delay(10);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+            
+            SendSuggestions(i.OfficeId, dev, student, 7);
         }
 
         private void GetSuggestionsHandler(PacketHeader packetheader, Connection connection, GetSuggestions i)
@@ -181,7 +295,8 @@ namespace norsu.ass.Network
         {
             var result = new Suggestions();
             var comments = Models.Suggestion.Cache.
-                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id)).ToList();
+                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id))
+                .OrderByDescending(x=> GetLikes(x.Id)).ToList();
             foreach (var item in comments)
             {
                 result.Items.Add(new Suggestion()
@@ -192,9 +307,12 @@ namespace norsu.ass.Network
                     Likes = GetLikes(item.Id),
                     Id = item.Id,
                     UserId = item.UserId,
+                    AllowComment = item.AllowComments,
+                    CommentsDisabledBy = item.CommentsDisabledBy
                 });
                 if(count>0 && result.Items.Count>=count) break;
             }
+            result.TotalCount = Models.Suggestion.Cache.Count(x => x.OfficeId == id);
             await result.Send(dev.IP, dev.Port);
         }
 
@@ -212,19 +330,39 @@ namespace norsu.ass.Network
 
         private async void SendComments(long id, AndroidDevice dev)
         {
+            var suggestion = Models.Suggestion.Cache.FirstOrDefault(x => x.Id == id);
+            if (suggestion == null) return;
+            
             var result = new Comments();
             var comments = Models.Comment.Cache.Where(x => x.SuggestionId == id).ToList();
             foreach (var comment in comments)
             {
-                result.Items.Add(new Comment()
+                var com = new Comment()
                 {
                     Id = comment.Id,
                     Message = comment.Message,
                     ParentId = comment.ParentId,
                     Sender = comment.User.IsAnnonymous ? "Anonymous" : comment.User.Fullname,
                     SuggestionId = id,
+                    Time = comment.Time,
                     UserId = comment.UserId,
-                });
+                };
+                
+                if (Settings.Default.OfficeAdminCommentAsOffice)
+                {
+                    var usr = User.GetById(comment.UserId);
+                    
+                    var admin = (usr.Access == AccessLevels.SuperAdmin);
+                    if(!admin) admin = OfficeAdmin.Cache.Any(x =>x.OfficeId == suggestion.OfficeId && x.UserId == comment.UserId);
+
+                    if (admin)
+                    {
+                        com.Sender = Models.Office.GetById(suggestion.OfficeId).ShortName;
+                        com.UserId = -suggestion.OfficeId;
+                    }
+                }
+                
+                result.Items.Add(com);
             }
             await result.Send(dev.IP, dev.Port);
         }
@@ -263,14 +401,31 @@ namespace norsu.ass.Network
             studentRating.Value = rating.Rating;
             studentRating.Save();
 
-            SendRatings(rating.OfficeId, dev, student);
+            SendRatings(rating.OfficeId, dev, student, rating.ReturnCount);
         }
 
         private async void SendRatings(long officeId, AndroidDevice dev, User user, long count = -1)
         {
             var result = new OfficeRatings();
             result.OfficeId = officeId;
-            var ratings = Models.Rating.Cache.Where(x => x.OfficeId == officeId).ToList();
+
+            var myRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == officeId && x.UserId == user.Id);
+            if(myRating!=null)
+                result.Ratings.Add(
+                    new OfficeRating()
+                    {
+                        IsPrivate = myRating.IsPrivate,
+                        Rating = myRating.Value,
+                        Message = myRating.Message,
+                        OfficeId = myRating.OfficeId,
+                        StudentName = user.IsAnnonymous ? "Anonymous" : user?.Fullname,
+                        MyRating = true,
+                        UserId = user.Id,
+                    }
+                );
+
+            var ratings = Models.Rating.Cache.Where(x => x.OfficeId == officeId && x.UserId != user.Id && !x.IsPrivate)
+                .OrderByDescending(x=>x.Id).ToList();
 
             foreach (var item in ratings)
             {
@@ -289,7 +444,8 @@ namespace norsu.ass.Network
                 );
                 if(count>0 && result.Ratings.Count>=count) break;
             }
-
+            result.TotalCount = Models.Rating.Cache.Count(x => x.OfficeId == officeId);
+            result.Rating = Models.Rating.Cache.Where(x => x.OfficeId == officeId).Average(x => x.Value * 1f);
             await result.Send(dev.IP, dev.Port);
         }
 
@@ -337,68 +493,56 @@ namespace norsu.ass.Network
         private async void LoginHandler(PacketHeader packetheader, Connection connection, LoginRequest request)
         {
             var dev = GetDevice(connection);
-            
             if (dev == null) return;
             
             User user = null;
             if (request.Annonymous)
             {
-
+                //Create new anonymous user if allowed.
                 if (Settings.Default.AllowAnnonymousUser)
                 {
-                    user = new User();
-                    var rnd = new Random();
-                    var color = Color.FromArgb(255, rnd.Next(0, 255), rnd.Next(0, 255), rnd.Next(0, 255));
-                    var gen = new IdenticonGenerator()
-                        .WithBlocks(7, 7)
-                        .WithSize(128, 128)
-                        .WithBlockGenerators(IdenticonGenerator.ExtendedBlockGeneratorsConfig)
-                        .WithBackgroundColor(Color.White)
-                        .WithBrushGenerator(new StaticColorBrushGenerator(color));
-
-                    using (var pic = gen.Create("awooo" + DateTime.Now.Ticks))
+                    user = new User()
                     {
-                        using (var stream = new MemoryStream())
-                        {
-                            pic.Save(stream, ImageFormat.Jpeg);
-                            user = new User()
-                            {
-                                Username = request.Username,
-                                Password = request.Password,
-                                Access = User.AccessLevels.Student,
-                                IsAnnonymous = true,
-                                Picture = stream.ToArray(),
-                            };
-                            user.Save();
-                        }
-                    }
-                    
+                        Username = request.Username,
+                        Password = request.Password,
+                        Access = AccessLevels.Student,
+                        IsAnnonymous = true,
+                        Picture = ImageProcessor.Generate(),
+                    };
+                    user.Save();
+                }
+                else
+                {
+                    await new LoginResult {Success = false}.Send(dev.IP, dev.Port);
+                    return;
                 }
 
             }
             else
             {
                 user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == request.Username.ToLower());
-                
             }
 
             var result = new LoginResult();
+            
             if(user != null)
             {
-                var sid = SessionID.Next(7, int.MaxValue);
-
-                while (Sessions.ContainsKey(sid))
-                    sid = SessionID.Next(7, int.MaxValue);
-
-                Sessions.Add(sid, user);
-                var name = user.IsAnnonymous ? $"Anonymous" : user.Fullname;
-                result = new LoginResult(new Student()
+                if (user.Password == request.Password)
                 {
-                    Name = name,
-                    UserName = user.Username,
-                    IsAnonymous = user.IsAnnonymous,
-                    Id = user.Id,
-                }, sid);
+                    var sid = GenerateSession(user);
+                    var name = user.IsAnnonymous ? $"Anonymous" : user.Fullname;
+                    result = new LoginResult(new Student()
+                    {
+                        Name = name,
+                        UserName = user.Username,
+                        IsAnonymous = user.IsAnnonymous,
+                        Id = user.Id,
+                    }, sid);
+                }
+                else
+                {
+                    result.Success = false;
+                }
             }
             await result.Send(dev.IP, dev.Port);
         }
@@ -485,8 +629,13 @@ namespace norsu.ass.Network
             OnPropertyChanged(nameof(LocalEndPoints));
         }
 
-        public void Stop()
+        public async void Stop()
         {
+            var msg = new Shutdown();
+            List<AndroidDevice> devs;
+            lock (Devices) devs = Devices.ToList();
+            foreach (var dev in devs) if(dev!=null) await msg.Send(dev.IP, dev.Port);
+            
             Connection.StopListening();
         }
 

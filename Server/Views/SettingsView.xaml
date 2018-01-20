@@ -4,9 +4,171 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:norsu.ass.Server.Views"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:properties="clr-namespace:norsu.ass.Server.Properties"
+             xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
+             xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
              mc:Ignorable="d" 
+             Focusable="False"
+             IsHitTestVisible="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=CurrentUser.Access,Converter={converters:EqualityConverter Operand={x:Static models:AccessLevels.SuperAdmin}, ReturnType=Boolean}}"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-            
-    </Grid>
+    <Border Background="{StaticResource MaterialDesignPaper}"
+            Focusable="False"
+            Padding="0 0 0 7"
+            CornerRadius="0 0 7 7">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <md:ColorZone Mode="Light">
+                <Grid Margin="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Margin="0 0 0 20">
+                        <TextBlock Text="Android Registration" FontWeight="Bold"/>
+                        <TextBlock Text="Students can register through the android app."
+                           Visibility="{Binding ElementName=RegistrationToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                           TextWrapping="Wrap"
+                           Opacity="0.7"/>
+                        <TextBlock Text="Registration through android app is disabled."
+                           TextWrapping="Wrap"
+                           Visibility="{Binding ElementName=RegistrationToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                           Opacity="0.7" />
+                    </StackPanel>
+
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}" 
+                          x:Name="RegistrationToggle" Focusable="False"
+                          IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=AllowAndroidRegistration}"
+                          VerticalAlignment="Top"
+                          Grid.Column="1"/>
+
+                    <StackPanel Margin="0 0 0 20" Grid.Row="1">
+                        <TextBlock Text="Anonymous" FontWeight="Bold" />
+                        <TextBlock Text="Allow anonymous reviews and/or suggestions."
+                           Visibility="{Binding ElementName=AnonymousToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                           TextWrapping="Wrap"
+                           Opacity="0.7" />
+                        <TextBlock Text="A student account is required to give reviews and/or suggestions."
+                           TextWrapping="Wrap"
+                           Visibility="{Binding ElementName=AnonymousToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                           Opacity="0.7" />
+                    </StackPanel>
+
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                          x:Name="AnonymousToggle"
+                          IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=AllowAnnonymousUser}"
+                          Grid.Row="1" Focusable="False"
+                          VerticalAlignment="Top"
+                          Grid.Column="1" />
+
+                    <StackPanel Margin="0 0 0 20" Grid.Row="2">
+                        <TextBlock Text="Private Reviews/Suggestions" FontWeight="Bold" />
+                        <TextBlock Text="Students can make their reviews and suggestions private. Private reviews and suggestions are only visible to administrators."
+                           Visibility="{Binding ElementName=PrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                           TextWrapping="Wrap"
+                           Opacity="0.7" />
+                        <TextBlock Text="All reviews and suggestions are public. Public revies and suggestions are visible to everyone."
+                           TextWrapping="Wrap"
+                           Visibility="{Binding ElementName=PrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                           Opacity="0.7" />
+                    </StackPanel>
+
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                          x:Name="PrivateToggle"
+                          IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=AllowUserPrivateSuggestion}"
+                          Grid.Row="2" Focusable="False"
+                          VerticalAlignment="Top"
+                          Grid.Column="1" />
+
+                    <TextBlock Grid.Row="3" Text="OFFICE ADMINISTRATORS" FontWeight="Bold"
+                       Margin="0 10"/>
+                    <StackPanel Margin="0 0 0 20" Grid.Row="4">
+                        <TextBlock Text="Delete Suggestions" FontWeight="Bold" />
+                        <TextBlock
+                        Text="Office administrators can delete suggestions."
+                        Visibility="{Binding ElementName=AdminDeleteToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                        TextWrapping="Wrap"
+                        Opacity="0.7" />
+                        <TextBlock
+                        Text="Only SuperAdmins can delete suggestions."
+                        TextWrapping="Wrap"
+                        Visibility="{Binding ElementName=AdminDeleteToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                        Opacity="0.7" />
+                    </StackPanel>
+
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                              x:Name="AdminDeleteToggle"
+                              IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=OfficeAdminCanDeleteSuggestions}"
+                              Grid.Row="4" Focusable="False"
+                              VerticalAlignment="Top"
+                              Grid.Column="1" />
+
+                    <StackPanel Margin="0 0 0 20" Grid.Row="5">
+                        <TextBlock Text="Student Privacy" FontWeight="Bold" />
+                        <TextBlock
+                            Text="Names of private suggestions and reviews are visible to Office Admins."
+                            Visibility="{Binding ElementName=AdminPrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+                        <TextBlock
+                            Text="Office admins can not see the names of private suggestions and reviews."
+                            TextWrapping="Wrap"
+                            Visibility="{Binding ElementName=AdminPrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                            Opacity="0.7" />
+                    </StackPanel>
+
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                                  x:Name="AdminPrivateToggle"
+                                  IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=OfficeAdminCanSeeUserFullname}"
+                                  Grid.Row="5" Focusable="False"
+                                  VerticalAlignment="Top"
+                                  Grid.Column="1" />
+
+                    <StackPanel Margin="0 0 0 20" Grid.Row="6">
+                        <TextBlock Text="Reply As Office" FontWeight="Bold" />
+                        <TextBlock
+                            Text="Office admins will reply as the office itself. Their names are hidden to public."
+                            Visibility="{Binding ElementName=AdminReplyAsToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+                        <TextBlock
+                            Text="Office admins will reply as themselves. Their names will be visible."
+                            TextWrapping="Wrap"
+                            Visibility="{Binding ElementName=AdminReplyAsToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                            Opacity="0.7" />
+                    </StackPanel>
+
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                                  x:Name="AdminReplyAsToggle"
+                                  IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=OfficeAdminCommentAsOffice}"
+                                  Grid.Row="6" Focusable="False"
+                                  VerticalAlignment="Top"
+                                  Grid.Column="1" />
+                </Grid>
+
+            </md:ColorZone>
+        </ScrollViewer>
+    </Border>
 </UserControl>

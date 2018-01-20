@@ -10,7 +10,7 @@ using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Label = "RatingsActivity", Theme = "@style/AppTheme",
+    [Activity(Theme = "@style/AppTheme",
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait)]
     public class CommentsActivity : AppCompatActivity

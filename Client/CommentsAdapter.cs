@@ -31,11 +31,18 @@ namespace norsu.ass
         public override View GetView(int position, View convertView, ViewGroup parent)
         {
             var item = _items[position];
+            return GetView(item, convertView, _context);
+        }
+
+        public static View GetView(Comment item, View convertView, Activity _context)
+        {
+           
 
             var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.CommentRow, null);
-            
+
             view.FindViewById<TextView>(Resource.Id.name).Text = item.Sender;
             view.FindViewById<TextView>(Resource.Id.comment).Text = item.Message;
+            view.FindViewById<TextView>(Resource.Id.date).Text = item.Time.ToString("g");
 
             var usr = Client.GetPicture(item.UserId);
             if (usr != null)
@@ -53,7 +60,7 @@ namespace norsu.ass
                                 .SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length)));
                     });
             }
-            
+
             return view;
         }
     }

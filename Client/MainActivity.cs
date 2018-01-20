@@ -7,14 +7,21 @@ using Android.OS;
 using Android.Support.V7.App;
 using Android.Views;
 using norsu.ass.Network;
-using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass
 {
-    [Activity(Icon = "@drawable/ic_launcher",Label = "NORSU ASS",  Theme = "@style/AppTheme.Splash", MainLauncher = true,
+    public enum Screens
+    {
+        Login,
+        Registration,
+        Offices,
+    }
+    
+    [Activity(Icon = "@drawable/ic_launcher",  Theme = "@style/AppTheme.Splash", MainLauncher = true,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
     public class MainActivity : Activity
     {
+        
 
         protected override void OnStart()
         {
@@ -22,13 +29,15 @@ namespace norsu.ass
             FindServer();
         }
 
+        public static Screens CurrentScreen { get; set; } = Screens.Login;
+
         private async void FindServer()
         {
             await Client.FindServer();
             if (Client.Server == null)
             {
                 SetTheme(Android.Resource.Style.ThemeHoloLightDialogNoActionBar);
-                var dlg = new AlertDialog.Builder(this);
+                var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
                 dlg.SetTitle("Retry to connect to server?");
                 dlg.SetCancelable(false);
                 dlg.SetMessage("The server is not accessible. Make sure you are connected to NORSU's wifi and try again.");
@@ -45,7 +54,6 @@ namespace norsu.ass
             else
             {
                 StartActivity(typeof(LoginActivity));
-                Finish();
             }
         }
     }

@@ -87,7 +87,6 @@
 
                 <md:ColorZone Grid.Column="0" Grid.Row="1"
                       BorderBrush="{StaticResource MaterialDesignLightBackground}"
-                     
                       Mode="PrimaryDark"
                       Margin="20"
                       CornerRadius="7"
@@ -101,7 +100,7 @@
                             </LinearGradientBrush.GradientStops>
                         </LinearGradientBrush>
                     </md:ColorZone.Background>
-                    <Grid MaxWidth="333">
+                    <Grid MaxWidth="250">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>

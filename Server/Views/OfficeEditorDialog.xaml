@@ -37,6 +37,7 @@
                 <Button Height="Auto" Width="Auto"
                         AllowDrop="True"
                         Click="ButtonBase_OnClick"
+                        PreviewDragEnter="UIElement_OnPreviewDragOver"
                         PreviewDragOver="UIElement_OnPreviewDragOver"
                         PreviewDrop="UIElement_OnPreviewDrop"
                         VerticalAlignment="Stretch"

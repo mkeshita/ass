@@ -7,13 +7,12 @@ using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
 using norsu.ass.Network;
-using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass
 {
     [Activity(Icon = "@drawable/ic_launcher", Label = "Sign In", Theme = "@style/AppTheme",
         ScreenOrientation = ScreenOrientation.Portrait,
-        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class LoginActivity : AppCompatActivity
     {
         private Button _loginButton;
@@ -28,7 +27,43 @@ namespace norsu.ass
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            
+            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            if (Client.Server == null)
+            {
+                dlg.SetTitle("Connection to server is not established.");
+                dlg.SetMessage("Please make sure you are connected to the server and try again.");
+                dlg.SetNegativeButton("Exit", (sender, args) =>
+                {
+                    FinishAffinity();
+                });
+                dlg.Show();
+                return;
+            }
+            Messenger.Default.AddListener(Messages.Shutdown, () =>
+            {
+                RunOnUiThread(() =>
+                {
+                    try
+                    {
+
+                        dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                        dlg.SetMessage("Disconnected from server.");
+                        dlg.SetMessage("The server has shutdown. Please try again later.");
+                        dlg.SetPositiveButton("EXIT", (sender, args) =>
+                        {
+                            FinishAffinity();
+                        });
+                        dlg.SetCancelable(false);
+                        dlg.Show();
+
+                    }
+                    catch (Exception e)
+                    {
+                        FinishAffinity();
+                    }
+                });
+            });
+
             base.OnCreate(savedInstanceState);
 
             // Create your application here
@@ -50,20 +85,55 @@ namespace norsu.ass
             {
                 _anonymous.Visibility = Client.Server.AllowAnnonymous ? ViewStates.Visible : ViewStates.Gone;
                 _register.Visibility = Client.Server.AllowRegistration ? ViewStates.Visible : ViewStates.Gone;
+                _register.Click += RegisterOnClick;
                 
             }
+           
+        }
+        
+        private void RegisterOnClick(object sender, EventArgs eventArgs)
+        {
+            StartActivity(typeof(RegisterActivity));
+        }
+
+        public override bool OnNavigateUp()
+        {
+            MainActivity.CurrentScreen = Screens.Login;
+            return base.OnNavigateUp();
+        }
+
+        protected override void OnSaveInstanceState(Bundle outState)
+        {
+            outState.PutString("login_username", _username.Text);
+            outState.PutString("login_nick",_nickName.Text);
+            outState.PutString("login_password",_username.Text);
+            outState.PutBoolean("login_anonymous",_anonymous.Checked);
+            base.OnSaveInstanceState(outState);
+        }
+
+        protected override void OnRestoreInstanceState(Bundle s)
+        {
+            base.OnRestoreInstanceState(s);
+            if (s == null) return;
+            _username.Text = s.GetString("login_username");
+            _password.Text = s.GetString("login_password");
+            _nickName.Text = s.GetString("login_nick");
+            _anonymous.Checked = s.GetBoolean("login_anonymous");
         }
 
         private void AnonymousOnCheckedChange(object sender, CompoundButton.CheckedChangeEventArgs checkedChangeEventArgs)
         {
             if (_anonymous.Checked)
             {
-                _userView.Visibility = ViewStates.Gone;
+                _username.Visibility = ViewStates.Gone;
+                _password.Visibility = ViewStates.Invisible;
                 _nickName.Visibility = ViewStates.Visible;
+                _nickName.RequestFocus();
             }
             else
             {
-                _userView.Visibility = ViewStates.Visible;
+                _username.Visibility = ViewStates.Visible;
+                _password.Visibility = ViewStates.Visible;
                 _nickName.Visibility = ViewStates.Gone;
             }
         }
@@ -85,8 +155,9 @@ namespace norsu.ass
             }
             else
             {
-                new AlertDialog.Builder(this)
-                    .SetTitle("Login Failed")
+                new Android.Support.V7.App.AlertDialog.Builder(this)
+                    .SetPositiveButton("OKAY", (o, args) => {})
+                    .SetMessage("Login Failed")
                     .Show();
                 _username.SelectAll();
                 _username.RequestFocus();

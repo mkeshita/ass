@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ProtoBuf;
 
 namespace norsu.ass.Network
@@ -23,6 +24,9 @@ namespace norsu.ass.Network
 
         [ProtoMember(6)]
         public long UserId { get; set; }
+        
+        [ProtoMember(7)]
+        public DateTime Time { get; set; }
     }
 
     [ProtoContract]

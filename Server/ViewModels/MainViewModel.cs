@@ -14,6 +14,7 @@ using Devcorner.NIdenticon.BrushGenerators;
 using MaterialDesignThemes.Wpf;
 using norsu.ass.Models;
 using norsu.ass.Network;
+using norsu.ass.Server.Properties;
 using norsu.ass.Server.Views;
 using Office = norsu.ass.Models.Office;
 using Suggestion = norsu.ass.Models.Suggestion;
@@ -22,7 +23,13 @@ namespace norsu.ass.Server.ViewModels
 {
     class MainViewModel : ViewModelBase
     {
-        private MainViewModel() { }
+        private MainViewModel()
+        {
+            Settings.Default.PropertyChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(ShowPrivateName));
+            };
+        }
 
         private static MainViewModel _instance;
         public static MainViewModel Instance => _instance ?? (_instance = new MainViewModel());
@@ -90,8 +97,8 @@ namespace norsu.ass.Server.ViewModels
 
         public ICommand LoginCommand => _loginCommand ?? (_loginCommand = new DelegateCommand<PasswordBox>(d =>
         {
-            var user = Models.User.Cache.FirstOrDefault(x => x.Username?.ToLower() == Username.ToLower());
-            if (user == null && Models.User.Cache.Count(x => x.Access == User.AccessLevels.SuperAdmin) == 0)
+            var user = Models.User.Cache.FirstOrDefault(x => x.Username?.ToLower() == Username.ToLower() && x.Access>=AccessLevels.OfficeAdmin);
+            if (user == null && Models.User.Cache.Count(x => x.Access == AccessLevels.SuperAdmin) == 0)
             {
                 var gen = new IdenticonGenerator()
                     .WithBlocks(7, 7)
@@ -109,7 +116,7 @@ namespace norsu.ass.Server.ViewModels
                         {
                             Username = Username,
                             Password = d.Password,
-                            Access = User.AccessLevels.SuperAdmin,
+                            Access = AccessLevels.SuperAdmin,
                             Picture = stream.ToArray(),
                         };
                         user.Save();
@@ -117,6 +124,9 @@ namespace norsu.ass.Server.ViewModels
                 }
             }
 
+            if(user!=null && string.IsNullOrEmpty(user.Password))
+                user.Update(nameof(User.Password),d.Password);
+            
             if (user == null || user?.Password != d.Password)
             {
                 MessageBox.Show("Invalid username or password.", "Login Failed", 
@@ -145,6 +155,8 @@ namespace norsu.ass.Server.ViewModels
                     return;
                 _CurrentUser = value;
                 OnPropertyChanged(nameof(CurrentUser));
+                Offices.Filter = FilterOffices;
+                Offices.MoveCurrentToFirst();
             }
         }
 
@@ -212,6 +224,7 @@ namespace norsu.ass.Server.ViewModels
             {
                 if (_offices != null) return _offices;                
                 _offices = new ListCollectionView(Office.Cache);
+                _offices.Filter = FilterOffices;
                 _offices.CurrentChanged += (sender, args) =>
                 {
                     Suggestions.Filter = FilterSuggestion;
@@ -229,6 +242,53 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
+        private bool FilterOffices(object o)
+        {
+            if (CurrentUser == null) return false;
+            if (!(o is Office office)) return false;
+            
+            if (CurrentUser.Access == AccessLevels.SuperAdmin) return true;
+            
+            return OfficeAdmin.Cache.Any(x => x.OfficeId == office.Id && x.UserId == CurrentUser.Id);
+        }
+
+        private ICommand _DeleteSelectedSuggestionsCommand;
+
+        public ICommand DeleteSelectedSuggestionsCommand =>
+            _DeleteSelectedSuggestionsCommand ?? (_DeleteSelectedSuggestionsCommand = new DelegateCommand(
+                d =>
+                {
+                    if (!(Offices.CurrentItem is Office office)) return;
+                    var selection = Suggestion.Cache.Where(x => x.IsSelected && x.OfficeId==office.Id).ToList();
+                    foreach (var suggestion in selection)
+                    {
+                        suggestion.Delete(false);
+                    }
+                }, d =>
+                {
+                    if (Suggestion.Cache.Count(x => x.IsSelected) == 0) return false;
+                    if (CurrentUser?.Access == AccessLevels.SuperAdmin) return true;
+                    return Settings.Default.OfficeAdminCanDeleteSuggestions;
+                }));
+
+        private bool _ShowPrivateName;
+
+        public bool ShowPrivateName
+        {
+            get
+            {
+                if (CurrentUser?.Access == AccessLevels.SuperAdmin) return true;
+                return Settings.Default.OfficeAdminCanSeeUserFullname;
+            }
+            set
+            {
+                if(value == _ShowPrivateName)
+                    return;
+                _ShowPrivateName = value;
+                OnPropertyChanged(nameof(ShowPrivateName));
+            }
+        }
+        
         private void RatingsChanged()
         {
             Ratings.Filter = FilterRating;
@@ -246,8 +306,8 @@ namespace norsu.ass.Server.ViewModels
         private bool FilterOfficeAdmins(object o)
         {
             if (Offices.CurrentItem == null) return false;
-            var adm = o as User;
-            return adm?.Access == User.AccessLevels.OfficeAdmin && adm?.OfficeId == ((Office) Offices.CurrentItem).Id;
+            var adm = o as OfficeAdmin;
+            return adm?.OfficeId == ((Office) Offices.CurrentItem).Id;
         }
 
         private ListCollectionView _officeAdmins;
@@ -257,7 +317,11 @@ namespace norsu.ass.Server.ViewModels
             get
             {
                 if (_officeAdmins != null) return _officeAdmins;
-                _officeAdmins = new ListCollectionView(User.Cache);
+                _officeAdmins = new ListCollectionView(OfficeAdmin.Cache);
+                OfficeAdmin.Cache.CollectionChanged += (sender, args) =>
+                {
+                    _officeAdmins.Filter = FilterOfficeAdmins;
+                };
                 _officeAdmins.Filter = FilterOfficeAdmins;
                 return _officeAdmins;
             }
@@ -265,28 +329,28 @@ namespace norsu.ass.Server.ViewModels
         
         public Rating LatestRating => Rating.Cache
             .OrderByDescending(x => x.Time)
-            .FirstOrDefault(x => x.OfficeId ==((Office)Offices.CurrentItem).Id);
+            .FirstOrDefault(x => x.OfficeId ==((Office)Offices?.CurrentItem)?.Id);
 
         public Suggestion LatestSuggestion => Suggestion.Cache
             .OrderByDescending(x => x.Time)
-            .FirstOrDefault(x => x.OfficeId == ((Office) Offices.CurrentItem).Id);
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
         
         public Suggestion TopSuggestion => Suggestion.Cache
             .OrderByDescending(x => x.Votes)
-            .FirstOrDefault(x => x.OfficeId == ((Office) Offices.CurrentItem).Id);
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
         
         //  public long RatingCount => Rating.Cache.Count(d => d.OfficeId == ((Office) Offices.CurrentItem).Id);
-        public long OneStar => Rating.Cache.Count(d=>d.Value==1 && d.OfficeId==((Office) Offices.CurrentItem).Id);
-        public long TwoStars => Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+        public long OneStar => Rating.Cache.Count(d=>d.Value==1 && d.OfficeId==((Office) Offices?.CurrentItem)?.Id);
+        public long TwoStars => Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long ThreeStars =>
-            Rating.Cache.Count(d => d.Value == 3 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+            Rating.Cache.Count(d => d.Value == 3 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long FourStars =>
-            Rating.Cache.Count(d => d.Value == 4 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+            Rating.Cache.Count(d => d.Value == 4 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long FiveStars =>
-            Rating.Cache.Count(d => d.Value == 5 && d.OfficeId == ((Office) Offices.CurrentItem).Id);
+            Rating.Cache.Count(d => d.Value == 5 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
         
         private ListCollectionView _suggestions;
 
@@ -386,6 +450,7 @@ namespace norsu.ass.Server.ViewModels
             {
                 if (!(args.Parameter as bool?) ?? false) return;
                 
+                
                 office.Picture = dummy.Picture;
                 office.ShortName = dummy.ShortName;
                 office.LongName = dummy.LongName;
@@ -394,5 +459,78 @@ namespace norsu.ass.Server.ViewModels
             
 
         },d=>Offices.CurrentItem!=null));
+
+        private ICommand _AddNewOfficeAdminCommand;
+
+        public ICommand AddNewOfficeAdminCommand =>
+            _AddNewOfficeAdminCommand ?? (_AddNewOfficeAdminCommand = new DelegateCommand(
+                async d =>
+                {
+                    if (!(Offices.CurrentItem is Office office)) return;
+                    
+                    var dummy = new UserSelector() {Access = AccessLevels.OfficeAdmin};
+                    var dlg = new UserEditorDialog("NEW OFFICE ADMIN", dummy);
+
+                    await DialogHost.Show(dlg, "DialogHost", (sender, args) =>
+                    {
+
+                    }, (sender, args) =>
+                    {
+                        if (!(args.Parameter as bool?) ?? false)
+                            return;
+                        var user = User.GetById(dummy.Id);
+                        if (user == null)
+                        {
+                            user = new User()
+                            {
+                                Username = dummy.Username,
+                                Access = dummy.Access,
+                                Firstname = dummy.Firstname,
+                                Course = dummy.Course,
+                                Picture = dummy.Picture,
+                            };
+                            user.Save();
+                        }
+
+                        var officeAdm =
+                            OfficeAdmin.Cache.FirstOrDefault(x => x.OfficeId == office.Id && x.UserId == user.Id);
+                        if (officeAdm == null)
+                        {
+                            officeAdm = new OfficeAdmin()
+                            {
+                                OfficeId = office.Id,
+                                UserId = user.Id
+                            };
+                            officeAdm.Save();
+                        }
+                    });
+                },d=> CurrentUser?.Access >= AccessLevels.OfficeAdmin && Offices.CurrentItem!=null));
+
+        private ICommand _DeleteOfficeAdminCommand;
+
+        public ICommand DeleteOfficeAdminCommand => _DeleteOfficeAdminCommand ?? (_DeleteOfficeAdminCommand = new DelegateCommand<OfficeAdmin>(d =>
+        {
+            d.Delete();
+        }, d => CurrentUser?.Access > d?.User.Access));
+
+        private ICommand _editUserCommand;
+
+        public ICommand EditUserCommand => _editUserCommand ?? (_editUserCommand = new DelegateCommand<User>(
+        async d =>
+        {
+            var dlg = new UserEditorDialog("NEW OFFICE ADMIN", d, Visibility.Collapsed);
+
+            await DialogHost.Show(dlg, "DialogHost", (sender, args) =>
+            {
+
+            }, (sender, args) =>
+            {
+                if (!(args.Parameter as bool?) ?? false)
+                    return;
+
+                d.Save();
+            });
+            
+        },d=>d!=null && (CurrentUser?.Access > d?.Access || CurrentUser?.Id==d?.Id)));
     }
 }

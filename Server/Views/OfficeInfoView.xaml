@@ -7,6 +7,7 @@
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -18,9 +19,10 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                   Margin="0 0 7 0">
     <WrapPanel VerticalAlignment="Center"
+               Orientation="Horizontal"
           HorizontalAlignment="Center">
          
-        <md:Card Padding="20" UniformCornerRadius="7" x:Name="Card" Margin="10">
+        <md:Card Padding="20" UniformCornerRadius="7" x:Name="Card" Margin="7">
             <StackPanel Orientation="Horizontal">
                 <StackPanel Margin="10 0" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Offices/Rating,StringFormat={}0.0}"
@@ -98,7 +100,7 @@
             </StackPanel>
         </md:Card>
 
-            <md:Card Padding="20" Width="{Binding ElementName=Card,Path=ActualWidth}" Margin="10"
+                <md:Card Padding="20" Width="{Binding ElementName=Card,Path=ActualWidth}" Margin="7"
                      MinHeight="{Binding ElementName=Card,Path=ActualHeight}">
 
                 <Grid>
@@ -142,53 +144,60 @@
 
             </md:Card>
 
-            <md:Card Padding="20" Width="{Binding ElementName=Card,Path=ActualWidth}" Margin="10"
+                <md:Card Padding="20" Width="{Binding ElementName=Card,Path=ActualWidth}" Margin="7"
                      MinHeight="{Binding ElementName=Card,Path=ActualHeight}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="TOP SUGGESTION" />
-                    <Border CornerRadius="8" Padding="10" Margin="0 10 10 10"
-                            Grid.Row="1"
-                                VerticalAlignment="Top"
-                                Background="{StaticResource PrimaryHueDarkBrush}">
-                        <StackPanel>
-                            <TextBlock Text="VOTES" TextAlignment="Center"
-                                           Foreground="{StaticResource MaterialDesignDarkForeground}"/>
-                            <TextBlock Text="{Binding TopSuggestion.Votes}"
-                                           Foreground="{StaticResource MaterialDesignDarkForeground}"
-                                           TextAlignment="Center"
-                                           FontSize="27pt"/>
-                        </StackPanel>
-                    </Border>
-                    <Grid Grid.Column="1" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <TextBlock Text="{Binding TopSuggestion.Body}" TextWrapping="Wrap"
+                        <TextBlock Text="TOP SUGGESTION" Grid.ColumnSpan="2" />
+                        <Border CornerRadius="8" Padding="10" Margin="0 10 10 10"
+                            Grid.Row="1"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Top"
+                                Background="{StaticResource PrimaryHueDarkBrush}">
+                            <Grid Width="74" Height="74">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="VOTES" TextAlignment="Center"
+                                           Foreground="{StaticResource MaterialDesignDarkForeground}"/>
+                                <Viewbox Grid.Row="1">
+                                <TextBlock Text="{Binding TopSuggestion.Votes,FallbackValue=0}"
+                                           Foreground="{StaticResource MaterialDesignDarkForeground}"
+                                           TextAlignment="Center"
+                                           FontSize="27pt"/>
+                                </Viewbox>
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Column="1" Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding TopSuggestion.Body}" TextWrapping="Wrap"
                                    Margin="0 10 0 0"
                                    FontSize="17pt" />
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                                     Margin="0 20 0 0"
                                         Grid.Row="1">
-                            <Image VerticalAlignment="Center"
+                                <Image VerticalAlignment="Center"
                                     Source="{Binding TopSuggestion.User.Picture,Converter={converters:BytesToImage}}"
                                     Height="24" Width="24" Margin="0 0 10 0" />
-                            <TextBlock Text="{Binding TopSuggestion.User.Fullname}"
+                                <TextBlock Text="{Binding TopSuggestion.User.Fullname}"
                                        VerticalAlignment="Center"/>
-                        </StackPanel>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </md:Card>
-
-            <md:Card Padding="20" Width="{Binding ElementName=Card,Path=ActualWidth}" Margin="10"
+                </md:Card>
+        
+                <md:Card Padding="20" Width="{Binding ElementName=Card,Path=ActualWidth}" Margin="7"
                      MinHeight="{Binding ElementName=Card,Path=ActualHeight}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -199,19 +208,26 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="LATEST SUGGESTION" />
+                    <TextBlock Text="LATEST SUGGESTION" Grid.ColumnSpan="2"/>
                     <Border CornerRadius="8" Padding="10" Margin="0 10 10 10"
                             Grid.Row="1"
+                            HorizontalAlignment="Stretch"
                                 VerticalAlignment="Top"
                                 Background="{StaticResource PrimaryHueDarkBrush}">
-                        <StackPanel>
+                        <Grid Width="74" Height="74">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
                             <TextBlock Text="VOTES" TextAlignment="Center"
                                            Foreground="{StaticResource MaterialDesignDarkForeground}"/>
-                            <TextBlock Text="{Binding LatestSuggestion.Votes}"
-                                           Foreground="{StaticResource MaterialDesignDarkForeground}"
-                                           TextAlignment="Center"
-                                           FontSize="27pt"/>
-                        </StackPanel>
+                                <Viewbox Grid.Row="1">
+                                    <TextBlock Text="{Binding LatestSuggestion.Votes,FallbackValue=0}"
+                                                   Foreground="{StaticResource MaterialDesignDarkForeground}"
+                                                   TextAlignment="Center"
+                                                   FontSize="27pt"/>
+                                </Viewbox>
+                            </Grid>
                     </Border>
                     <Grid Grid.Column="1" Grid.Row="1">
                         <Grid.RowDefinitions>
@@ -267,21 +283,44 @@
                     </StackPanel>
                 </Grid>
             </ListBoxItem>
-                <ListBox ItemsSource="{Binding OfficeAdmins}" Grid.Row="2">
+                <ListBox ItemsSource="{Binding OfficeAdmins}" Grid.Row="2" 
+                         HorizontalContentAlignment="Stretch">
+                    
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:User}">
-                            <Grid>
+                            <Grid Background="Transparent">
+                                <Grid.InputBindings>
+                                    <MouseBinding MouseAction="LeftDoubleClick"
+                                                  Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},
+                                        Path=EditUserCommand}"
+                                                  CommandParameter="{Binding User}"/>
+                                    <MouseBinding MouseAction="RightClick"
+                                                  Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},
+                                        Path=EditUserCommand}"
+                                                  CommandParameter="{Binding User}" />
+                                </Grid.InputBindings>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
+                                <Image Source="{Binding User.Picture,Converter={converters:BytesToImage}}"
                                        Height="24" Width="24"
                                        Margin="0 0 10 0"/>
                                 <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{Binding Username}" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Fullname}"/>
+                                <TextBlock Text="{Binding User.Username}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding User.Fullname}"/>
                                 </StackPanel>
+                                <Button Grid.Column="1"
+                                        Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},Path=IsMouseOver,Converter={converters:BooleanToVisibility}}"
+                                        VerticalAlignment="Top"
+                                        Padding="4"
+                                        Height="Auto"
+                                        Width="Auto"
+                                        Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                                        Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=DeleteOfficeAdminCommand}"
+                                        CommandParameter="{Binding}"
+                                        Content="{md:PackIcon Close}"
+                                        HorizontalAlignment="Right"/>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

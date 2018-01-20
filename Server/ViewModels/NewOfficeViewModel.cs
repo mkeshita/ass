@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace norsu.ass.Server.ViewModels
+﻿namespace norsu.ass.Server.ViewModels
 {
     class NewOfficeViewModel : ViewModelBase
     {
@@ -18,6 +13,7 @@ namespace norsu.ass.Server.ViewModels
                     return;
                 _ShortName = value;
                 OnPropertyChanged(nameof(ShortName));
+                OnPropertyChanged(nameof(HasError));
             }
         }
 
@@ -35,6 +31,6 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        
+        public bool HasError => string.IsNullOrEmpty(ShortName);
     }
 }

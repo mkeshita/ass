@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Android.App;
 using Android.Content;
+using Android.Graphics;
 using Android.Views;
 using Android.Widget;
 using norsu.ass.Network;
@@ -36,9 +37,40 @@ namespace norsu.ass
 
             view.FindViewById<TextView>(Resource.Id.officeShortName).Text = item.ShortName;
             view.FindViewById<TextView>(Resource.Id.officeLongName).Text = item.LongName;
-            view.FindViewById<RatingBar>(Resource.Id.officeRating).Rating = item.Rating;
-            view.FindViewById<TextView>(Resource.Id.officeRatingCount).Text = item.RatingCount.ToString();
+            var ratingBar  = view.FindViewById<RatingBar>(Resource.Id.officeRating);
+            ratingBar.Rating = item.Rating;
+            
+            var ratingCount = view.FindViewById<TextView>(Resource.Id.officeRatingCount);
+            ratingCount.Text = item.RatingCount.ToString();
 
+            var pic = view.FindViewById<ImageView>(Resource.Id.officePicture);
+            var usr = Client.GetOfficePicture(item.Id);
+            if (usr != null)
+                pic.SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+            else
+            {
+                Messenger.Default.AddListener<OfficePicture>(Messages.PictureReceived,
+                    office =>
+                    {
+                        if (office.OfficeId != item.Id) return;
+                        _context.RunOnUiThread(() =>
+                            pic.SetImageBitmap(BitmapFactory.DecodeByteArray(office.Picture, 0, office.Picture.Length)));
+                    });
+            }
+
+            Messenger.Default.AddListener<Office>(Messages.OfficeUpdate,
+                office =>
+                {
+                    if (office.Id != item.Id)
+                        return;
+                    _context.RunOnUiThread(() =>
+                    {
+                        ratingBar.Rating = office.Rating;
+                        ratingCount.Text = office.RatingCount.ToString("#,##0");
+                        
+                    });
+                });
+            
             return view;
         }
     }

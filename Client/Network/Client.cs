@@ -5,11 +5,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Android.App;
 using Android.Graphics;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
 using NetworkCommsDotNet.DPSBase;
 using NetworkCommsDotNet.Tools;
+using AlertDialog = Android.Support.V7.App.AlertDialog;
 
 namespace norsu.ass.Network
 {
@@ -34,6 +36,7 @@ namespace norsu.ass.Network
                 (h, c, res) =>AddPicture(res));
             NetworkComms.AppendGlobalIncomingPacketHandler<OfficePicture>(OfficePicture.Header,
                 (h, c, res) => AddOfficePicture(res));
+            NetworkComms.AppendGlobalIncomingPacketHandler<Shutdown>(Shutdown.Header, ShutdownHandler);
 
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
@@ -42,7 +45,13 @@ namespace norsu.ass.Network
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
         }
-        
+
+        private void ShutdownHandler(PacketHeader packetHeader, Connection connection, Shutdown incomingObject)
+        {
+            Server = null;
+            Messenger.Default.Broadcast(Messages.Shutdown);
+        }
+
         private readonly List<OfficePicture> OfficePictures = new List<OfficePicture>();
         private void AddOfficePicture(OfficePicture picture)
         {
@@ -173,11 +182,11 @@ namespace norsu.ass.Network
             }
         }
 
-        public static async Task<RegistrationResult> Register(string username, string password, string name,string course)
+        public static async Task<RegistrationResult> Register(string username, string password, string firstname,string lastname,string course)
         {
-            return await Instance._Register(username, password, name, course);
+            return await Instance._Register(username, password, firstname,lastname, course);
         }
-        private async Task<RegistrationResult> _Register(string username, string password, string name, string course)
+        private async Task<RegistrationResult> _Register(string username, string password, string firstname,string lastname, string course)
         {
             if (Server == null)
                 await _FindServer();
@@ -190,13 +199,22 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(RegistrationResult.Header);
                     result = r;
+                    if (result?.Success??false)
+                    {
+                        UserId = result.UserId;
+                        Session = result.Session;
+                        Username = username;
+                        Fullname = $"{firstname} {lastname}";
+                        FetchUserPicture(result.UserId);
+                    }
                 });
 
             await new RegistrationRequest()
             {
                 Username = username,
                 Password = password,
-                Name=name,
+                Firstname= firstname,
+                Lastname = lastname,
                 Course= course,
             }.Send(Server.IP, Server.Port);
 
@@ -219,7 +237,12 @@ namespace norsu.ass.Network
         private int Session { get; set; }
         
         private string _Username { get; set; }
-        public static string Username => Instance._Username;
+
+        public static string Username
+        {
+            get => Instance._Username;
+            set => Instance._Username = value;
+        }
         
         public static string Fullname { get; set; }
         public static long UserId { get; set; }
@@ -262,6 +285,40 @@ namespace norsu.ass.Network
             return null;
         }
 
+        private async void FetchOfficePicture(long id)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return;
+            if (OfficePictures.Any(x => x.OfficeId == id)) return;
+            await new GetOfficePicture() {Session = Session, OfficeId = id}.Send(Server.IP, Server.Port);
+        }
+
+        private async void FetchOfficePictures(IEnumerable<long> officeIds)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return;
+
+            try
+            {
+                foreach (var id in officeIds)
+                {
+                    if (OfficePictures.Any(x => x.OfficeId == id))
+                        continue;
+                    await new GetOfficePicture() {Session = Session, OfficeId = id}
+                        .Send(Server.IP, Server.Port);
+                }
+            }
+            catch (Exception e)
+            {
+                //
+            }
+
+        }
+
         public static async Task<Offices> GetOffices()
         {
             return await Instance._GetOffices();
@@ -277,6 +334,7 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(Offices.Header);
                     result = res;
+                    FetchOfficePictures(res.Items.Select(x => x.Id));
                 });
 
             await Packet.Send(Requests.GET_OFFICES,Server.IP,Server.Port);
@@ -310,6 +368,10 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
                     result = res;
+                    
+                    var rating = res.Ratings.FirstOrDefault(x => x.MyRating);
+                    if(rating!=null) AddRating(rating.OfficeId,rating);
+                    
                     FetchUserPictures(res.Ratings.Select(x=>x.UserId));
                 });
 
@@ -331,11 +393,11 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<OfficeRatings> RateOffice(long officeId, int rating, string message, bool isPrivate)
+        public static async Task<OfficeRatings> RateOffice(long officeId, int rating, string message, bool isPrivate, long returnCount = -1)
         {
-            return await Instance._RateOffice(officeId, rating, message, isPrivate);
+            return await Instance._RateOffice(officeId, rating, message, isPrivate, returnCount);
         }
-        private async Task<OfficeRatings> _RateOffice(long officeId, int rating, string message, bool isPrivate = false)
+        private async Task<OfficeRatings> _RateOffice(long officeId, int rating, string message, bool isPrivate = false, long returnCount = -1)
         {
             if (Server == null)
                 await _FindServer();
@@ -358,6 +420,7 @@ namespace norsu.ass.Network
                 OfficeId = officeId,
                 Rating = rating,
                 Session = Session,
+                ReturnCount = returnCount,
             }.Send(Server.IP, Server.Port);
             
             var start = DateTime.Now;
@@ -439,6 +502,8 @@ namespace norsu.ass.Network
             }
             
         }
+        
+        public static Suggestion SelectedSuggestion { get; set; }
 
         public static async Task<Suggestions> Suggest(long officeId, string subject, string body,bool isPrivate)
         {
@@ -638,6 +703,35 @@ namespace norsu.ass.Network
             }
             return null;
         }
+
+        private Dictionary<long,OfficeRating> MyRatings = new Dictionary<long, OfficeRating>();
+
+        private void AddRating(long id, OfficeRating rating)
+        {
+            if (MyRatings.ContainsKey(id))
+                MyRatings[id] = rating;
+            else
+                MyRatings.Add(id,rating);
+        }
         
+        public static OfficeRating GetMyRating(long id)
+        {
+            return Instance._GetMyRating(id);
+        }
+
+        private OfficeRating _GetMyRating(long id)
+        {
+            while (true)
+            {
+                try
+                {
+                    return MyRatings[id];
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
+        }
     }
 }
