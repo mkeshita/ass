@@ -317,7 +317,8 @@
                                         Height="Auto"
                                         Width="Auto"
                                         Style="{StaticResource MaterialDesignRaisedAccentButton}"
-                                        Command="{Binding DeleteCommand}"
+                                        Command="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=DeleteUserCommand}"
+                                        CommandParameter="{Binding}"
                                         Content="{md:PackIcon Close}"
                                         HorizontalAlignment="Right"/>
                             </Grid>

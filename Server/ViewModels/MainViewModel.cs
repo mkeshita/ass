@@ -117,6 +117,9 @@ namespace norsu.ass.Server.ViewModels
                 }
             }
 
+            if(user!=null && string.IsNullOrEmpty(user.Password))
+                user.Update(nameof(User.Password),d.Password);
+            
             if (user == null || user?.Password != d.Password)
             {
                 MessageBox.Show("Invalid username or password.", "Login Failed", 
@@ -439,7 +442,14 @@ namespace norsu.ass.Server.ViewModels
                         
                         dummy.Save();
                     });
-                },d=> CurrentUser.Access == AccessLevels.SuperAdmin));
+                },d=> CurrentUser?.Access >= AccessLevels.OfficeAdmin));
+
+        private ICommand _deleteUserCommand;
+
+        public ICommand DeleteUserCommand => _deleteUserCommand ?? (_deleteUserCommand = new DelegateCommand<User>(d =>
+        {
+            d.Delete(true);
+        }, d => CurrentUser?.Access > d?.Access));
 
         private ICommand _editUserCommand;
 
@@ -459,6 +469,6 @@ namespace norsu.ass.Server.ViewModels
                 d.Save();
             });
             
-        },d=>CurrentUser.Access == AccessLevels.SuperAdmin));
+        },d=>CurrentUser?.Access == AccessLevels.SuperAdmin));
     }
 }
