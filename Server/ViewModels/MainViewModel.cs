@@ -23,7 +23,13 @@ namespace norsu.ass.Server.ViewModels
 {
     class MainViewModel : ViewModelBase
     {
-        private MainViewModel() { }
+        private MainViewModel()
+        {
+            Settings.Default.PropertyChanged += (sender, args) =>
+            {
+                OnPropertyChanged(nameof(ShowPrivateName));
+            };
+        }
 
         private static MainViewModel _instance;
         public static MainViewModel Instance => _instance ?? (_instance = new MainViewModel());
@@ -265,6 +271,24 @@ namespace norsu.ass.Server.ViewModels
                     return Settings.Default.OfficeAdminCanDeleteSuggestions;
                 }));
 
+        private bool _ShowPrivateName;
+
+        public bool ShowPrivateName
+        {
+            get
+            {
+                if (CurrentUser?.Access == AccessLevels.SuperAdmin) return true;
+                return Settings.Default.OfficeAdminCanSeeUserFullname;
+            }
+            set
+            {
+                if(value == _ShowPrivateName)
+                    return;
+                _ShowPrivateName = value;
+                OnPropertyChanged(nameof(ShowPrivateName));
+            }
+        }
+        
         private void RatingsChanged()
         {
             Ratings.Filter = FilterRating;

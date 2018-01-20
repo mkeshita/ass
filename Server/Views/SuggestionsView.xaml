@@ -42,7 +42,27 @@
                                         EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
                                         ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"/>
                     <DataGridTextColumn Binding="{Binding Votes}" Header="Votes" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name" IsReadOnly="True" />
+                    <DataGridTemplateColumn Header="Name" IsReadOnly="True" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Text="{Binding User.Fullname}"
+                                               Visibility="{Binding IsPrivate,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
+                                    <Grid Visibility="{Binding IsPrivate,Converter={converters:BooleanToVisibility}}">
+                                        <TextBlock Text="{Binding User.Fullname}"
+                                                   Visibility="{Binding Source={x:Static viewModels:MainViewModel.Instance},
+                                        Path=ShowPrivateName,
+                                        Converter={converters:BooleanToVisibility}}" />
+                                        <materialDesign:PackIcon Kind="School"
+                                                     Height="16" Width="16"
+                                                     Visibility="{Binding Source={x:Static viewModels:MainViewModel.Instance},
+                                        Path=ShowPrivateName,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
+                                    </Grid>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="Subject" Binding="{Binding Title}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>

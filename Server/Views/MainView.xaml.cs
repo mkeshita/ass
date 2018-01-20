@@ -15,7 +15,7 @@ namespace norsu.ass.Server.Views
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            Network.Server.Instance.Stop();
+         //   Network.Server.Instance.Stop();
             base.OnClosing(e);
         }
     }
