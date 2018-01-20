@@ -39,6 +39,22 @@ namespace norsu.ass
                 });
                 dlg.Show();
             }
+            Messenger.Default.AddListener(Messages.Shutdown, () =>
+            {
+                RunOnUiThread(() =>
+                {
+                    dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                    dlg.SetMessage("Disconnected from server.");
+                    dlg.SetMessage("The server has shutdown. Please try again later.");
+                    dlg.SetPositiveButton("EXIT", (sender, args) =>
+                    {
+                        FinishAffinity();
+                    });
+                    dlg.SetCancelable(false);
+                    dlg.Show();
+                });
+            });
+            
             if(Client.SelectedOffice == null)
                 Finish();
 

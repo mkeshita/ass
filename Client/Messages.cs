@@ -4,6 +4,7 @@
     {
         PictureReceived,
         OfficePictureReceived,
-        OfficeUpdate
+        OfficeUpdate,
+        Shutdown
     }
 }

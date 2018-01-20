@@ -36,6 +36,7 @@ namespace norsu.ass.Network
                 (h, c, res) =>AddPicture(res));
             NetworkComms.AppendGlobalIncomingPacketHandler<OfficePicture>(OfficePicture.Header,
                 (h, c, res) => AddOfficePicture(res));
+            NetworkComms.AppendGlobalIncomingPacketHandler<Shutdown>(Shutdown.Header, ShutdownHandler);
 
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
@@ -44,6 +45,13 @@ namespace norsu.ass.Network
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
         }
+
+        private void ShutdownHandler(PacketHeader packetHeader, Connection connection, Shutdown incomingObject)
+        {
+            Server = null;
+            Messenger.Default.Broadcast(Messages.Shutdown);
+        }
+
         private readonly List<OfficePicture> OfficePictures = new List<OfficePicture>();
         private void AddOfficePicture(OfficePicture picture)
         {
