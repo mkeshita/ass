@@ -350,9 +350,12 @@ namespace norsu.ass.Network
                 
                 if (Settings.Default.OfficeAdminCommentAsOffice)
                 {
-                    var usr = OfficeAdmin.Cache.FirstOrDefault(x =>
-                        x.OfficeId == suggestion.OfficeId && x.UserId == comment.UserId);
-                    if (usr != null)
+                    var usr = User.GetById(comment.UserId);
+                    
+                    var admin = (usr.Access == AccessLevels.SuperAdmin);
+                    if(!admin) admin = OfficeAdmin.Cache.Any(x =>x.OfficeId == suggestion.OfficeId && x.UserId == comment.UserId);
+
+                    if (admin)
                     {
                         com.Sender = Models.Office.GetById(suggestion.OfficeId).ShortName;
                         com.UserId = -suggestion.OfficeId;
