@@ -6,6 +6,8 @@
              xmlns:local="clr-namespace:norsu.ass.Server.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
+             xmlns:properties="clr-namespace:norsu.ass.Server.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -13,25 +15,43 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <DataGrid ItemsSource="{Binding Suggestions}"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <DataGrid ItemsSource="{Binding Suggestions}"
+                  x:Name="DataGrid"
                                   AutoGenerateColumns="False"
-                                  IsReadOnly="True"
+                  IsSynchronizedWithCurrentItem="True"
+                  SelectionMode="Single"
+                      FrozenColumnCount="1"
                                   RowDetailsVisibilityMode="VisibleWhenSelected"
                                   CanUserDeleteRows="False"
                                   CanUserAddRows="False">
-            <DataGrid.RowDetailsTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Body}" TextWrapping="WrapWithOverflow"
+                <DataGrid.RowDetailsTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Body}" TextWrapping="WrapWithOverflow"
+                               MaxWidth="{Binding ElementName=DataGrid,Path=ActualWidth}"
+                                   Padding="40 0 0 0"
                                                Margin="10"/>
-                </DataTemplate>
-            </DataGrid.RowDetailsTemplate>
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Votes}" Header="Votes" />
-                <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name"/>
-                <DataGridTextColumn Header="Subject" Binding="{Binding Title}"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        <GroupBox Grid.Column="1" Padding="1">
+                    </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
+                <DataGrid.Columns>
+                    <DataGridCheckBoxColumn Binding="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsThreeState="False"
+                                        EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
+                                        ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"/>
+                    <DataGridTextColumn Binding="{Binding Votes}" Header="Votes" IsReadOnly="True" />
+                    <DataGridTextColumn Binding="{Binding User.Fullname}" Header="Name" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Subject" Binding="{Binding Title}" IsReadOnly="True" />
+                </DataGrid.Columns>
+            </DataGrid>
+            <Button Grid.Row="1" Content="DELETE SELECTED"
+                    Margin="0 20 0 0"
+                    HorizontalAlignment="Left"
+                    Command="{Binding DeleteSelectedSuggestionsCommand}"/>
+        </Grid>
+        <GroupBox Grid.Column="1" Padding="1" IsEnabled="{Binding Suggestions/,Converter={converters:IsNullConverter Invert=True}}">
             <GroupBox.Header>
                 <Grid Margin="10">
                     <Grid.ColumnDefinitions>
@@ -47,12 +67,12 @@
                                Grid.Column="1"/>
                     <Button Content="DISABLE COMMENTS" Grid.Column="2"
                             Style="{StaticResource MaterialDesignRaisedAccentButton}"
-                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility}}"
+                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility},FallbackValue=Collapsed}"
                             Command="{Binding Suggestions/DisableCommentsCommand}"
                             CommandParameter="{Binding CurrentUser.Id}"/>
                     <Button Content="ENABLE COMMENTS" Grid.Column="2"
                             Style="{StaticResource MaterialDesignRaisedAccentButton}"
-                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility Collapsed,Visible},FallbackValue=Collapsed}"
                             Command="{Binding Suggestions/EnableCommentsCommand}" />
                 </Grid>
             </GroupBox.Header>

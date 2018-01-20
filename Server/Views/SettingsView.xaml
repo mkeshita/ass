@@ -7,9 +7,14 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:properties="clr-namespace:norsu.ass.Server.Properties"
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
+             xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
              mc:Ignorable="d" 
+             Focusable="False"
+             IsHitTestVisible="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=CurrentUser.Access,Converter={converters:EqualityConverter Operand={x:Static models:AccessLevels.SuperAdmin}, ReturnType=Boolean}}"
              d:DesignHeight="300" d:DesignWidth="300">
     <Border Background="{StaticResource MaterialDesignPaper}"
+            Focusable="False"
             Padding="0 0 0 7"
             CornerRadius="0 0 7 7">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -44,7 +49,7 @@
                     </StackPanel>
 
                     <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}" 
-                          x:Name="RegistrationToggle"
+                          x:Name="RegistrationToggle" Focusable="False"
                           IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=AllowAndroidRegistration}"
                           VerticalAlignment="Top"
                           Grid.Column="1"/>
@@ -66,7 +71,7 @@
                     <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
                           x:Name="AnonymousToggle"
                           IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=AllowAnnonymousUser}"
-                          Grid.Row="1"
+                          Grid.Row="1" Focusable="False"
                           VerticalAlignment="Top"
                           Grid.Column="1" />
 
@@ -87,7 +92,7 @@
                     <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
                           x:Name="PrivateToggle"
                           IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=AllowUserPrivateSuggestion}"
-                          Grid.Row="2"
+                          Grid.Row="2" Focusable="False"
                           VerticalAlignment="Top"
                           Grid.Column="1" />
 
@@ -112,7 +117,7 @@
                     <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
                               x:Name="AdminDeleteToggle"
                               IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=OfficeAdminCanDeleteSuggestions}"
-                              Grid.Row="4"
+                              Grid.Row="4" Focusable="False"
                               VerticalAlignment="Top"
                               Grid.Column="1" />
 
@@ -135,7 +140,30 @@
                     <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
                                   x:Name="AdminPrivateToggle"
                                   IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=OfficeAdminCanSeeUserFullname}"
-                                  Grid.Row="5"
+                                  Grid.Row="5" Focusable="False"
+                                  VerticalAlignment="Top"
+                                  Grid.Column="1" />
+
+                    <StackPanel Margin="0 0 0 20" Grid.Row="6">
+                        <TextBlock Text="Reply As Office" FontWeight="Bold" />
+                        <TextBlock
+                            Text="Office admins will reply as the office itself. Their names are hidden to public."
+                            Visibility="{Binding ElementName=AdminReplyAsToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+                        <TextBlock
+                            Text="Office admins will reply as themselves. Their names will be visible."
+                            TextWrapping="Wrap"
+                            Visibility="{Binding ElementName=AdminReplyAsToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                            Opacity="0.7" />
+                    </StackPanel>
+
+                    <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                                  x:Name="AdminReplyAsToggle"
+                                  IsChecked="{Binding Source={x:Static properties:Settings.Default},Path=OfficeAdminCommentAsOffice}"
+                                  Grid.Row="6" Focusable="False"
                                   VerticalAlignment="Top"
                                   Grid.Column="1" />
                 </Grid>

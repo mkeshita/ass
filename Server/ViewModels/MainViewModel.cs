@@ -14,6 +14,7 @@ using Devcorner.NIdenticon.BrushGenerators;
 using MaterialDesignThemes.Wpf;
 using norsu.ass.Models;
 using norsu.ass.Network;
+using norsu.ass.Server.Properties;
 using norsu.ass.Server.Views;
 using Office = norsu.ass.Models.Office;
 using Suggestion = norsu.ass.Models.Suggestion;
@@ -244,6 +245,25 @@ namespace norsu.ass.Server.ViewModels
             
             return OfficeAdmin.Cache.Any(x => x.OfficeId == office.Id && x.UserId == CurrentUser.Id);
         }
+
+        private ICommand _DeleteSelectedSuggestionsCommand;
+
+        public ICommand DeleteSelectedSuggestionsCommand =>
+            _DeleteSelectedSuggestionsCommand ?? (_DeleteSelectedSuggestionsCommand = new DelegateCommand(
+                d =>
+                {
+                    if (!(Offices.CurrentItem is Office office)) return;
+                    var selection = Suggestion.Cache.Where(x => x.IsSelected && x.OfficeId==office.Id).ToList();
+                    foreach (var suggestion in selection)
+                    {
+                        suggestion.Delete(false);
+                    }
+                }, d =>
+                {
+                    if (Suggestion.Cache.Count(x => x.IsSelected) == 0) return false;
+                    if (CurrentUser?.Access == AccessLevels.SuperAdmin) return true;
+                    return Settings.Default.OfficeAdminCanDeleteSuggestions;
+                }));
 
         private void RatingsChanged()
         {

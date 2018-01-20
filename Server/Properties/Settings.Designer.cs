@@ -154,5 +154,17 @@ namespace norsu.ass.Server.Properties {
                 this["ModerateComments"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OfficeAdminCommentAsOffice {
+            get {
+                return ((bool)(this["OfficeAdminCommentAsOffice"]));
+            }
+            set {
+                this["OfficeAdminCommentAsOffice"] = value;
+            }
+        }
     }
 }

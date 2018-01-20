@@ -24,6 +24,7 @@
             </Grid.ColumnDefinitions>
             <Image Source="pack://application:,,,/norsu.png"
                    Height="100"
+                   RenderOptions.BitmapScalingMode="HighQuality"
                    Width="100"
                    VerticalAlignment="Center"
                    Visibility="{Binding Offices/HasPicture,Converter={cnv:BooleanToVisibility Collapsed,Visible}}"/>
@@ -56,7 +57,7 @@
                            Grid.Row="1"/>
                 <WrapPanel Orientation="Horizontal" Grid.Row="2">
                     <md:RatingBar Value="{Binding Offices/Rating}"
-                                      Margin="0 0 10 0"
+                                      Margin="0 0 10 0" Focusable="False"
                                       IsHitTestVisible="False"/>
 
                     <md:PackIcon Kind="Account"
