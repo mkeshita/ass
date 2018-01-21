@@ -20,7 +20,7 @@
         SnapsToDevicePixels="True"
         xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
         DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
-        Title="Server [pre-release]" Height="300" Width="300">
+        Title="NORSU-G Suggestion App Server" Height="300" Width="300">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
