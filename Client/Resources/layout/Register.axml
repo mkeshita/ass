@@ -2,125 +2,139 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-  <LinearLayout
-      android:id="@+id/registration_form"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-
-    <ScrollView
-        android:layout_weight="7"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-      <LinearLayout
-          android:layout_margin="20dp"
-          android:orientation="vertical"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content">
-        <EditText
-            android:layout_marginBottom="20dp"
-            android:hint="STUDENT ID"
-            android:maxLines="1"
-            android:inputType="textPersonName"
-            android:id="@+id/student_id"
-            android:imeOptions="actionNext"
-            android:lines="1"
-            android:maxLength="74"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <EditText
-            android:id="@+id/name"
-            android:layout_marginBottom="20dp"
-            android:inputType="textPersonName"
-            android:hint="YOUR FIRST NAME"
-            android:imeOptions="actionNext"
-            android:maxLength="174"
-            android:lines="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <EditText
-          android:id="@+id/last_name"
-          android:layout_marginBottom="20dp"
-          android:inputType="textPersonName"
-          android:hint="YOUR LAST NAME"
-          android:imeOptions="actionNext"
-          android:maxLength="174"
-          android:lines="1"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content" />
-        <EditText
-          android:id="@+id/course"
-          android:layout_marginBottom="20dp"
-          android:inputType="textPersonName"
-          android:hint="YOUR COURSE"
-          android:imeOptions="actionNext"
-          android:maxLength="147"
-          android:lines="1"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content" />
-        <EditText
-            android:id="@+id/password1"
-            android:imeOptions="actionNext"
-            android:layout_marginBottom="20dp"
-            android:hint="YOUR PASSWORD"
-            android:lines="1"
-            android:maxLength="74"
-            android:inputType="numberPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <EditText
-            android:id="@+id/password2"
-            android:imeOptions="actionDone"
-            android:layout_marginBottom="20dp"
-            android:inputType="numberPassword"
-            android:hint="RETYPE PASSWORD"
-            android:lines="1"
-            android:maxLength="74"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-      </LinearLayout>
-    </ScrollView>
 
     <LinearLayout
-        android:layout_marginRight="4dp"
-        android:layout_marginLeft="4dp"
+        android:id="@+id/registration_form"
+        android:background="#B7FFFFFF"
+        android:layout_marginTop="47dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-      <Button
-          android:id="@+id/cancel"
-          android:text="CANCEL"
-          android:visibility="gone"
-          android:layout_weight="7"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content" />
-      <Button
-          android:id="@+id/submit"
-          android:text="SUBMIT"
-          android:layout_weight="7"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content" />
-    </LinearLayout>
-  </LinearLayout>
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_gravity="center"
+            android:layout_marginBottom="20dp"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:text="REGISTER NEW ACCOUNT"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ScrollView
+            android:layout_marginBottom="7dp"
+            android:layout_weight="7"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_marginLeft="47dp"
+                android:layout_marginRight="47dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <EditText
+                    android:layout_marginBottom="20dp"
+                    android:hint="STUDENT ID"
+                    android:maxLines="1"
+                    android:inputType="textPersonName"
+                    android:id="@+id/student_id"
+                    android:imeOptions="actionNext"
+                    android:lines="1"
+                    android:maxLength="74"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/name"
+                    android:layout_marginBottom="20dp"
+                    android:inputType="textPersonName"
+                    android:hint="YOUR FIRST NAME"
+                    android:imeOptions="actionNext"
+                    android:maxLength="174"
+                    android:lines="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/last_name"
+                    android:layout_marginBottom="20dp"
+                    android:inputType="textPersonName"
+                    android:hint="YOUR LAST NAME"
+                    android:imeOptions="actionNext"
+                    android:maxLength="174"
+                    android:lines="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/course"
+                    android:layout_marginBottom="20dp"
+                    android:inputType="textPersonName"
+                    android:hint="YOUR COURSE"
+                    android:imeOptions="actionNext"
+                    android:maxLength="147"
+                    android:lines="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/password1"
+                    android:imeOptions="actionNext"
+                    android:layout_marginBottom="20dp"
+                    android:hint="YOUR PASSWORD"
+                    android:lines="1"
+                    android:maxLength="74"
+                    android:inputType="numberPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                <EditText
+                    android:id="@+id/password2"
+                    android:imeOptions="actionDone"
+                    android:layout_marginBottom="20dp"
+                    android:inputType="numberPassword"
+                    android:hint="RETYPE PASSWORD"
+                    android:lines="1"
+                    android:maxLength="74"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-  <RelativeLayout
-      android:visibility="gone"
-      android:id="@+id/registration_progress"
-      android:background="#77000000"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_centerInParent="true"
-        android:indeterminate="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:layout_below="@+id/progress"
-        android:layout_centerInParent="true"
-        style="@style/TextAppearance.AppCompat.Inverse"
-        android:text="PLEASE WAIT..."
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-  </RelativeLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_marginRight="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/cancel"
+                android:text="CANCEL"
+                android:visibility="gone"
+                android:layout_weight="7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/submit"
+                android:text="SUBMIT"
+                android:layout_weight="7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/registration_progress"
+        android:background="#77000000"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:layout_below="@+id/progress"
+            android:layout_centerInParent="true"
+            style="@style/TextAppearance.AppCompat.Inverse"
+            android:text="PLEASE WAIT..."
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
 </RelativeLayout>

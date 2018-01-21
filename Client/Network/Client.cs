@@ -11,7 +11,7 @@ using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
 using NetworkCommsDotNet.DPSBase;
 using NetworkCommsDotNet.Tools;
-using AlertDialog = Android.Support.V7.App.AlertDialog;
+using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass.Network
 {
@@ -23,8 +23,8 @@ namespace norsu.ass.Network
                 return;
             _started = true;
 
-            NetworkComms.EnableLogging(new LiteLogger(LiteLogger.LogMode.ConsoleOnly));
-
+            NetworkComms.DisableLogging();
+            
             NetworkComms.IgnoreUnknownPacketTypes = true;
             var serializer = DPSManager.GetDataSerializer<NetworkCommsDotNet.DPSBase.ProtobufSerializer>();
 

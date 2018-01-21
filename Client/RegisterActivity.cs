@@ -28,7 +28,7 @@ namespace norsu.ass
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            var dlg = new Android.App.AlertDialog.Builder(this);
             if (Client.Server == null)
             {
                 dlg.SetTitle("Connection to server is not established.");
@@ -51,7 +51,7 @@ namespace norsu.ass
                             var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
                             imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
                         }
-                        dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                        dlg = new Android.App.AlertDialog.Builder(this);
                         dlg.SetTitle("Disconnected from server.");
                         dlg.SetMessage("The server has shutdown. Please try again later.");
                         dlg.SetPositiveButton("EXIT", (sender, args) =>
@@ -89,7 +89,12 @@ namespace norsu.ass
             if (savedInstanceState != null)
                 OnRestoreInstanceState(savedInstanceState);
 
-
+            SupportActionBar.SetDisplayShowHomeEnabled(true);
+            SupportActionBar.SetDisplayShowTitleEnabled(true);
+            SupportActionBar.Title = "SUGGESTION APP";
+            SupportActionBar.Subtitle = "NORGU - Guihulngan";
+            SupportActionBar.SetLogo(Resource.Mipmap.ic_launcher);
+            SupportActionBar.SetDisplayUseLogoEnabled(true);
         }
 
 

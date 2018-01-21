@@ -166,7 +166,7 @@ namespace norsu.ass
             }
             else
             {
-                new Android.Support.V7.App.AlertDialog.Builder(this)
+                new Android.App.AlertDialog.Builder(this)
                     .SetPositiveButton("OKAY", (o, args) => {})
                     .SetMessage("Login Failed")
                     .Show();

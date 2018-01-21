@@ -29,7 +29,7 @@ namespace norsu.ass
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            var dlg = new Android.App.AlertDialog.Builder(this);
             if (Client.Server == null)
             {
                 dlg.SetTitle("Connection to server is not established.");
@@ -52,7 +52,7 @@ namespace norsu.ass
                             var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
                             imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
                         }
-                        dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                        dlg = new Android.App.AlertDialog.Builder(this);
                         dlg.SetTitle("Disconnected from server.");
                         dlg.SetMessage("The server has shutdown. Please try again later.");
                         dlg.SetPositiveButton("EXIT", (sender, args) =>
@@ -145,14 +145,18 @@ namespace norsu.ass
                 _suggestionBody.Text,
                 _suggestionPrivate.Checked);
 
+            _suggestionSubject.Text = "";
+            _suggestionBody.Text = "";
+            _suggestionPrivate.Checked = false;
+
             _suggestionProgress.Visibility = ViewStates.Gone;
-            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Invisible;
             _suggestionBody.Enabled = true;
             _suggestionSubject.Enabled = true;
             _submitSuggestion.Enabled = true;
             _review.Enabled = true;
 
-            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            var dlg = new Android.App.AlertDialog.Builder(this);
             if (result == null)
             {
                 dlg.SetMessage("Please make sure you are connected to the server.");
@@ -202,7 +206,7 @@ namespace norsu.ass
             _suggestionView.Visibility = ViewStates.Visible;
             _reviewView.Visibility = ViewStates.Gone;
             _suggestionProgress.Visibility = ViewStates.Gone;
-            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+            _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Invisible;
         }
 
         private async void SubmitReviewOnClick(object sender, EventArgs eventArgs)
@@ -217,13 +221,13 @@ namespace norsu.ass
             var result = await Client.RateOffice(Client.SelectedOffice.Id,(int) _myRating.Rating, _myReview.Text, _privateBox.Checked, 7);
             
             _reviewProgress.Visibility = ViewStates.Gone;
-            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Invisible;
             _submitReview.Enabled = true;
             _myReview.Enabled = true;
             _myRating.Enabled = true;
             _suggest.Enabled = true;
             
-            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            var dlg = new Android.App.AlertDialog.Builder(this);
             if (result == null)
             {   
                 dlg.SetMessage("Please make sure you are connected to the server.");
@@ -270,7 +274,7 @@ namespace norsu.ass
             _suggestionView.Visibility = ViewStates.Gone;
             _reviewView.Visibility = ViewStates.Visible;
             _reviewProgress.Visibility = ViewStates.Gone;
-            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Gone;
+            _privateBox.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Invisible;
             _review.Enabled = false;
             _suggest.Enabled = true;
         }

@@ -37,7 +37,7 @@ namespace norsu.ass
             if (Client.Server == null)
             {
                 SetTheme(Android.Resource.Style.ThemeHoloLightDialogNoActionBar);
-                var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                var dlg = new Android.App.AlertDialog.Builder(this);
                 dlg.SetTitle("Retry to connect to server?");
                 dlg.SetCancelable(false);
                 dlg.SetMessage("The server is not accessible. Make sure you are connected to NORSU's wifi and try again.");
