@@ -17,7 +17,7 @@ namespace norsu.ass
         Offices,
     }
     
-    [Activity(Icon = "@drawable/ic_launcher",  Theme = "@style/AppTheme.Splash", MainLauncher = true,
+    [Activity(Icon = "@mipmap/ic_launcher",  Theme = "@style/AppTheme.Splash", MainLauncher = true,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
     public class MainActivity : Activity
     {

@@ -10,21 +10,22 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.V7.App;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Icon = "@drawable/ic_launcher", Label = "Registration", Theme = "@style/AppTheme",
+    [Activity(Icon = "@mipmap/ic_launcher", Label = "Registration", Theme = "@style/AppTheme", NoHistory = true,
         ScreenOrientation = ScreenOrientation.Portrait,
-        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, NoHistory = true)]
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class RegisterActivity : AppCompatActivity
     {
-        private EditText _studentId, _studentName, _password, _password2,_course, _lastname;
+        private EditText _studentId, _studentName, _password, _password2, _course, _lastname;
         private Button _cancel, _submit;
         private LinearLayout _registrationForm;
         private RelativeLayout _registrationProgress;
-        
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
@@ -45,9 +46,13 @@ namespace norsu.ass
                 {
                     try
                     {
-
+                        if (CurrentFocus != null)
+                        {
+                            var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
+                            imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+                        }
                         dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
-                        dlg.SetMessage("Disconnected from server.");
+                        dlg.SetTitle("Disconnected from server.");
                         dlg.SetMessage("The server has shutdown. Please try again later.");
                         dlg.SetPositiveButton("EXIT", (sender, args) =>
                         {
@@ -63,7 +68,7 @@ namespace norsu.ass
                     }
                 });
             });
-            
+
             base.OnCreate(savedInstanceState);
 
             SetContentView(Resource.Layout.Register);
@@ -80,21 +85,21 @@ namespace norsu.ass
             _lastname = FindViewById<EditText>(Resource.Id.last_name);
             _cancel.Click += CancelOnClick;
             _submit.Click += SubmitOnClick;
-            
-            if(savedInstanceState!=null)
+
+            if (savedInstanceState != null)
                 OnRestoreInstanceState(savedInstanceState);
 
-           
+
         }
 
 
         protected override void OnSaveInstanceState(Bundle outState)
         {
             outState.PutString("reg_id", _studentId.Text);
-            outState.PutString("reg_name",_studentName.Text);
-            outState.PutString("reg_ln",_lastname.Text);
-            outState.PutString("reg_course",_course.Text);
-            outState.PutBoolean("reg_proc",_registrationProgress.Visibility==ViewStates.Visible);
+            outState.PutString("reg_name", _studentName.Text);
+            outState.PutString("reg_ln", _lastname.Text);
+            outState.PutString("reg_course", _course.Text);
+            outState.PutBoolean("reg_proc", _registrationProgress.Visibility == ViewStates.Visible);
             base.OnSaveInstanceState(outState);
         }
 
@@ -143,14 +148,15 @@ namespace norsu.ass
                 Toast.MakeText(this, msg, ToastLength.Short).Show();
                 return;
             }
-            
-            var result = await Client.Register(_studentId.Text, _password.Text, _studentName.Text,_lastname.Text, _course.Text);
+
+            var result = await Client.Register(_studentId.Text, _password.Text, _studentName.Text, _lastname.Text,
+                _course.Text);
             _registrationProgress.Visibility = ViewStates.Gone;
             _registrationForm.Enabled = true;
-            
-            if (result==null)
+
+            if (result == null)
             {
-                Toast.MakeText(this, "Registration Failed",ToastLength.Short).Show();
+                Toast.MakeText(this, "Registration Failed", ToastLength.Short).Show();
                 return;
             }
 
@@ -159,7 +165,7 @@ namespace norsu.ass
                 Toast.MakeText(this, result.Message, ToastLength.Short).Show();
                 return;
             }
-            
+
             StartActivity(new Intent(Application.Context, typeof(OfficesActivity)));
             Finish();
         }

@@ -5,11 +5,33 @@
     android:animateLayoutChanges="true"
     android:orientation="vertical">
 
+  <ImageView
+      android:layout_centerHorizontal="true"
+      android:layout_alignParentTop="true"
+      android:layout_margin="24dp"
+      android:src="@drawable/norsu"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+
   <LinearLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:layout_margin="20dp"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:layout_margin="40dp"
+      android:background="#99FFFFFF"
+      android:padding="20dp"
       android:orientation="vertical">
+
+
+    <TextView
+        android:layout_gravity="center_vertical"
+        style="@style/TextAppearance.AppCompat.Large"
+        android:text="PLEASE SIGN IN"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <ScrollView android:layout_weight="7"
         android:layout_width="match_parent"
@@ -26,15 +48,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
           <EditText android:visibility="gone"
-                    android:id="@+id/nickName"
-                    android:layout_width="fill_parent"
-                    android:maxLines="1"
-                    android:inputType="textCapWords"
-                    android:layout_height="47dp"
-                    android:padding="5dp"
-                    android:imeOptions="actionDone"
-                    android:hint="Your nickname" />
-          
+              android:id="@+id/nickName"
+              android:layout_width="fill_parent"
+              android:maxLines="1"
+              android:inputType="textCapWords"
+              android:layout_height="47dp"
+              android:padding="5dp"
+              android:imeOptions="actionDone"
+              android:hint="Your nickname" />
+
           <EditText
               android:id="@+id/userName"
               android:inputType="text"
@@ -60,41 +82,40 @@
         <CheckBox
             android:id="@+id/anonymous"
             android:focusable="false"
-          android:visibility="gone"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_alignParentRight="true"
             android:text="Anonymous" />
 
-
-
       </LinearLayout>
     </ScrollView>
 
-    <LinearLayout android:orientation="horizontal"
-        android:layout_below="@id/anonymous"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+  </LinearLayout>
 
-      <Button android:layout_weight="7"
-          android:visibility="gone"
-          android:id="@+id/register"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="10dp"
-          android:layout_marginRight="10dp"
-          android:text="Register" />
+  <LinearLayout android:orientation="horizontal"
+      android:id="@+id/login_action"
+      android:layout_alignParentBottom="true"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
 
-      <Button android:layout_weight="7"
-          android:id="@+id/login"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginTop="10dp"
-          android:text="Login"
-          style="@style/Widget.AppCompat.Button.Colored" />
-    </LinearLayout>
+    <Button android:layout_weight="7"
+        android:visibility="gone"
+        android:id="@+id/register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:text="Register" />
 
+    <Button android:layout_weight="7"
+        android:id="@+id/login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Login"
+        style="@style/Widget.AppCompat.Button.Colored" />
   </LinearLayout>
 
   <RelativeLayout android:id="@+id/progress"
@@ -122,4 +143,6 @@
           android:textSize="17pt"/>
     </LinearLayout>
   </RelativeLayout>
+
+
 </RelativeLayout>

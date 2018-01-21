@@ -30,8 +30,6 @@
     -->
 
     <!-- AppCompat Dialog Attributes -->
-    <!--<item name="dialogTheme">@style/AppTheme.Dialog</item>
-    <item name="alertDialogTheme">@style/AppTheme.Dialog.Alert</item>-->
   </style>
 
   <!-- Green Dialog Theme -->

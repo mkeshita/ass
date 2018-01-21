@@ -1,10 +1,12 @@
 ﻿using System;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 using norsu.ass.Network;
 
@@ -43,9 +45,13 @@ namespace norsu.ass
                 {
                     try
                     {
-                   
-                            dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
-                            dlg.SetMessage("Disconnected from server.");
+                        if (CurrentFocus != null)
+                        {
+                            var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
+                            imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+                        }
+                        dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+                            dlg.SetTitle("Disconnected from server.");
                             dlg.SetMessage("The server has shutdown. Please try again later.");
                             dlg.SetPositiveButton("EXIT", (sender, args) =>
                             {

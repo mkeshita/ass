@@ -5,12 +5,13 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Views;
+using Android.Views.InputMethods;
 using Android.Widget;
 using norsu.ass.Network;
 
 namespace norsu.ass
 {
-    [Activity(Icon = "@drawable/ic_launcher", Label = "Sign In", Theme = "@style/AppTheme",
+    [Activity(Icon = "@mipmap/ic_launcher", Label = "Sign In", Theme = "@style/AppTheme",
         ScreenOrientation = ScreenOrientation.Portrait,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class LoginActivity : AppCompatActivity
@@ -27,7 +28,7 @@ namespace norsu.ass
         
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            var dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
+            var dlg = new Android.App.AlertDialog.Builder(this);
             if (Client.Server == null)
             {
                 dlg.SetTitle("Connection to server is not established.");
@@ -45,9 +46,14 @@ namespace norsu.ass
                 {
                     try
                     {
-
-                        dlg = new Android.Support.V7.App.AlertDialog.Builder(this);
-                        dlg.SetMessage("Disconnected from server.");
+                        if (CurrentFocus != null)
+                        {
+                            var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
+                            imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+                        }
+                        
+                        dlg = new Android.App.AlertDialog.Builder(this);
+                        dlg.SetTitle("Disconnected from server.");
                         dlg.SetMessage("The server has shutdown. Please try again later.");
                         dlg.SetPositiveButton("EXIT", (sender, args) =>
                         {
@@ -86,9 +92,14 @@ namespace norsu.ass
                 _anonymous.Visibility = Client.Server.AllowAnnonymous ? ViewStates.Visible : ViewStates.Gone;
                 _register.Visibility = Client.Server.AllowRegistration ? ViewStates.Visible : ViewStates.Gone;
                 _register.Click += RegisterOnClick;
-                
             }
            
+            SupportActionBar.SetDisplayShowHomeEnabled(true);
+            SupportActionBar.SetDisplayShowTitleEnabled(true);
+            SupportActionBar.Title = "SUGGESTION APP";
+            SupportActionBar.Subtitle = "NORGU - Guihulngan";
+            SupportActionBar.SetLogo(Resource.Mipmap.ic_launcher);
+            SupportActionBar.SetDisplayUseLogoEnabled(true);
         }
         
         private void RegisterOnClick(object sender, EventArgs eventArgs)
