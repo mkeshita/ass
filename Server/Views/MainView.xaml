@@ -52,9 +52,8 @@
                 <md:ColorZone Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0 7"
                       Opacity="0.7"
                       Mode="Dark">
-                    <Grid>
-
-                        <TextBlock TextAlignment="Center"
+          <Grid>
+            <TextBlock TextAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
                                    VerticalAlignment="Center"
                                    Margin="47 17" >

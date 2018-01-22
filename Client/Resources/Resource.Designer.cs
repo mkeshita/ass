@@ -3449,6 +3449,9 @@ namespace norsu.ass
 			// aapt resource value: 0x7f09002a
 			public const int ApplicationName = 2131296298;
 			
+			// aapt resource value: 0x7f090031
+			public const int Exit = 2131296305;
+			
 			// aapt resource value: 0x7f090029
 			public const int Hello = 2131296297;
 			
@@ -3560,6 +3563,12 @@ namespace norsu.ass
 			// aapt resource value: 0x7f090023
 			public const int character_counter_pattern = 2131296291;
 			
+			// aapt resource value: 0x7f090030
+			public const int no_server_message = 2131296304;
+			
+			// aapt resource value: 0x7f09002f
+			public const int no_server_title = 2131296303;
+			
 			// aapt resource value: 0x7f090024
 			public const int password_toggle_content_description = 2131296292;
 			
@@ -3577,6 +3586,12 @@ namespace norsu.ass
 			
 			// aapt resource value: 0x7f090013
 			public const int search_menu_title = 2131296275;
+			
+			// aapt resource value: 0x7f09002e
+			public const int server_shutdown_message = 2131296302;
+			
+			// aapt resource value: 0x7f09002d
+			public const int server_shutdown_title = 2131296301;
 			
 			// aapt resource value: 0x7f090014
 			public const int status_bar_notification_info_overflow = 2131296276;

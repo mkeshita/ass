@@ -31,8 +31,8 @@ namespace norsu.ass
             var dlg = new Android.App.AlertDialog.Builder(this);
             if (Client.Server == null)
             {
-                dlg.SetTitle("Connection to server is not established.");
-                dlg.SetMessage("Please make sure you are connected to the server and try again.");
+                dlg.SetTitle(Resource.String.no_server_title);
+                dlg.SetMessage(Resource.String.no_server_message);
                 dlg.SetNegativeButton("Exit", (sender, args) =>
                 {
                     FinishAffinity();
@@ -52,9 +52,9 @@ namespace norsu.ass
                             imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
                         }
                         dlg = new Android.App.AlertDialog.Builder(this);
-                        dlg.SetTitle("Disconnected from server.");
-                        dlg.SetMessage("The server has shutdown. Please try again later.");
-                        dlg.SetPositiveButton("EXIT", (sender, args) =>
+                        dlg.SetTitle(Resource.String.server_shutdown_title);
+                        dlg.SetMessage(Resource.String.server_shutdown_message);
+                        dlg.SetPositiveButton("Exit", (sender, args) =>
                         {
                             FinishAffinity();
                         });
@@ -91,8 +91,8 @@ namespace norsu.ass
 
             SupportActionBar.SetDisplayShowHomeEnabled(true);
             SupportActionBar.SetDisplayShowTitleEnabled(true);
-            SupportActionBar.Title = "SUGGESTION APP";
-            SupportActionBar.Subtitle = "NORGU - Guihulngan";
+            SupportActionBar.Title = "ACCOUNT REGISTRATION";
+            SupportActionBar.Subtitle = "NORSU-G Suggestion App";
             SupportActionBar.SetLogo(Resource.Mipmap.ic_launcher);
             SupportActionBar.SetDisplayUseLogoEnabled(true);
         }

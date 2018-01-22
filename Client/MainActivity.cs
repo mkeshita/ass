@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -33,28 +34,37 @@ namespace norsu.ass
 
         private async void FindServer()
         {
-            await Client.FindServer();
-            if (Client.Server == null)
+            try
             {
-                SetTheme(Android.Resource.Style.ThemeHoloLightDialogNoActionBar);
-                var dlg = new Android.App.AlertDialog.Builder(this);
-                dlg.SetTitle("Retry to connect to server?");
-                dlg.SetCancelable(false);
-                dlg.SetMessage("The server is not accessible. Make sure you are connected to NORSU's wifi and try again.");
-                dlg.SetPositiveButton("RETRY", (sender, args) =>
+                await Client.FindServer();
+                if (Client.Server == null)
                 {
-                    FindServer();
-                });
-                dlg.SetNegativeButton("EXIT", (sender, args) =>
+                    SetTheme(Android.Resource.Style.ThemeHoloLightDialogNoActionBar);
+                    var dlg = new Android.App.AlertDialog.Builder(this);
+                    dlg.SetTitle("Retry to connect to server?");
+                    dlg.SetCancelable(false);
+                    dlg.SetMessage(
+                        "The server is not accessible. Make sure you are connected to NORSU's wifi and try again.");
+                    dlg.SetPositiveButton("RETRY", (sender, args) =>
+                    {
+                        FindServer();
+                    });
+                    dlg.SetNegativeButton("Exit", (sender, args) =>
+                    {
+                        FinishAffinity();
+                    });
+                    dlg.Create().Show();
+                }
+                else
                 {
-                    Finish();
-                });
-                dlg.Create().Show();
+                    StartActivity(typeof(LoginActivity));
+                }
             }
-            else
+            catch (Exception e)
             {
-                StartActivity(typeof(LoginActivity));
+                FinishAffinity();
             }
+           
         }
     }
 }

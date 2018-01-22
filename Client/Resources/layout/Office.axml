@@ -204,6 +204,7 @@
             android:scrollbars="vertical"
             android:id="@+id/suggestion_subject"
             android:hint="SUBJECT"
+            android:inputType="text"
             android:maxLines="1"
             android:maxLength="74"
             android:layout_width="match_parent"

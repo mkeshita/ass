@@ -10,7 +10,7 @@ using Android.App;
 [assembly: AssemblyDescription("NORSU-G Suggestion App")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Insight")]
+[assembly: AssemblyProduct("Suggestion App")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
