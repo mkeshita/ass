@@ -295,7 +295,7 @@ namespace norsu.ass.Network
         {
             var result = new Suggestions();
             var comments = Models.Suggestion.Cache.
-                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId!=student.Id))
+                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId==student.Id))
                 .OrderByDescending(x=> GetLikes(x.Id)).ToList();
             foreach (var item in comments)
             {

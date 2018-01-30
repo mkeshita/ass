@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">Suggestion App</string>
+  <string name="app_name">Suggestion</string>
   <string name="app_description">NORSU-G Suggestion App</string>
   <string name="server_shutdown_title">Disconnected from server.</string>
   <string name="server_shutdown_message">The server has shutdown. Please try again later.</string>

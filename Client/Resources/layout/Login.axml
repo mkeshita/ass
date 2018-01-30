@@ -130,8 +130,6 @@
     </LinearLayout>
   </LinearLayout>
 
-
-
   <RelativeLayout android:id="@+id/progress"
       android:visibility="gone"
       android:layout_width="match_parent"
