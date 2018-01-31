@@ -261,6 +261,17 @@ namespace norsu.ass.Network
             {
                 Success = true,
                 TotalCount = Models.Suggestion.Cache.Count(x=>x.OfficeId==i.OfficeId),
+                Result = new Suggestion()
+                {
+                    Id = s.Id,
+                    AllowComment = s.AllowComments,
+                    Body = s.Body,
+                    Comments = 0,
+                    OfficeId = s.OfficeId,
+                    Title = s.Title,
+                    UserId = s.UserId,
+                    StudentName = student.IsAnnonymous ? "Anonymous" : student.Fullname,
+                },
             }.Send(dev);
         }
 
@@ -296,14 +307,15 @@ namespace norsu.ass.Network
         private async void SendSuggestions(long id, AndroidDevice dev, User student, int page)
         {
             var result = new Suggestions();
-            var suggestions = Models.Suggestion.Cache.
-                Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId==student.Id))
-                .OrderByDescending(x=> GetLikes(x.Id)).ToList();
-            
+            var suggestions = Models.Suggestion.Cache
+                            .Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId == student.Id))
+                            .OrderByDescending(x=>x.Votes).ToList();
+
             
             for (var i = page*Settings.Default.PageSize; i < suggestions.Count; i++)
             {
                 var item = suggestions[i];
+
                 result.Items.Add(new Suggestion()
                 {
                     Body = item.Body,
@@ -316,7 +328,7 @@ namespace norsu.ass.Network
                     CommentsDisabledBy = item.CommentsDisabledBy
                 });
 
-                if (result.Items.Count == Settings.Default.PageSize)
+                if (result.Items.Count >= Settings.Default.PageSize)
                 {
                     result.Full = true;
                     break;

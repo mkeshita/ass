@@ -125,6 +125,9 @@ namespace norsu.ass.Network
 
         [ProtoMember(3)]
         public int TotalCount { get; set; }
+        
+        [ProtoMember(4)]
+        public Suggestion Result { get; set; }
     }
 
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -185,8 +186,8 @@ namespace norsu.ass
                 _suggestionView.Visibility = ViewStates.Gone;
                 _suggest.Enabled = true;
                 _officeSuggestions.Text = result.TotalCount.ToString("#,##0");
-
-                GetSuggestions(SuggestionsPage);
+                
+                AddSuggestionRow(result.Result);
             }
                 else
             {
@@ -350,6 +351,7 @@ namespace norsu.ass
 
         private int SuggestionsPage = -1;
         private int LastSuggestionIndex = -1;
+        private List<long> LoadedSuggestions = new List<long>();
         
         private async void GetSuggestions(int page)
         {
@@ -364,30 +366,44 @@ namespace norsu.ass
             for (var i = LastSuggestionIndex+1; i < result.Items.Count; i++)
             {
                 var item = result.Items[i];
-                var row = SuggestionsAdapter.GetView(
-                    LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
 
-                row.Clickable = true;
-                row.Click += (sender, args) =>
-                {
-                    Client.SelectedSuggestion = item;
-                    StartActivity(typeof(SuggestionView));
-                };
-
-                _suggestions.AddView(row);
-
+                if (LoadedSuggestions.Contains(item.Id))
+                    continue;
+                
+                AddSuggestionRow(item);
             }
 
             if (result.Full)
             {
                 LastSuggestionIndex = -1;
-                if (SuggestionsPage < result.Page) SuggestionsPage = result.Page;
+                if (SuggestionsPage < result.Page)
+                    SuggestionsPage = result.Page;
             }
             else
             {
                 LastSuggestionIndex = result.Items.Count - 1;
             }
+
             
+
+        }
+
+        private void AddSuggestionRow(Suggestion item)
+        {
+            
+            LoadedSuggestions.Add(item.Id);
+
+            var row = SuggestionsAdapter.GetView(
+                LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
+
+            row.Clickable = true;
+            row.Click += (sender, args) =>
+            {
+                Client.SelectedSuggestion = item;
+                StartActivity(typeof(SuggestionView));
+            };
+
+            _suggestions.AddView(row);
         }
         
         private void SetListViewSize(ListView view)
