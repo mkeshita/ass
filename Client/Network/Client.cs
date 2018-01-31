@@ -352,8 +352,8 @@ namespace norsu.ass.Network
 
         public static async Task<OfficeRatings> GetRatings(long officeId, int page)
         {
-            var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
-            if (ratings != null) return ratings;
+            //var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
+            //if (ratings != null) return ratings;
             
             return await Instance._GetRatings(officeId,page);
         }
@@ -374,8 +374,8 @@ namespace norsu.ass.Network
                     NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
                     result = res;
 
-                    var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
-                    if (ratings == null) OfficeRatingCache.Add(res);
+                    //var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
+                    //if (ratings == null) OfficeRatingCache.Add(res);
                     
                     var rating = res.Ratings.FirstOrDefault(x => x.MyRating);
                     if(rating!=null) AddRating(rating.OfficeId,rating);
@@ -442,12 +442,12 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<Suggestions> GetSuggestions(long officeId, long count = -1)
+        public static async Task<Suggestions> GetSuggestions(long officeId, int page)
         {
-            return await Instance._GetSuggestions(officeId,count);
+            return await Instance._GetSuggestions(officeId,page);
         }
 
-        private async Task<Suggestions> _GetSuggestions(long officeId, long count = -1)
+        private async Task<Suggestions> _GetSuggestions(long officeId, int page)
         {
             if (Server == null)
                 await _FindServer();
@@ -468,7 +468,7 @@ namespace norsu.ass.Network
             {
                 OfficeId = officeId,
                 Session = Session,
-                Count = count,
+                Page = page,
             }.Send(Server.IP, Server.Port);
 
             var start = DateTime.Now;
@@ -513,24 +513,24 @@ namespace norsu.ass.Network
         
         public static Suggestion SelectedSuggestion { get; set; }
 
-        public static async Task<Suggestions> Suggest(long officeId, string subject, string body,bool isPrivate)
+        public static async Task<SuggestResult> Suggest(long officeId, string subject, string body,bool isPrivate)
         {
             return await Instance._Suggest(officeId, subject, body, isPrivate);
         }
         
-        private async Task<Suggestions> _Suggest(long officeId, string subject, string body,bool isPrivate)
+        private async Task<SuggestResult> _Suggest(long officeId, string subject, string body,bool isPrivate)
         {
             if (Server == null)
                 await _FindServer();
             if (Server == null)
                 return null;
 
-            Suggestions result = null;
+            SuggestResult result = null;
 
-            NetworkComms.AppendGlobalIncomingPacketHandler<Suggestions>(Suggestions.Header,
+            NetworkComms.AppendGlobalIncomingPacketHandler<SuggestResult>(SuggestResult.Header,
                 (h, c, res) =>
                 {
-                    NetworkComms.RemoveGlobalIncomingPacketHandler(Suggestions.Header);
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(SuggestResult.Header);
                     result = res;
                 });
 

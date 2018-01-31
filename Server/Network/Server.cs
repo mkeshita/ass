@@ -229,11 +229,9 @@ namespace norsu.ass.Network
         private async void SuggestionHandler(PacketHeader packetheader, Connection connection, Suggest i)
         {
             var dev = GetDevice(connection);
-            if (dev == null)
-                return;
+            if (dev == null) return;
 
-            if (!Sessions.ContainsKey(i.Session))
-                return;
+            if (!Sessions.ContainsKey(i.Session)) return;
             var student = Sessions[i.Session];
             
             var s = new Models.Suggestion()
@@ -258,8 +256,12 @@ namespace norsu.ass.Network
                     //
                 }
             }
-            
-            SendSuggestions(i.OfficeId, dev, student, 7);
+
+            await new SuggestResult()
+            {
+                Success = true,
+                TotalCount = Models.Suggestion.Cache.Count(x=>x.OfficeId==i.OfficeId),
+            }.Send(dev);
         }
 
         private void GetSuggestionsHandler(PacketHeader packetheader, Connection connection, GetSuggestions i)
@@ -272,7 +274,7 @@ namespace norsu.ass.Network
                 return;
             var student = Sessions[i.Session];
 
-            SendSuggestions(i.OfficeId, dev, student,i.Count);
+            SendSuggestions(i.OfficeId, dev, student,i.Page);
         }
         
         private long GetLikes(long id)
@@ -291,14 +293,17 @@ namespace norsu.ass.Network
             }
         }
 
-        private async void SendSuggestions(long id, AndroidDevice dev, User student, long count = -1)
+        private async void SendSuggestions(long id, AndroidDevice dev, User student, int page)
         {
             var result = new Suggestions();
-            var comments = Models.Suggestion.Cache.
+            var suggestions = Models.Suggestion.Cache.
                 Where(x => x.OfficeId == id && (!x.IsPrivate || x.UserId==student.Id))
                 .OrderByDescending(x=> GetLikes(x.Id)).ToList();
-            foreach (var item in comments)
+            
+            
+            for (var i = page*Settings.Default.PageSize; i < suggestions.Count; i++)
             {
+                var item = suggestions[i];
                 result.Items.Add(new Suggestion()
                 {
                     Body = item.Body,
@@ -310,8 +315,16 @@ namespace norsu.ass.Network
                     AllowComment = item.AllowComments,
                     CommentsDisabledBy = item.CommentsDisabledBy
                 });
-                if(count>0 && result.Items.Count>=count) break;
+
+                if (result.Items.Count == Settings.Default.PageSize)
+                {
+                    result.Full = true;
+                    break;
+                }
             }
+            
+            result.Pages = (int) Math.Floor(suggestions.Count / (Settings.Default.PageSize * 1.0));
+            result.Page = page;
             result.TotalCount = Models.Suggestion.Cache.Count(x => x.OfficeId == id);
             await result.Send(dev.IP, dev.Port);
         }

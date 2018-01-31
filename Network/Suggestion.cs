@@ -58,7 +58,7 @@ namespace norsu.ass.Network
         public long OfficeId { get; set; }
 
         [ProtoMember(3)]
-        public long Count { get; set; }
+        public int Page { get; set; }
     }
 
     [ProtoContract]
@@ -72,6 +72,15 @@ namespace norsu.ass.Network
 
         [ProtoMember(3)]
         public long TotalCount { get; set; }
+        
+        [ProtoMember(4)]
+        public int Page { get; set; }
+        
+        [ProtoMember(5)]
+        public bool Full { get; set; }
+
+        [ProtoMember(6)]
+        public int Pages { get; set; }
     }
 
     [ProtoContract]
@@ -105,5 +114,18 @@ namespace norsu.ass.Network
         [ProtoMember(5)]
         public bool IsPrivate { get; set; }
     }
-    
+
+    [ProtoContract]
+    class SuggestResult : Packet<SuggestResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public string ErrorMessage { get; set; }
+
+        [ProtoMember(3)]
+        public int TotalCount { get; set; }
+    }
+
+
 }

@@ -134,6 +134,12 @@ namespace norsu.ass
             _submitSuggestion.Click += SubmitSuggestionOnClick;
             
             _reviews_more.Click += ReviewsMoreOnClick;
+            _suggestions_more.Click+= SuggestionsMoreOnClick;
+        }
+
+        private void SuggestionsMoreOnClick(object sender1, EventArgs eventArgs)
+        {
+            GetSuggestions(SuggestionsPage+1);
         }
 
         private int RatingsPage = -1;
@@ -171,9 +177,20 @@ namespace norsu.ass
             _submitSuggestion.Enabled = true;
             _review.Enabled = true;
 
-            var dlg = new Android.App.AlertDialog.Builder(this);
-            if (result == null)
+
+            if (result?.Success ?? false)
             {
+                Toast.MakeText(this, "Suggestion submitted", ToastLength.Short).Show();
+
+                _suggestionView.Visibility = ViewStates.Gone;
+                _suggest.Enabled = true;
+                _officeSuggestions.Text = result.TotalCount.ToString("#,##0");
+
+                GetSuggestions(SuggestionsPage);
+            }
+                else
+            {
+                var dlg = new Android.App.AlertDialog.Builder(this);
                 dlg.SetMessage("Please make sure you are connected to the server.");
                 dlg.SetTitle("Failed to submit your suggestion. Retry?");
                 dlg.SetPositiveButton("RETRY", (o, args) =>
@@ -185,31 +202,9 @@ namespace norsu.ass
 
                 });
                 dlg.Show();
-                return;
             }
 
-            Toast.MakeText(this, "Suggestion submitted", ToastLength.Short).Show();
-                
-            _suggestionView.Visibility = ViewStates.Gone;
-            _suggest.Enabled = true;
-            _officeSuggestions.Text = result.TotalCount.ToString("#,##0");
-
-            if (_suggestions.ChildCount == 7) return;
-            _suggestions.RemoveAllViews();
-            foreach (var item in result.Items)
-            {
-                var row = SuggestionsAdapter.GetView(
-                    LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
-
-                row.Clickable = true;
-                row.Click += (s, args) =>
-                {
-                    Client.SelectedSuggestion = item;
-                    StartActivity(typeof(SuggestionView));
-                };
-
-                _suggestions.AddView(row);
-            }
+            
         }
 
         private void SuggestOnClick(object sender, EventArgs eventArgs)
@@ -311,7 +306,7 @@ namespace norsu.ass
         private async void GetRatings(int page)
         {
             _reviewsProgress.Visibility = ViewStates.Visible;
-            _reviews_more.Visibility = ViewStates.Gone;
+            _reviews_more.Visibility = ViewStates.Invisible;
             
             var result = await Client.GetRatings(Client.SelectedOffice.Id, page);
             
@@ -354,30 +349,45 @@ namespace norsu.ass
         }
 
         private int SuggestionsPage = -1;
+        private int LastSuggestionIndex = -1;
         
         private async void GetSuggestions(int page)
         {
-           
-            var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,page);
-
+            _suggestions_more.Visibility = ViewStates.Invisible;
+            _suggestionsProgress.Visibility = ViewStates.Visible;
+            var result = await Client.GetSuggestions(Client.SelectedOffice.Id,page);
+            _suggestions_more.Visibility = ViewStates.Visible;
             _suggestionsProgress.Visibility = ViewStates.Gone;
+
+            if (result == null) return;
             
-            if(suggestions!=null)
-            foreach (var item in suggestions.Items)
+            for (var i = LastSuggestionIndex+1; i < result.Items.Count; i++)
+            {
+                var item = result.Items[i];
+                var row = SuggestionsAdapter.GetView(
+                    LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
+
+                row.Clickable = true;
+                row.Click += (sender, args) =>
                 {
-                    var row = SuggestionsAdapter.GetView(
-                        LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false),item,this);
+                    Client.SelectedSuggestion = item;
+                    StartActivity(typeof(SuggestionView));
+                };
 
-                    row.Clickable = true;
-                    row.Click += (sender, args) =>
-                    {
-                        Client.SelectedSuggestion = item;
-                        StartActivity(typeof(SuggestionView));
-                    };
-                    
-                    _suggestions.AddView(row);
-                }
+                _suggestions.AddView(row);
 
+            }
+
+            if (result.Full)
+            {
+                LastSuggestionIndex = -1;
+                if (SuggestionsPage < result.Page) SuggestionsPage = result.Page;
+            }
+            else
+            {
+                LastSuggestionIndex = result.Items.Count - 1;
+            }
+            
         }
         
         private void SetListViewSize(ListView view)
