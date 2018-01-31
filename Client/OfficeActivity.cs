@@ -20,7 +20,8 @@ namespace norsu.ass
         private ImageView _officePicture;
         private TextView _officeShortName, _officeLongName, _officeRatingCount, _officeSuggestions;
         private RatingBar _officeRating,_myRating;
-        private Button _viewAllReviews,_viewAllSuggestions,_suggest,_review,_submitReview,_submitSuggestion;
+        private Button _viewAllReviews,_viewAllSuggestions,_suggest,_review,_submitReview,
+                        _submitSuggestion,_reviews_more, _suggestions_more;
         private LinearLayout _reviews, _suggestions, _reviewProgress,_suggestionProgress;
         private RelativeLayout _reviewView,_suggestionView;
         private EditText _myReview,_suggestionSubject,_suggestionBody;
@@ -113,6 +114,9 @@ namespace norsu.ass
             _submitReview = FindViewById<Button>(Resource.Id.submit_review);
             _myRating = FindViewById<RatingBar>(Resource.Id.rating);
             _myReview = FindViewById<EditText>(Resource.Id.review_text);
+
+            _suggestions_more = FindViewById<Button>(Resource.Id.suggestions_more);
+            _reviews_more = FindViewById<Button>(Resource.Id.reviews_more);
             
             _viewAllSuggestions.Text = "VIEW ALL " + Client.SelectedOffice?.SuggestionsCount;
             _viewAllReviews.Text = "VIEW ALL " + Client.SelectedOffice?.RatingCount;
@@ -126,6 +130,14 @@ namespace norsu.ass
             _suggest.Click += SuggestOnClick;
             _submitSuggestion.Click += SubmitSuggestionOnClick;
             
+            _reviews_more.Click += ReviewsMoreOnClick;
+        }
+
+        private int RatingsPage = -1;
+        
+        private void ReviewsMoreOnClick(object sender1, EventArgs eventArgs)
+        {
+            GetRatings(RatingsPage++);
         }
 
         private async void SubmitSuggestionOnClick(object sender, EventArgs eventArgs)
@@ -279,12 +291,14 @@ namespace norsu.ass
             _suggest.Enabled = true;
         }
 
-        private async void GetReviews()
+        private async void GetRatings(int page)
         {
-            var result = await Client.GetRatings(Client.SelectedOffice.Id,7);
+            _reviews_more.Visibility = ViewStates.Gone;
+            var result = await Client.GetRatings(Client.SelectedOffice.Id, page);
 
             _reviewsProgress.Visibility = ViewStates.Gone;
-            
+            _reviews_more.Visibility = ViewStates.Visible;
+
             if (result != null)
             {
                 Client.SelectedOffice.Rating = result.Rating;
@@ -294,6 +308,7 @@ namespace norsu.ass
                 _officeRatingCount.Text = result.TotalCount.ToString("#,##0");
                 Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
 
+                if (result.Ratings.Count > 0) RatingsPage = page;
                 foreach (var item in result.Ratings)
                 {
                     var row = RatingsAdapter.GetView(
@@ -303,6 +318,11 @@ namespace norsu.ass
                     _reviews.AddView(row);
                 }
             }
+        }
+
+        private async void GetReviews()
+        {
+            GetRatings(0);
 
 
             var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,7);

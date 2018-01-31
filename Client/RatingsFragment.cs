@@ -46,7 +46,7 @@ namespace norsu.ass
 
         private async void SetAdapter()
         {
-            var offices = await Client.GetRatings(OfficeId);
+            var offices = await Client.GetRatings(OfficeId,0);
 
             var adapter = new RatingsAdapter(Activity, offices.Ratings);
 

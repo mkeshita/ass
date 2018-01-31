@@ -376,7 +376,7 @@ namespace norsu.ass.Network
                 return;
             var student = Sessions[incomingobject.Session];
             
-            SendRatings(incomingobject.OfficeId, dev, student,incomingobject.Count);
+            SendRatings(incomingobject.OfficeId, dev, student,incomingobject.Page);
         }
 
         private void OfficeRatingHandler(PacketHeader packetheader, Connection connection, RateOffice rating)
@@ -401,10 +401,10 @@ namespace norsu.ass.Network
             studentRating.Value = rating.Rating;
             studentRating.Save();
 
-            SendRatings(rating.OfficeId, dev, student, rating.ReturnCount);
+            //SendRatings(rating.OfficeId, dev, student, rating.ReturnCount);
         }
 
-        private async void SendRatings(long officeId, AndroidDevice dev, User user, long count = -1)
+        private async void SendRatings(long officeId, AndroidDevice dev, User user, int page = 0)
         {
             var result = new OfficeRatings();
             result.OfficeId = officeId;
@@ -424,12 +424,18 @@ namespace norsu.ass.Network
                     }
                 );
 
-            var ratings = Models.Rating.Cache.Where(x => x.OfficeId == officeId && x.UserId != user.Id && !x.IsPrivate)
+            var ratings = Models.Rating.Cache
+                .Where(x => x.OfficeId == officeId && (!x.IsPrivate || x.UserId==user.Id))
                 .OrderByDescending(x=>x.Id).ToList();
 
-            foreach (var item in ratings)
+            var pages = (int) Math.Floor(ratings.Count/(Settings.Default.PageSize*1.0));
+            if (ratings.Count % Settings.Default.PageSize > 0) pages++;
+            
+            if(pages-1 <= page)
+            for (var i = page*Settings.Default.PageSize; i < ratings.Count; i++)
             {
-                if(item.IsPrivate && user.Id!=item.UserId) continue;
+                var item = ratings[i];
+                if(item.UserId==user.Id) continue;
                 result.Ratings.Add(
                     new OfficeRating()
                     {
@@ -442,8 +448,10 @@ namespace norsu.ass.Network
                         UserId = item.UserId,
                     }
                 );
-                if(count>0 && result.Ratings.Count>=count) break;
+                if(result.Ratings.Count==Settings.Default.PageSize) break;
             }
+
+            result.Pages = pages;
             result.TotalCount = Models.Rating.Cache.Count(x => x.OfficeId == officeId);
             result.Rating = Models.Rating.Cache.Where(x => x.OfficeId == officeId).Average(x => x.Value * 1f);
             await result.Send(dev.IP, dev.Port);

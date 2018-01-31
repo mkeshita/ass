@@ -350,12 +350,17 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<OfficeRatings> GetRatings(long officeId, long count = -1)
+        public static async Task<OfficeRatings> GetRatings(long officeId, int page)
         {
-            return await Instance._GetRatings(officeId,count);
+            var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
+            if (ratings != null) return ratings;
+            
+            return await Instance._GetRatings(officeId,page);
         }
-        private async Task<OfficeRatings> _GetRatings(long officeId,long count = -1)
+        private static List<OfficeRatings> OfficeRatingCache { get; } = new List<OfficeRatings>();
+        private async Task<OfficeRatings> _GetRatings(long officeId,int page)
         {
+            
             if (Server == null)
                 await _FindServer();
             if (Server == null)
@@ -368,6 +373,9 @@ namespace norsu.ass.Network
                 {
                     NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
                     result = res;
+
+                    var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
+                    if (ratings == null) OfficeRatingCache.Add(res);
                     
                     var rating = res.Ratings.FirstOrDefault(x => x.MyRating);
                     if(rating!=null) AddRating(rating.OfficeId,rating);
@@ -379,7 +387,7 @@ namespace norsu.ass.Network
             {
                 OfficeId = officeId,
                 Session = Session,
-                Count = count
+                Page = page
             }.Send(Server.IP, Server.Port);
             
             var start = DateTime.Now;

@@ -17,5 +17,11 @@ namespace norsu.ass.Network
         
         [ProtoMember(4)]
         public long TotalCount { get; set; }
+        
+        [ProtoMember(5)]
+        public int Pages { get; set; }
+
+        [ProtoMember(6)]
+        public int Page { get; set; }
     }
 }

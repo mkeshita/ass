@@ -15,6 +15,7 @@ namespace norsu.ass.Network
         public long OfficeId { get; set; }
 
         [ProtoMember(3)]
-        public long Count { get; set; }
+        public int Page { get; set; }
+        
     }
 }
