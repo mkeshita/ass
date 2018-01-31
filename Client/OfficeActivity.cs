@@ -125,7 +125,7 @@ namespace norsu.ass
             SetupOffice();
             
             GetRatings(0);
-            GetReviews();
+            GetSuggestions(0);
             
             _review.Click += ReviewOnClick;
             _submitReview.Click += SubmitReviewOnClick;
@@ -307,7 +307,7 @@ namespace norsu.ass
         }
 
         private View MyRatingView;
-        
+        private int LastRatingIndex = -1;
         private async void GetRatings(int page)
         {
             _reviewsProgress.Visibility = ViewStates.Visible;
@@ -323,10 +323,10 @@ namespace norsu.ass
                 _officeRating.Rating = result.Rating;
                 _officeRatingCount.Text = result.TotalCount.ToString("#,##0");
                 Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
-
-                if (result.Ratings.Count > 0) RatingsPage = page;
-                foreach (var item in result.Ratings)
+                
+                for (var i = LastRatingIndex+1; i < result.Ratings.Count; i++)
                 {
+                    var item = result.Ratings[i];
                     var row = RatingsAdapter.GetView(
                         LayoutInflater.Inflate(Resource.Layout.RatingRow, null, false),
                         item,
@@ -339,18 +339,26 @@ namespace norsu.ass
                     }
                     _reviews.AddView(row);
                 }
+
+                LastRatingIndex = result.Ratings.Count - 1;
+                
+                if(result.Ratings.Count == 7)
+                {
+                    RatingsPage = page;
+                    LastRatingIndex = -1;
+                }
             }
 
             _reviewsProgress.Visibility = ViewStates.Gone;
             _reviews_more.Visibility = ViewStates.Visible;
         }
 
-        private async void GetReviews()
+        private int SuggestionsPage = -1;
+        
+        private async void GetSuggestions(int page)
         {
            
-
-
-            var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,7);
+            var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,page);
 
             _suggestionsProgress.Visibility = ViewStates.Gone;
             
