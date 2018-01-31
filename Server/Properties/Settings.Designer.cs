@@ -178,5 +178,53 @@ namespace norsu.ass.Server.Properties {
                 this["PageSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        public int SuggestionTitleMin {
+            get {
+                return ((int)(this["SuggestionTitleMin"]));
+            }
+            set {
+                this["SuggestionTitleMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("74")]
+        public int SuggestionTitleMax {
+            get {
+                return ((int)(this["SuggestionTitleMax"]));
+            }
+            set {
+                this["SuggestionTitleMax"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("47")]
+        public int SuggestionBodyMin {
+            get {
+                return ((int)(this["SuggestionBodyMin"]));
+            }
+            set {
+                this["SuggestionBodyMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("174")]
+        public int SuggestionBodyMax {
+            get {
+                return ((int)(this["SuggestionBodyMax"]));
+            }
+            set {
+                this["SuggestionBodyMax"] = value;
+            }
+        }
     }
 }

@@ -41,5 +41,17 @@
     <Setting Name="PageSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">7</Value>
     </Setting>
+    <Setting Name="SuggestionTitleMin" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
+    <Setting Name="SuggestionTitleMax" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">74</Value>
+    </Setting>
+    <Setting Name="SuggestionBodyMin" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">47</Value>
+    </Setting>
+    <Setting Name="SuggestionBodyMax" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">174</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

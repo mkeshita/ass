@@ -7,6 +7,8 @@ using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
 using Android.Support.V7.App;
+using Android.Support.V7.Widget;
+using Android.Text;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
@@ -20,7 +22,8 @@ namespace norsu.ass
     {
 
         private ImageView _officePicture;
-        private TextView _officeShortName, _officeLongName, _officeRatingCount, _officeSuggestions;
+        private TextView _officeShortName, _officeLongName, _officeRatingCount, _officeSuggestions,
+                        _suggestionTitleLeft,_suggestionBodyLeft;
         private RatingBar _officeRating,_myRating;
         private Button _viewAllReviews,_viewAllSuggestions,_suggest,_review,_submitReview,
                         _submitSuggestion,_reviews_more, _suggestions_more;
@@ -87,8 +90,16 @@ namespace norsu.ass
             _suggestionProgress = FindViewById<LinearLayout>(Resource.Id.suggestion_progress);
             _suggestionView = FindViewById<RelativeLayout>(Resource.Id.suggestion_view);
             _suggestionSubject = FindViewById<EditText>(Resource.Id.suggestion_subject);
+            
             _suggestionBody = FindViewById<EditText>(Resource.Id.suggestion_body);
             _suggestionPrivate = FindViewById<CheckBox>(Resource.Id.suggestion_private);
+            _suggestionTitleLeft = FindViewById<TextView>(Resource.Id.suggestion_subject_left);
+            _suggestionBodyLeft = FindViewById<TextView>(Resource.Id.suggestion_body_left);
+
+            _suggestionTitleLeft.Text = $"0/{Client.Server.SuggestionTitleMin} Characters";
+            _suggestionBodyLeft.Text = $"0/{Client.Server.SuggestionBodyMin} Characters";
+            _suggestionSubject.TextChanged += SuggestionSubjectOnTextChanged;
+            _suggestionBody.TextChanged += SuggestionSubjectOnTextChanged;
 
             _officePicture = FindViewById<ImageView>(Resource.Id.officePicture);
             _officeShortName = FindViewById<TextView>(Resource.Id.officeShortName);
@@ -136,6 +147,42 @@ namespace norsu.ass
             
             _reviews_more.Click += ReviewsMoreOnClick;
             _suggestions_more.Click+= SuggestionsMoreOnClick;
+        }
+        
+        private void SuggestionSubjectOnTextChanged(object sender1, TextChangedEventArgs textChangedEventArgs)
+        {
+            _submitSuggestion.Enabled = true;
+            var count = _suggestionSubject.Text.Length;
+            if (count < Client.Server.SuggestionTitleMin)
+            {
+                _suggestionTitleLeft.Text = $"{count}/{Client.Server.SuggestionTitleMin} Characters";
+                _submitSuggestion.Enabled = false;
+            }
+            else
+            {
+                var left = Client.Server.SuggestionTitleMax - count;
+                if (left < 0)
+                {
+                    _submitSuggestion.Enabled = false;
+                }
+                _suggestionTitleLeft.Text = $"{left} Characters Left";
+            }
+
+            count = _suggestionBody.Text.Length;
+            if (count < Client.Server.SuggestionBodyMin)
+            {
+                _suggestionBodyLeft.Text = $"{count}/{Client.Server.SuggestionBodyMin} Characters";
+                _submitSuggestion.Enabled = false;
+            }
+            else
+            {
+                var left = Client.Server.SuggestionBodyMax - count;
+                if (left < 0)
+                {
+                    _submitSuggestion.Enabled = false;
+                }
+                _suggestionBodyLeft.Text = $"{left} Characters Left";
+            }
         }
 
         private void SuggestionsMoreOnClick(object sender1, EventArgs eventArgs)

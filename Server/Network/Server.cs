@@ -646,6 +646,10 @@ namespace norsu.ass.Network
                 CanEditSuggestion = Settings.Default.UserCanEditOwnSuggestion,
                 FullnameRequired = Settings.Default.RequireUserFullname,
                 ReplyDepth = Settings.Default.ReplyDepth,
+                SuggestionTitleMin = Settings.Default.SuggestionTitleMin,
+                SuggestionTitleMax = Settings.Default.SuggestionTitleMax,
+                SuggestionBodyMin = Settings.Default.SuggestionBodyMin,
+                SuggestionBodyMax = Settings.Default.SuggestionBodyMax,
             };
 
             var localEPs = Connection.AllExistingLocalListenEndPoints();

@@ -210,13 +210,34 @@
             android:maxLength="74"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <TextView
+          android:id="@+id/suggestion_subject_left"
+          android:layout_marginLeft="20dp"
+          android:layout_marginRight="24dp"
+          android:layout_gravity="right"
+          android:text="100 Characters left"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />
         <EditText
-            android:layout_margin="20dp"
-            android:scrollbars="vertical"
-            android:id="@+id/suggestion_body"
-            android:hint="BODY"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+
+          android:layout_marginLeft="20dp"
+          android:layout_marginRight="20dp"
+          android:scrollbars="vertical"
+          android:id="@+id/suggestion_body"
+          android:hint="BODY"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content" />
+        <TextView
+          android:id="@+id/suggestion_body_left"
+          android:layout_marginLeft="20dp"
+          android:layout_marginRight="24dp"
+          android:layout_marginBottom="20dp"
+          android:layout_gravity="right"
+          android:text="Minimum: 7 / Maximum: 74"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />
+        
 
         <RelativeLayout
             android:background="@color/primary"
@@ -261,6 +282,7 @@
             <Button
                 android:layout_margin="4dp"
                 android:text="SUBMIT"
+                android:enabled="false"
                 android:id="@+id/submit_suggestion"
                 android:layout_gravity="center_vertical"
                 android:layout_width="wrap_content"
