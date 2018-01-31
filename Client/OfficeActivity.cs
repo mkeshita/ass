@@ -122,6 +122,8 @@ namespace norsu.ass
             _viewAllReviews.Text = "VIEW ALL " + Client.SelectedOffice?.RatingCount;
 
             SetupOffice();
+            
+            GetRatings(0);
             GetReviews();
             
             _review.Click += ReviewOnClick;
@@ -137,7 +139,7 @@ namespace norsu.ass
         
         private void ReviewsMoreOnClick(object sender1, EventArgs eventArgs)
         {
-            GetRatings(RatingsPage++);
+            GetRatings(RatingsPage+1);
         }
 
         private async void SubmitSuggestionOnClick(object sender, EventArgs eventArgs)
@@ -218,11 +220,24 @@ namespace norsu.ass
             _suggestionView.Visibility = ViewStates.Visible;
             _reviewView.Visibility = ViewStates.Gone;
             _suggestionProgress.Visibility = ViewStates.Gone;
+            
+            if (CurrentFocus != null)
+            {
+                var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
+                imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            }
+            
             _suggestionPrivate.Visibility = Client.Server.AllowPrivateSuggestions ? ViewStates.Visible : ViewStates.Invisible;
         }
 
         private async void SubmitReviewOnClick(object sender, EventArgs eventArgs)
         {
+            if (CurrentFocus != null)
+            {
+                var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
+                imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            }
+            
             _reviewProgress.Visibility = ViewStates.Visible;
             _privateBox.Visibility = ViewStates.Gone;
             _submitReview.Enabled = false;
@@ -293,7 +308,9 @@ namespace norsu.ass
 
         private async void GetRatings(int page)
         {
+            _reviewsProgress.Visibility = ViewStates.Visible;
             _reviews_more.Visibility = ViewStates.Gone;
+            
             var result = await Client.GetRatings(Client.SelectedOffice.Id, page);
 
             _reviewsProgress.Visibility = ViewStates.Gone;
@@ -309,6 +326,7 @@ namespace norsu.ass
                 Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
 
                 if (result.Ratings.Count > 0) RatingsPage = page;
+                
                 foreach (var item in result.Ratings)
                 {
                     var row = RatingsAdapter.GetView(
@@ -322,7 +340,7 @@ namespace norsu.ass
 
         private async void GetReviews()
         {
-            GetRatings(0);
+           
 
 
             var suggestions = await Client.GetSuggestions(Client.SelectedOffice.Id,7);

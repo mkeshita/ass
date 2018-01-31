@@ -409,29 +409,32 @@ namespace norsu.ass.Network
             var result = new OfficeRatings();
             result.OfficeId = officeId;
 
-            var myRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == officeId && x.UserId == user.Id);
-            if(myRating!=null)
-                result.Ratings.Add(
-                    new OfficeRating()
-                    {
-                        IsPrivate = myRating.IsPrivate,
-                        Rating = myRating.Value,
-                        Message = myRating.Message,
-                        OfficeId = myRating.OfficeId,
-                        StudentName = user.IsAnnonymous ? "Anonymous" : user?.Fullname,
-                        MyRating = true,
-                        UserId = user.Id,
-                    }
-                );
+            if (page == 0)
+            {
+                var myRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == officeId && x.UserId == user.Id);
+                if (myRating != null)
+                    result.Ratings.Add(
+                        new OfficeRating()
+                        {
+                            IsPrivate = myRating.IsPrivate,
+                            Rating = myRating.Value,
+                            Message = myRating.Message,
+                            OfficeId = myRating.OfficeId,
+                            StudentName = user.IsAnnonymous ? "Anonymous" : user?.Fullname,
+                            MyRating = true,
+                            UserId = user.Id,
+                        }
+                    );
+            }
 
+            //Get all public reviews excluding the user's
             var ratings = Models.Rating.Cache
-                .Where(x => x.OfficeId == officeId && (!x.IsPrivate || x.UserId==user.Id))
+                .Where(x => x.OfficeId == officeId && !x.IsPrivate && x.UserId!=user.Id)
                 .OrderByDescending(x=>x.Id).ToList();
 
             var pages = (int) Math.Floor(ratings.Count/(Settings.Default.PageSize*1.0));
             if (ratings.Count % Settings.Default.PageSize > 0) pages++;
             
-            if(pages-1 <= page)
             for (var i = page*Settings.Default.PageSize; i < ratings.Count; i++)
             {
                 var item = ratings[i];
@@ -453,7 +456,9 @@ namespace norsu.ass.Network
 
             result.Pages = pages;
             result.TotalCount = Models.Rating.Cache.Count(x => x.OfficeId == officeId);
-            result.Rating = Models.Rating.Cache.Where(x => x.OfficeId == officeId).Average(x => x.Value * 1f);
+            if(Models.Rating.Cache.Any(x=>x.OfficeId==officeId))
+                result.Rating = Models.Rating.Cache.Where(x => x.OfficeId == officeId).Average(x => x.Value * 1f);
+            
             await result.Send(dev.IP, dev.Port);
         }
 

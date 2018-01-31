@@ -151,6 +151,12 @@ namespace norsu.ass
 
         private async void LoginButtonOnClick(object sender, EventArgs eventArgs)
         {
+            if (CurrentFocus != null)
+            {
+                var imm = (InputMethodManager) GetSystemService(Context.InputMethodService);
+                imm.HideSoftInputFromWindow(CurrentFocus.WindowToken, 0);
+            }
+            
             var usr = _anonymous.Checked ? _nickName.Text : _username.Text;
             if (string.IsNullOrEmpty(usr)) return;
             
