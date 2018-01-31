@@ -401,23 +401,23 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<OfficeRatings> RateOffice(long officeId, int rating, string message, bool isPrivate, long returnCount = -1)
+        public static async Task<RateOfficeResult> RateOffice(long officeId, int rating, string message, bool isPrivate, long returnCount = -1)
         {
             return await Instance._RateOffice(officeId, rating, message, isPrivate, returnCount);
         }
-        private async Task<OfficeRatings> _RateOffice(long officeId, int rating, string message, bool isPrivate = false, long returnCount = -1)
+        private async Task<RateOfficeResult> _RateOffice(long officeId, int rating, string message, bool isPrivate = false, long returnCount = -1)
         {
             if (Server == null)
                 await _FindServer();
             if (Server == null)
                 return null;
 
-            OfficeRatings result = null;
+            RateOfficeResult result = null;
 
-            NetworkComms.AppendGlobalIncomingPacketHandler<OfficeRatings>(OfficeRatings.Header,
+            NetworkComms.AppendGlobalIncomingPacketHandler<RateOfficeResult>(RateOfficeResult.Header,
                 (h, c, res) =>
                 {
-                    NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(RateOfficeResult.Header);
                     result = res;
                 });
             

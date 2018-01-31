@@ -379,7 +379,7 @@ namespace norsu.ass.Network
             SendRatings(incomingobject.OfficeId, dev, student,incomingobject.Page);
         }
 
-        private void OfficeRatingHandler(PacketHeader packetheader, Connection connection, RateOffice rating)
+        private async void OfficeRatingHandler(PacketHeader packetheader, Connection connection, RateOffice rating)
         {
             var dev = GetDevice(connection);
             if (dev == null) return;
@@ -402,6 +402,10 @@ namespace norsu.ass.Network
             studentRating.Save();
 
             //SendRatings(rating.OfficeId, dev, student, rating.ReturnCount);
+            await new RateOfficeResult()
+            {
+                Success = true,
+            }.Send(dev);
         }
 
         private async void SendRatings(long officeId, AndroidDevice dev, User user, int page = 0)
@@ -412,19 +416,27 @@ namespace norsu.ass.Network
             if (page == 0)
             {
                 var myRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == officeId && x.UserId == user.Id);
-                if (myRating != null)
-                    result.Ratings.Add(
-                        new OfficeRating()
-                        {
-                            IsPrivate = myRating.IsPrivate,
-                            Rating = myRating.Value,
-                            Message = myRating.Message,
-                            OfficeId = myRating.OfficeId,
-                            StudentName = user.IsAnnonymous ? "Anonymous" : user?.Fullname,
-                            MyRating = true,
-                            UserId = user.Id,
-                        }
-                    );
+                if (myRating == null)
+                {
+                    myRating = new Rating()
+                    {
+                        OfficeId = officeId,
+                        UserId = user.Id,
+                    };
+                }
+
+                result.Ratings.Add(
+                    new OfficeRating()
+                    {
+                        IsPrivate = myRating.IsPrivate,
+                        Rating = myRating.Value,
+                        Message = myRating.Message,
+                        OfficeId = myRating.OfficeId,
+                        StudentName = user.IsAnnonymous ? "Anonymous" : user?.Fullname,
+                        MyRating = true,
+                        UserId = user.Id,
+                    });
+
             }
 
             //Get all public reviews excluding the user's

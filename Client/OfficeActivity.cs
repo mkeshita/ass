@@ -277,22 +277,23 @@ namespace norsu.ass
             _reviewView.Visibility = ViewStates.Gone;
             _review.Enabled = true;
             
-            Client.SelectedOffice.Rating = result.Rating;
-            Client.SelectedOffice.RatingCount = result.TotalCount;
-            
-            _officeRatingCount.Text = result.TotalCount.ToString("#,##0");
-            _officeRating.Rating = result.Rating;
+        }
+
+        private void UpdateMyRating(float rating, string message)
+        {
+            if (MyRatingView == null) return;
+            _officeRating.Rating = Client.SelectedOffice.Rating;
+            Client.SelectedOffice.Rating = (Client.SelectedOffice.Rating + _myRating.Rating) / 2f;
+            if (MyRatingView.Visibility == ViewStates.Gone)
+            {
+                _officeRatingCount.Text = (int.Parse($"0{_officeRatingCount.Text}") + 1).ToString();
+                Client.SelectedOffice.RatingCount++;
+            }
+            MyRatingView.FindViewById<TextView>(Resource.Id.message).Text = message;
+            MyRatingView.FindViewById<RatingBar>(Resource.Id.rating).Rating = rating;
+            MyRatingView.Visibility = ViewStates.Visible;
+
             Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
-            
-            _reviews.RemoveAllViews();
-            foreach (var item in result.Ratings)
-                _reviews.AddView(
-                    RatingsAdapter.GetView(
-                        LayoutInflater.Inflate(Resource.Layout.RatingRow, null, false),
-                        item,
-                        this
-                    )
-                );
         }
 
         private void ReviewOnClick(object sender, EventArgs eventArgs)
@@ -305,16 +306,15 @@ namespace norsu.ass
             _suggest.Enabled = true;
         }
 
+        private View MyRatingView;
+        
         private async void GetRatings(int page)
         {
             _reviewsProgress.Visibility = ViewStates.Visible;
             _reviews_more.Visibility = ViewStates.Gone;
             
             var result = await Client.GetRatings(Client.SelectedOffice.Id, page);
-
-            _reviewsProgress.Visibility = ViewStates.Gone;
-            _reviews_more.Visibility = ViewStates.Visible;
-
+            
             if (result != null)
             {
                 Client.SelectedOffice.Rating = result.Rating;
@@ -325,16 +325,24 @@ namespace norsu.ass
                 Messenger.Default.Broadcast(Messages.OfficeUpdate, Client.SelectedOffice);
 
                 if (result.Ratings.Count > 0) RatingsPage = page;
-                
                 foreach (var item in result.Ratings)
                 {
                     var row = RatingsAdapter.GetView(
                         LayoutInflater.Inflate(Resource.Layout.RatingRow, null, false),
                         item,
                         this);
+                    if (item.MyRating)
+                    {
+                        MyRatingView = row;
+                        if (item.Rating == 0)
+                            MyRatingView.Visibility = ViewStates.Gone;
+                    }
                     _reviews.AddView(row);
                 }
             }
+
+            _reviewsProgress.Visibility = ViewStates.Gone;
+            _reviews_more.Visibility = ViewStates.Visible;
         }
 
         private async void GetReviews()

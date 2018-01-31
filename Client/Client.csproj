@@ -135,7 +135,6 @@
     <Compile Include="SuggestionsAdapter.cs" />
     <Compile Include="RatingsAdapter.cs" />
     <Compile Include="SuggestionsFragment.cs" />
-    <Compile Include="RatingsFragment.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SuggestionView.cs" />
