@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -186,11 +187,9 @@ namespace norsu.ass
                 dlg.Show();
                 return;
             }
-            dlg.SetTitle("Congratulations!");
-            dlg.SetMessage($"Your suggestion has been submitted.");
-            dlg.SetCancelable(true);
-            dlg.Show();
 
+            Toast.MakeText(this, "Suggestion submitted", ToastLength.Short).Show();
+                
             _suggestionView.Visibility = ViewStates.Gone;
             _suggest.Enabled = true;
             _officeSuggestions.Text = result.TotalCount.ToString("#,##0");
@@ -254,9 +253,9 @@ namespace norsu.ass
             _myRating.Enabled = true;
             _suggest.Enabled = true;
             
-            var dlg = new Android.App.AlertDialog.Builder(this);
             if (result == null)
-            {   
+            {
+                var dlg = new Android.App.AlertDialog.Builder(this);
                 dlg.SetMessage("Please make sure you are connected to the server.");
                 dlg.SetTitle("Failed to submit your review. Retry?");
                 dlg.SetPositiveButton("RETRY", (o, args) =>
@@ -270,11 +269,11 @@ namespace norsu.ass
                 dlg.Show();
                 return;
             }
+
+            Toast.MakeText(this, "Review submitted", ToastLength.Short).Show();
             
-            dlg.SetTitle("Congratulations!");
-            dlg.SetMessage($"Your review for {Client.SelectedOffice.ShortName} has been submitted.");
-            dlg.SetCancelable(true);
-            dlg.Show();
+            UpdateMyRating(_myRating.Rating, _myReview.Text);
+            
             _reviewView.Visibility = ViewStates.Gone;
             _review.Enabled = true;
             
