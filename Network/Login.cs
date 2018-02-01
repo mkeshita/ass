@@ -26,6 +26,25 @@ namespace norsu.ass.Network
             Session = session;
         }
     }
+
+    [ProtoContract]
+    class DesktopLoginResult : Packet<DesktopLoginResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public string ErrorMessage { get; set; }
+        [ProtoMember(3)]
+        public UserInfo User { get; set; }
+    }
+    [ProtoContract]
+    class DesktopLoginRequest : Packet<DesktopLoginRequest>
+    {
+        [ProtoMember(1)]
+        public string Username { get; set; }
+        [ProtoMember(2)]
+        public string Password { get; set; }
+    }
     
     [ProtoContract]
     class LoginRequest : Packet<LoginRequest>

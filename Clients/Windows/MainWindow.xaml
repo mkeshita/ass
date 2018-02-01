@@ -4,9 +4,220 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Windows"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+        mc:Ignorable="d" xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        xmlns:views="clr-namespace:norsu.ass.Server.Views"
+        Background="{DynamicResource MaterialDesignDarkBackground}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        xmlns:vm="clr-namespace:norsu.ass.Server.ViewModels"
+        MinWidth="555" MinHeight="471"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        SnapsToDevicePixels="True"
+        xmlns:cnv="clr-namespace:norsu.ass.Server.Converters"
+        xmlns:server="clr-namespace:norsu.ass.Server"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        Title="NORSU-G Suggestion App Server" Height="300" Width="300"
+        DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
+        Icon="/server.ico">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+
+    <Grid Grid.Column="1" Background="#f5f6f6">
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <md:Transitioner SelectedIndex="{Binding Screen}">
+        <md:TransitionerSlide>
+          <views:OfficeInfo/>
+        </md:TransitionerSlide>
+        <md:TransitionerSlide>
+          
+        </md:TransitionerSlide>
+        <md:TransitionerSlide>
+          
+        </md:TransitionerSlide>
+        <md:TransitionerSlide >
+          
+        </md:TransitionerSlide>
+        <md:TransitionerSlide>
+          
+        </md:TransitionerSlide>
+        <md:TransitionerSlide>
+          <views:Login/>
+        </md:TransitionerSlide>
+      </md:Transitioner>
+
+      <md:Snackbar Grid.Row="1" HorizontalAlignment="Stretch"
+                   Width="Auto" MessageQueue="{Binding MessageQueue}"/>
+
+      <StackPanel Orientation="Horizontal"
+                  Grid.Row="0"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Right">
+        <Button Style="{StaticResource WindowCommandButton}" Content="{md:PackIcon WindowMinimize}"
+                Click="MinimizeClicked" />
+        <Button Style="{StaticResource WindowCommandButton}"
+                Click="MaximizeClicked"
+                Content="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow},
+                          Path=WindowState,Converter={cnv:WindowStateToPackIcon }}" />
+        <Button Style="{StaticResource WindowCloseButton}" Content="{md:PackIcon WindowClose}"
+                Click="CloseClicked">
+
+        </Button>
+      </StackPanel>
     </Grid>
+
+    <md:ColorZone Grid.Column="0"
+                  Visibility="{Binding HasLoggedIn,Converter={cnv:BooleanToVisibility}}"
+                    Height="Auto"
+                    Mode="Dark"
+                  Width="Auto"
+                  HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Rectangle Fill="{StaticResource PrimaryHueMidBrush}"/>
+        <Image Source="pack://application:,,,/server.ico"
+               Grid.Row="0"
+                 RenderOptions.BitmapScalingMode="HighQuality"
+                 Height="48" Width="48"
+                 Margin="7"/>
+        <Separator Margin="17 0"
+                     Grid.Row="1"
+                     Height="2"/>
+        <ListBox Grid.Row="2" Foreground="White"               
+                 Focusable="False"
+                 IsSynchronizedWithCurrentItem="True"
+                 x:Name="Menu"
+                 BorderThickness="0"
+                 SelectedIndex="{Binding Screen}"
+                 ScrollViewer.CanContentScroll="False"
+                 HorizontalContentAlignment="Stretch"
+                 Margin="0 4 0 0">
+          <ListBoxItem>
+              <StackPanel Margin="4">
+                <md:PackIcon Kind="Home"
+                             Height="32"
+                             HorizontalAlignment="Center"
+                             Width="32"/>
+                <TextBlock Text="HOME"
+                           HorizontalAlignment="Center"
+                           FontSize="7pt"/>
+              </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem>
+            <StackPanel Margin="4">
+              <md:PackIcon Kind="StarHalf"
+                           Height="32"
+                           HorizontalAlignment="Center"
+                           Width="32" />
+              <TextBlock Text="REVIEWS"
+                         HorizontalAlignment="Center"
+                         FontSize="7pt" />
+            </StackPanel>
+          </ListBoxItem>
+
+          <ListBoxItem>
+            <StackPanel Margin="4">
+              <md:PackIcon Kind="MessageText"
+                           Height="32"
+                           HorizontalAlignment="Center"
+                           Width="32" />
+              <TextBlock Text="SUGGESTIONS"
+                         HorizontalAlignment="Center"
+                         FontSize="7pt" />
+            </StackPanel>
+          </ListBoxItem>
+
+          <ListBoxItem >
+            <StackPanel Margin="4">
+              <md:PackIcon Kind="AccountMultiple"
+                           Height="32"
+                           HorizontalAlignment="Center"
+                           Width="32" />
+              <TextBlock Text="USERS"
+                         HorizontalAlignment="Center"
+                         FontSize="7pt" />
+            </StackPanel>
+          </ListBoxItem>
+          <ListBoxItem >
+            <StackPanel Margin="4">
+              <md:PackIcon Kind="Settings"
+                           Height="32"
+                           HorizontalAlignment="Center"
+                           Width="32" />
+              <TextBlock Text="ADMIN"
+                         HorizontalAlignment="Center"
+                         FontSize="7pt" />
+            </StackPanel>
+          </ListBoxItem>
+        </ListBox>
+
+        <Button Grid.Row="3" Style="{StaticResource MaterialDesignToolButton}"
+              Padding="0"
+                Margin="0 10"
+                Height="Auto">
+          <Button.ContextMenu>
+            <ContextMenu x:Name="ContextMenu">
+              <MenuItem Header="My Profile" Command="{Binding ShowUserProfileCommand}"/>
+              <MenuItem Header="Sign Out"
+                        Command="{Binding LogoutCommand}" />
+              <Separator/>
+              <MenuItem Header="About Us" Command="{Binding ShowDevCommand}"/>
+              <MenuItem Header="User Guide" Command="{Binding RunExternalCommand}" CommandParameter="https://github.com/awooo-ph/sfc.gate/wiki"/>
+              <MenuItem Header="View Source" Command="{Binding RunExternalCommand}" CommandParameter="https://github.com/awooo-ph/sfc.gate" />
+            </ContextMenu>
+          </Button.ContextMenu>
+          <StackPanel>
+            <Border ClipToBounds="True"
+                    HorizontalAlignment="Center"
+                    Height="48" Width="48">
+              <Border.OpacityMask>
+                <VisualBrush>
+                  <VisualBrush.Visual>
+                    <Ellipse Height="7" Width="7" Fill="Red"/>
+                  </VisualBrush.Visual>
+                </VisualBrush>
+              </Border.OpacityMask>
+              <Image Source="{Binding CurrentUser.Picture,Converter={cnv:BytesToImage}}"
+                   Height="48"
+                   ClipToBounds="True"
+                   Stretch="UniformToFill"
+                   VerticalAlignment="Center"/>
+            </Border>
+            <TextBlock Text="{Binding CurrentUser.Username}"
+                       HorizontalAlignment="Center"
+                       FontSize="7pt" />
+          </StackPanel>
+        </Button>
+      </Grid>
+    </md:ColorZone>
+
+    <md:PackIcon Kind="LanDisconnect" Height="32" Width="32"
+                 Grid.Column="1"
+                 VerticalAlignment="Bottom"
+                 HorizontalAlignment="Right"
+                 Margin="20"
+                 Opacity="0.7"
+                 Foreground="{StaticResource SecondaryAccentBrush}"
+                 Visibility="{Binding ServerOffline,Converter={cnv:BooleanToVisibility}}"
+                 IsHitTestVisible="False"/>
+  </Grid>
 </Window>

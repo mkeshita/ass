@@ -1,0 +1,57 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="norsu.ass.Server.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AllowAnnonymousUser" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="RequireUserFullname" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UserSuggestionDefaultPublic" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AllowUserPrivateSuggestion" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="UserCanDeleteOwnSuggestion" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UserCanEditOwnSuggestion" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OfficeAdminCanDeleteSuggestions" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OfficeAdminCanSeeUserFullname" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AllowAndroidRegistration" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ReplyDepth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
+    <Setting Name="ModerateComments" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="OfficeAdminCommentAsOffice" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PageSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
+    <Setting Name="SuggestionTitleMin" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
+    <Setting Name="SuggestionTitleMax" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">74</Value>
+    </Setting>
+    <Setting Name="SuggestionBodyMin" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">47</Value>
+    </Setting>
+    <Setting Name="SuggestionBodyMax" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">174</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

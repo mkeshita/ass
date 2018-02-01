@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AndroidDevice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Comment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Desktop.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GetOfficePicture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GetRatings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Login.cs" />

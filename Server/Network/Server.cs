@@ -2,16 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using Devcorner.NIdenticon;
-using Devcorner.NIdenticon.BrushGenerators;
 using norsu.ass.Models;
 using norsu.ass.Server;
 using norsu.ass.Server.Properties;
@@ -27,7 +21,6 @@ namespace norsu.ass.Network
         private Server()
         {
             var serializer = DPSManager.GetDataSerializer<ProtobufSerializer>();
-            NetworkComms.DisableLogging();
             NetworkComms.DefaultSendReceiveOptions = new SendReceiveOptions(serializer,
                 NetworkComms.DefaultSendReceiveOptions.DataProcessors, NetworkComms.DefaultSendReceiveOptions.Options);
 
@@ -43,11 +36,176 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<GetPicture>(GetPicture.Header, GetPictureHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetOfficePicture>(GetOfficePicture.Header, GetOfficePictureHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<RegistrationRequest>(RegistrationRequest.Header, RegistrationHandler);
-
             NetworkComms.AppendGlobalIncomingPacketHandler<LikeSuggestion>(LikeSuggestion.Header, LikeSuggestionHandler);
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<Desktop>(Desktop.Header, DesktopHandshakeHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<DesktopLoginRequest>(DesktopLoginRequest.Header, DesktopLoginHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetUsers>(GetUsers.Header,GetUsersHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void GetUsersHandler(PacketHeader packetheader, Connection connection, GetUsers req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+
+            var count = User.Cache.Count;
+            var pages = count / Settings.Default.PageSize;
+            if (count % pages > 0) pages++;
+            
+            var result = new GetUsersResult()
+            {
+                Count = count,
+                Page = pages,
+            };
+            var page = req.Page;
+            if (page == -1) page = 0;
+            
+            for (var i = page; i < count; i++)
+            {
+                var user = User.Cache[i];
+                var usr = new UserInfo()
+                {
+                    Access = (int) (user.Access ?? 0),
+                    Id = user.Id,
+                    Username = user.Username,
+                    Password = user.Password,
+                    Picture = user.Picture,
+                    Firstname = user.Firstname,
+                    Lastname = user.Lastname,
+                    Description = user.Course
+                };
+                result.Users.Add(usr);
+                result.Page = page;
+
+                if (page == Settings.Default.PageSize)
+                {
+                    await result.Send(dev.IP, dev.Port);
+                    if (req.Page != -1) return;
+
+                    page++;
+                    result.Users.Clear();
+                }
+            }
+        }
+
+        private async void DesktopLoginHandler(PacketHeader packetheader, Connection connection, DesktopLoginRequest login)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+#if CLI
+            Program.Log($"Login request from desktop client {dev.IP}");
+#endif
+
+            var user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == login.Username);
+            if (user == null)
+            {
+                await new DesktopLoginResult()
+                {
+                    ErrorMessage = "Invalid username/password!",
+                    Success = false,
+                }.Send(dev.IP, dev.Port);
+                return;
+            }
+            if(string.IsNullOrEmpty(user.Password))
+                user.Update(nameof(User.Password),login.Password);
+
+            if (user.Password != login.Password)
+            {
+                await new DesktopLoginResult()
+                {
+                    ErrorMessage = "Invalid username/password!",
+                    Success = false,
+                }.Send(dev.IP, dev.Port);
+                return;
+            }
+            
+            var usr = new UserInfo()
+            {
+                Access =(int) (user.Access??0),
+                Id = user.Id,
+                Username = user.Username,
+                Password = user.Password,
+                Picture = user.Picture,
+                Firstname = user.Firstname,
+                Lastname = user.Lastname,
+                Description = user.Course
+            };
+
+            await new DesktopLoginResult()
+            {
+                Success = true,
+                User = usr,
+            }.Send(dev.IP, dev.Port);
+        }
+
+        private Desktop GetDesktop(Connection con)
+        {
+            var ip = ((IPEndPoint) con.ConnectionInfo.RemoteEndPoint).Address.ToString();
+            return GetDesktop(ip);
+        }
+
+        private Desktop GetDesktop(string ip)
+        {
+            while(true)
+            try
+            {
+                lock(_DesktopClients)
+                return _DesktopClients.FirstOrDefault(x => x.IP == ip);
+            }
+            catch (Exception e)
+            {
+                //
+            }
+        }
+        private static List<Desktop> _DesktopClients = new List<Desktop>();
+        
+        private async void DesktopHandshakeHandler(PacketHeader packetheader, Connection connection, Desktop d)
+        {
+            var dev = GetDesktop(d.IP);
+            if (dev == null)
+            {
+#if CLI
+                Program.Log($"Handshake received from desktop client at {d.IP}");
+#endif
+                _DesktopClients.Add(d);
+            }
+            
+            var serverInfo = new ServerInfo()
+            {
+                AllowAnnonymous = Settings.Default.AllowAnnonymousUser,
+                AllowPrivateSuggestions = Settings.Default.AllowUserPrivateSuggestion,
+                AllowRegistration = Settings.Default.AllowAndroidRegistration,
+                CanDeleteSuggestion = Settings.Default.UserCanDeleteOwnSuggestion,
+                CanEditSuggestion = Settings.Default.UserCanEditOwnSuggestion,
+                FullnameRequired = Settings.Default.RequireUserFullname,
+                ReplyDepth = Settings.Default.ReplyDepth,
+                SuggestionTitleMin = Settings.Default.SuggestionTitleMin,
+                SuggestionTitleMax = Settings.Default.SuggestionTitleMax,
+                SuggestionBodyMin = Settings.Default.SuggestionBodyMin,
+                SuggestionBodyMax = Settings.Default.SuggestionBodyMax,
+            };
+
+            var localEPs = Connection.AllExistingLocalListenEndPoints();
+
+            var ip = new IPEndPoint(IPAddress.Parse(d.IP), d.Port);
+
+            foreach (var localEP in localEPs[ConnectionType.UDP])
+            {
+                var lEp = localEP as IPEndPoint;
+
+                if (lEp == null)
+                    continue;
+                if (!ip.Address.IsInSameSubnet(lEp.Address))
+                    continue;
+
+                serverInfo.IP = lEp.Address.ToString();
+                serverInfo.Port = lEp.Port;
+                await serverInfo.Send(ip);
+                break;
+            }
         }
 
         private async void RegistrationHandler(PacketHeader packetHeader, Connection connection, RegistrationRequest i)
@@ -67,7 +225,7 @@ namespace norsu.ass.Network
             }
             
             //Check if username is taken.
-            var user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == i.Username.ToLower() && !x.IsAnnonymous);
+            var user = Models.User.Cache.FirstOrDefault(x => x.Username.ToLower() == i.Username.ToLower() && !x.IsAnnonymous);
             if (user != null)
             {
                 //return failed registration
@@ -80,10 +238,10 @@ namespace norsu.ass.Network
             }
             
             //Add new user
-            user = new User()
+            user = new Models.User()
             {
                 Username = i.Username,
-                Access = AccessLevels.Student,
+                Access = Models.AccessLevels.Student,
                 Course = i.Course,
                 Firstname = i.Firstname,
                 Lastname = i.Lastname,
@@ -104,7 +262,7 @@ namespace norsu.ass.Network
             }.Send(dev.IP, dev.Port);
         }
 
-        private int GenerateSession(User user)
+        private int GenerateSession(Models.User user)
         {
             var sid = SessionID.Next(7, int.MaxValue);
             while (Sessions.ContainsKey(sid))
@@ -142,10 +300,10 @@ namespace norsu.ass.Network
 
             if (i.UserId > 0)
             {
-                var usr = User.GetById(i.UserId);
+                var usr = Models.User.GetById(i.UserId);
                 if (usr == null) return;
 
-                if (!usr.HasPicture) usr.Update(nameof(User.Picture), ImageProcessor.Generate());
+                if (!usr.HasPicture) usr.Update(nameof(Models.User.Picture), ImageProcessor.Generate());
 
                 await new UserPicture()
                 {
@@ -198,7 +356,8 @@ namespace norsu.ass.Network
                 return;
             var student = Sessions[i.Session];
 
-            var like = Like.Cache.FirstOrDefault(x => x.SuggestionId == i.SuggestionId && x.UserId == student.Id) ?? new Like()
+            var like = Models.Like.Cache.FirstOrDefault(x => x.SuggestionId == i.SuggestionId && x.UserId == student.Id) ?? new
+                           Models.Like()
             {
                 SuggestionId = i.SuggestionId,
                 UserId = student.Id
@@ -212,7 +371,7 @@ namespace norsu.ass.Network
             {
                 try
                 {
-                    if(Like.Cache.Any(x=>x.Id==like.Id)) break;
+                    if(Models.Like.Cache.Any(x=>x.Id==like.Id)) break;
                     await TaskEx.Delay(10);
                 }
                 catch (Exception e)
@@ -294,8 +453,8 @@ namespace norsu.ass.Network
             {
                 try
                 {
-                    return Like.Cache.Count(x => !x.Dislike && x.SuggestionId == id) -
-                            Like.Cache.Count(x => x.Dislike && x.SuggestionId == id);
+                    return Models.Like.Cache.Count(x => !x.Dislike && x.SuggestionId == id) -
+                           Models.Like.Cache.Count(x => x.Dislike && x.SuggestionId == id);
                 }
                 catch (Exception e)
                 {
@@ -304,7 +463,7 @@ namespace norsu.ass.Network
             }
         }
 
-        private async void SendSuggestions(long id, AndroidDevice dev, User student, int page)
+        private async void SendSuggestions(long id, AndroidDevice dev, Models.User student, int page)
         {
             var result = new Suggestions();
             var suggestions = Models.Suggestion.Cache
@@ -375,10 +534,10 @@ namespace norsu.ass.Network
                 
                 if (Settings.Default.OfficeAdminCommentAsOffice)
                 {
-                    var usr = User.GetById(comment.UserId);
+                    var usr = Models.User.GetById(comment.UserId);
                     
-                    var admin = (usr.Access == AccessLevels.SuperAdmin);
-                    if(!admin) admin = OfficeAdmin.Cache.Any(x =>x.OfficeId == suggestion.OfficeId && x.UserId == comment.UserId);
+                    var admin = (usr.Access == Models.AccessLevels.SuperAdmin);
+                    if(!admin) admin = Models.OfficeAdmin.Cache.Any(x =>x.OfficeId == suggestion.OfficeId && x.UserId == comment.UserId);
 
                     if (admin)
                     {
@@ -415,7 +574,7 @@ namespace norsu.ass.Network
             var studentRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == rating.OfficeId && x.UserId == student.Id);
             if (studentRating == null)
             {
-                studentRating = new Rating()
+                studentRating = new Models.Rating()
                 {
                     OfficeId = rating.OfficeId,
                     UserId = student.Id,
@@ -433,7 +592,7 @@ namespace norsu.ass.Network
             }.Send(dev);
         }
 
-        private async void SendRatings(long officeId, AndroidDevice dev, User user, int page = 0)
+        private async void SendRatings(long officeId, AndroidDevice dev, Models.User user, int page = 0)
         {
             var result = new OfficeRatings();
             result.OfficeId = officeId;
@@ -443,7 +602,7 @@ namespace norsu.ass.Network
                 var myRating = Models.Rating.Cache.FirstOrDefault(x => x.OfficeId == officeId && x.UserId == user.Id);
                 if (myRating == null)
                 {
-                    myRating = new Rating()
+                    myRating = new Models.Rating()
                     {
                         OfficeId = officeId,
                         UserId = user.Id,
@@ -529,7 +688,7 @@ namespace norsu.ass.Network
                     LongName = office.LongName,
                     Rating = avgRating,
                     ShortName = office.ShortName,
-                    RatingCount = Rating.Cache.Count(x=>x.OfficeId==office.Id),
+                    RatingCount = Models.Rating.Cache.Count(x=>x.OfficeId==office.Id),
                     SuggestionsCount = Models.Suggestion.Cache.Count(x=>x.OfficeId==office.Id),
                 });
             }
@@ -537,25 +696,25 @@ namespace norsu.ass.Network
             await offices.Send(dev.IP, dev.Port);
         }
 
-        private Dictionary<int, User> Sessions { get; } = new Dictionary<int, User>();
+        private Dictionary<int, Models.User> Sessions { get; } = new Dictionary<int, Models.User>();
         private Random SessionID = new Random();
         
         private async void LoginHandler(PacketHeader packetheader, Connection connection, LoginRequest request)
         {
             var dev = GetDevice(connection);
             if (dev == null) return;
-            
-            User user = null;
+
+            Models.User user = null;
             if (request.Annonymous)
             {
                 //Create new anonymous user if allowed.
                 if (Settings.Default.AllowAnnonymousUser)
                 {
-                    user = new User()
+                    user = new Models.User()
                     {
                         Username = request.Username,
                         Password = request.Password,
-                        Access = AccessLevels.Student,
+                        Access = Models.AccessLevels.Student,
                         IsAnnonymous = true,
                         Picture = ImageProcessor.Generate(),
                     };
@@ -570,7 +729,7 @@ namespace norsu.ass.Network
             }
             else
             {
-                user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == request.Username.ToLower());
+                user = Models.User.Cache.FirstOrDefault(x => x.Username.ToLower() == request.Username.ToLower());
             }
 
             var result = new LoginResult();

@@ -23,5 +23,29 @@ namespace Windows
         {
             InitializeComponent();
         }
+
+        private void MinimizeClicked(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void CloseClicked(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void MaximizeClicked(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+                WindowState = WindowState.Normal;
+            else
+                WindowState = WindowState.Maximized;
+        }
+
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseLeftButtonDown(e);
+            DragMove();
+        }
     }
 }

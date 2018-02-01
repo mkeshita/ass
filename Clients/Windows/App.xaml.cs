@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Windows;
+using norsu.ass.Network;
 
 namespace Windows
 {
@@ -12,5 +14,12 @@ namespace Windows
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            awooo.IsRunning = true;
+            base.OnStartup(e);
+            awooo.Context = SynchronizationContext.Current;
+            Client.Start();
+        }
     }
 }
