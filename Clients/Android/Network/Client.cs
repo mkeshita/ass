@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
-using Android.App;
-using Android.Graphics;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
 using NetworkCommsDotNet.DPSBase;
 using NetworkCommsDotNet.Tools;
-using AlertDialog = Android.App.AlertDialog;
 
 namespace norsu.ass.Network
 {
