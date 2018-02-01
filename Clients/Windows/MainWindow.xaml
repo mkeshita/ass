@@ -39,23 +39,65 @@
       </Grid.RowDefinitions>
       <md:Transitioner SelectedIndex="{Binding Screen}">
         <md:TransitionerSlide>
+          <md:TransitionerSlide.BackwardWipe>
+            <md:FadeWipe/>
+          </md:TransitionerSlide.BackwardWipe>
+          <md:TransitionerSlide.ForwardWipe>
+            <md:FadeWipe/>
+          </md:TransitionerSlide.ForwardWipe>
           <views:OfficeInfo/>
         </md:TransitionerSlide>
+        
         <md:TransitionerSlide>
-          
+          <md:TransitionerSlide.BackwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.BackwardWipe>
+          <md:TransitionerSlide.ForwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.ForwardWipe>
+          <views:Reviews/>
         </md:TransitionerSlide>
+        
         <md:TransitionerSlide>
-          
+          <md:TransitionerSlide.BackwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.BackwardWipe>
+          <md:TransitionerSlide.ForwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.ForwardWipe>
+          <views:Suggestions/>
         </md:TransitionerSlide>
+        
         <md:TransitionerSlide >
+          <md:TransitionerSlide.BackwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.BackwardWipe>
+          <md:TransitionerSlide.ForwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.ForwardWipe>
+          <views:OfficeAdmins/>
+        </md:TransitionerSlide>
+        
+        <md:TransitionerSlide>
+          <md:TransitionerSlide.BackwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.BackwardWipe>
+          <md:TransitionerSlide.ForwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.ForwardWipe>
           
         </md:TransitionerSlide>
+        
         <md:TransitionerSlide>
-          
-        </md:TransitionerSlide>
-        <md:TransitionerSlide>
+          <md:TransitionerSlide.BackwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.BackwardWipe>
+          <md:TransitionerSlide.ForwardWipe>
+            <md:FadeWipe />
+          </md:TransitionerSlide.ForwardWipe>
           <views:Login/>
         </md:TransitionerSlide>
+        
       </md:Transitioner>
 
       <md:Snackbar Grid.Row="1" HorizontalAlignment="Stretch"
@@ -93,8 +135,7 @@
           <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Rectangle Fill="{StaticResource PrimaryHueMidBrush}"/>
-        <Image Source="pack://application:,,,/server.ico"
+        <Image Source="pack://application:,,,/norsu.png"
                Grid.Row="0"
                  RenderOptions.BitmapScalingMode="HighQuality"
                  Height="48" Width="48"
@@ -212,9 +253,9 @@
 
     <md:PackIcon Kind="LanDisconnect" Height="32" Width="32"
                  Grid.Column="1"
-                 VerticalAlignment="Bottom"
+                 VerticalAlignment="Top"
                  HorizontalAlignment="Right"
-                 Margin="20"
+                 Margin="20 40 20 20"
                  Opacity="0.7"
                  Foreground="{StaticResource SecondaryAccentBrush}"
                  Visibility="{Binding ServerOffline,Converter={cnv:BooleanToVisibility}}"

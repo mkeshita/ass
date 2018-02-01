@@ -32,7 +32,11 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<UserPicture>(UserPicture.Header,
                 (h, c, res) =>AddPicture(res));
             NetworkComms.AppendGlobalIncomingPacketHandler<OfficePicture>(OfficePicture.Header,
-                (h, c, res) => AddOfficePicture(res));
+                (h, c, res) =>
+                {
+                    if(res!=null)
+                        Messenger.Default.Broadcast(Messages.OfficePictureReceived, res);
+                });
             NetworkComms.AppendGlobalIncomingPacketHandler<Shutdown>(Shutdown.Header, ShutdownHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
@@ -78,47 +82,7 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
-
-        private readonly List<OfficePicture> OfficePictures = new List<OfficePicture>();
-        private void AddOfficePicture(OfficePicture picture)
-        {
-            while (true)
-            {
-                try
-                {
-                    var pic = OfficePictures.FirstOrDefault(x => x.OfficeId == picture.OfficeId);
-                    if (pic == null)
-                    {
-                        OfficePictures.Add(picture);
-                    }
-                    else
-                    {
-                        pic.Picture = pic.Picture;
-                    }
-                    Messenger.Default.Broadcast(Messages.OfficePictureReceived, pic);
-                    return;
-                }
-                catch (Exception e)
-                {
-                    //
-                }
-            }
-        }
-
-        public static OfficePicture GetOfficePicture(long officeId)
-        {
-            while (true)
-            {
-                try
-                {
-                    return Instance.OfficePictures.FirstOrDefault(x => x.OfficeId == officeId);
-                }
-                catch (Exception e)
-                {
-                    //
-                }
-            }
-        }
+        
 
         ~Client()
         {
@@ -259,7 +223,7 @@ namespace norsu.ass.Network
                 await _FindServer();
             if (Server == null)
                 return;
-            if (OfficePictures.Any(x => x.OfficeId == id)) return;
+            
             await new GetOfficePicture() {Session = Session, OfficeId = id}.Send(Server.IP, Server.Port);
         }
 
@@ -274,8 +238,6 @@ namespace norsu.ass.Network
             {
                 foreach (var id in officeIds)
                 {
-                    if (OfficePictures.Any(x => x.OfficeId == id))
-                        continue;
                     await new GetOfficePicture() {Session = Session, OfficeId = id}
                         .Send(Server.IP, Server.Port);
                 }

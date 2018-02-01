@@ -163,6 +163,7 @@ namespace norsu.ass.Server.ViewModels
             if (user == null)
             {
                 user = new User();
+                user.Defer = true;
                 user.Save();
                 user.ChangeId(result.User.Id);
             }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Data;
 using System.Windows.Input;
 using norsu.ass.Models;
 using norsu.ass.Network;
@@ -57,6 +58,7 @@ namespace norsu.ass.Server.ViewModels
         
         private async void DownloadData()
         {
+            OfficeViewModel.Instance.DownloadData();
             NetworkStatus = "Downloading users...";
             await Client.GetUsers(-1);
         }
@@ -99,6 +101,7 @@ namespace norsu.ass.Server.ViewModels
                 if (user == null)
                 {
                     user = new User();
+                    user.Defer = true;
                     user.Save();
                     user.ChangeId(usr.Id);
                 }
@@ -130,7 +133,7 @@ namespace norsu.ass.Server.ViewModels
         private static MainViewModel _instance;
         public static MainViewModel Instance => _instance ?? (_instance = new MainViewModel());
         
-        private int _Screen = LOGIN;
+        private int _Screen = HOME;
 
         public int Screen
         {
@@ -144,7 +147,7 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        private bool _HasLoggedIn;
+        private bool _HasLoggedIn = true;
 
         public bool HasLoggedIn
         {
@@ -157,21 +160,7 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(HasLoggedIn));
             }
         }
-
-        private User _CurrentUser;
-
-        public User CurrentUser
-        {
-            get => _CurrentUser;
-            set
-            {
-                if(value == _CurrentUser)
-                    return;
-                _CurrentUser = value;
-                OnPropertyChanged(nameof(CurrentUser));
-            }
-        }
-
+        
         private bool _ServerOffline;
 
         public bool ServerOffline
@@ -185,5 +174,6 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(ServerOffline));
             }
         }
+        
     }
 }

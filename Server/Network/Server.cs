@@ -274,10 +274,14 @@ namespace norsu.ass.Network
         private async void GetOfficePictureHandler(PacketHeader packetheader, Connection connection, GetOfficePicture i)
         {
             var dev = GetDevice(connection);
-            if (dev == null)
+            var desktop = GetDesktop(connection);
+            if (dev == null && desktop == null)
                 return;
 
-            if (!Sessions.ContainsKey(i.Session)) return;
+            var dIP = dev?.IP ?? desktop.IP;
+            var dPort = dev?.Port ?? desktop.Port;
+
+            //if (!Sessions.ContainsKey(i.Session)) return;
             var office = Models.Office.GetById(i.OfficeId);
             if (office == null) return;
 
@@ -287,16 +291,20 @@ namespace norsu.ass.Network
             {
                 OfficeId = office.Id,
                 Picture = office.Picture,
-            }.Send(dev.IP, dev.Port);
+            }.Send(dIP, dPort);
         }
 
         private async void GetPictureHandler(PacketHeader packetheader, Connection connection, GetPicture i)
         {
             var dev = GetDevice(connection);
-            if (dev == null)
+            var desktop = GetDesktop(connection);
+            if (dev == null && desktop == null)
                 return;
 
-            if (!Sessions.ContainsKey(i.Session)) return;
+            var dIP = dev?.IP ?? desktop.IP;
+            var dPort = dev?.Port ?? desktop.Port;
+
+           // if (!Sessions.ContainsKey(i.Session)) return;
 
             if (i.UserId > 0)
             {
@@ -321,7 +329,7 @@ namespace norsu.ass.Network
                 {
                     UserId = i.UserId,
                     Picture = office.Picture,
-                }.Send(dev.IP, dev.Port);
+                }.Send(dIP, dPort);
             }
         }
 
@@ -661,7 +669,11 @@ namespace norsu.ass.Network
         private async void GetOfficesHandler(PacketHeader packetheader, Connection connection, string incomingobject)
         {
             var dev = GetDevice(connection);
-            if (dev == null) return;
+            var desktop = GetDesktop(connection);
+            if (dev == null && desktop==null) return;
+
+            var dIp = dev?.IP ?? desktop.IP;
+            var dPort = dev?.Port ?? desktop.Port;
             
             var offices = new Offices();
             foreach (var office in Models.Office.Cache)
@@ -693,7 +705,7 @@ namespace norsu.ass.Network
                 });
             }
 
-            await offices.Send(dev.IP, dev.Port);
+            await offices.Send(dIp, dPort);
         }
 
         private Dictionary<int, Models.User> Sessions { get; } = new Dictionary<int, Models.User>();

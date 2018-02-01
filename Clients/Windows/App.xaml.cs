@@ -19,7 +19,7 @@ namespace Windows
             awooo.IsRunning = true;
             base.OnStartup(e);
             awooo.Context = SynchronizationContext.Current;
-            Client.Start();
+           // Client.Start();
         }
     }
 }

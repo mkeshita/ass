@@ -90,15 +90,26 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BooleanToObject.cs" />
     <Compile Include="Converters\WindowStateToPackIcon.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
+    <Compile Include="ViewModels\OfficeViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\OfficeAdmins.xaml.cs">
+      <DependentUpon>OfficeAdmins.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\OfficeInfo.xaml.cs">
       <DependentUpon>OfficeInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Reviews.xaml.cs">
+      <DependentUpon>Reviews.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Suggestions.xaml.cs">
+      <DependentUpon>Suggestions.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -143,7 +154,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\OfficeAdmins.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\OfficeInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Reviews.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Suggestions.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -177,7 +200,9 @@
   <ItemGroup>
     <Resource Include="server.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <SplashScreen Include="norsu.png" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MaterialDesignInXamlToolkit\MaterialDesignColors.Wpf\MaterialDesignColors.Wpf.csproj">
       <Project>{90b53209-c60c-4655-b28d-a1b3e1044ba3}</Project>
