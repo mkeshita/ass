@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ProtoBuf;
 
 namespace norsu.ass.Network
@@ -46,6 +47,12 @@ namespace norsu.ass.Network
         
         [ProtoMember(13)]
         public long CommentsDisabledBy { get; set; }
+
+        [ProtoMember(14)]
+        public bool IsPrivate { get; set; }
+
+        [ProtoMember(15)]
+        public DateTime Time { get; set; }
     }
 
     [ProtoContract]

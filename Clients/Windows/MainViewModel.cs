@@ -133,7 +133,7 @@ namespace norsu.ass.Server.ViewModels
         private static MainViewModel _instance;
         public static MainViewModel Instance => _instance ?? (_instance = new MainViewModel());
         
-        private int _Screen = HOME;
+        private int _Screen = LOGIN;
 
         public int Screen
         {
@@ -147,7 +147,7 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        private bool _HasLoggedIn = true;
+        private bool _HasLoggedIn = false;
 
         public bool HasLoggedIn
         {

@@ -41,9 +41,44 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<Desktop>(Desktop.Header, DesktopHandshakeHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<DesktopLoginRequest>(DesktopLoginRequest.Header, DesktopLoginHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetUsers>(GetUsers.Header,GetUsersHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<long>(Packet.GET_SUGGESTIONS, HandleGetSuggestionsDesktop);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void HandleGetSuggestionsDesktop(PacketHeader packetHeader, Connection connection, long id)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+            
+            var result = new Suggestions();
+            var suggestions = Models.Suggestion.Cache
+                .Where(x => x.OfficeId == id).ToList();
+            
+            for (var i = 0; i < suggestions.Count; i++)
+            {
+                var item = suggestions[i];
+
+                result.Items.Add(new Suggestion()
+                {
+                    Body = item.Body,
+                    OfficeId = item.OfficeId,
+                    Title = item.Title,
+                    Id = item.Id,
+                    UserId = item.UserId,
+                    AllowComment = item.AllowComments,
+                    CommentsDisabledBy = item.CommentsDisabledBy,
+                    IsPrivate = item.IsPrivate,
+                    Time = item.Time,
+                });
+
+                if (result.Items.Count == Settings.Default.PageSize)
+                {
+                    await result.Send(dev.IP, dev.Port);
+                    result.Items.Clear();
+                }
+            }
         }
 
         private async void GetUsersHandler(PacketHeader packetheader, Connection connection, GetUsers req)

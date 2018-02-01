@@ -8,6 +8,7 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
              xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
+             DataContext="{Binding Source={x:Static viewModels:OfficeViewModel.Instance}}"
              d:DesignHeight="300" d:DesignWidth="300">
   <Grid Background="{StaticResource MaterialDesignPaper}">
     <Grid.RowDefinitions>
@@ -16,7 +17,6 @@
     </Grid.RowDefinitions>
 
     <md:ColorZone Mode="Light"
-                              IsEnabled="{Binding ShowNewDialog,Converter={converters:Inverter}}"
                               Grid.ColumnSpan="2"
                               Background="#f5f5f3"
                               BorderThickness="0 0 0 1"

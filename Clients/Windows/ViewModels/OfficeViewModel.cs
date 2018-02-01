@@ -6,7 +6,10 @@ using System.Windows.Data;
 using System.Windows.Input;
 using norsu.ass.Models;
 using norsu.ass.Network;
+using NetworkCommsDotNet;
+using NetworkCommsDotNet.Connections;
 using Office = norsu.ass.Models.Office;
+using Packet = norsu.ass.Network.Packet;
 
 namespace norsu.ass.Server.ViewModels
 {
@@ -25,7 +28,38 @@ namespace norsu.ass.Server.ViewModels
                 if (office == null) return;
                 office.Update(nameof(Office.Picture), pic.Picture);
             });
+            
+            NetworkComms.AppendGlobalIncomingPacketHandler<Network.Suggestions>(Network.Suggestions.Header, HandleSuggestions);
         }
+
+        private void HandleSuggestions(PacketHeader packetHeader, Connection connection, Suggestions s)
+        {
+            if (s == null) return;
+            foreach (var suggestion in s.Items)
+            {
+                var sug = Models.Suggestion.Cache.FirstOrDefault(x => x.Id == suggestion.Id);
+                if (sug == null)
+                {
+                    sug = new Models.Suggestion();
+                    sug.Defer = true;
+                    sug.Save();
+                    sug.ChangeId(suggestion.Id);
+                }
+
+                sug.AllowComments = suggestion.AllowComment;
+                sug.Body = suggestion.Body;
+                sug.CommentsDisabledBy = suggestion.CommentsDisabledBy;
+                sug.IsPrivate = suggestion.IsPrivate;
+                sug.OfficeId = suggestion.OfficeId;
+                sug.Time = suggestion.Time;
+                sug.Title = suggestion.Title;
+                sug.UserId = suggestion.UserId;
+                sug.Save();
+                sug.Defer = false;
+            }
+        }
+
+        public User CurrentUser => LoginViewModel.Instance.User;
 
         private static OfficeViewModel _instance;
         public static OfficeViewModel Instance => _instance ?? (_instance = new OfficeViewModel());
@@ -126,8 +160,11 @@ namespace norsu.ass.Server.ViewModels
                     IsDialogOpen = false;
             }
 
-            if(Offices.CurrentItem == null)
+            if (Offices.CurrentItem == null)
+            {
                 Offices.MoveCurrentToFirst();
+                
+            }
         }
 
         private ListCollectionView _offices;
@@ -142,10 +179,26 @@ namespace norsu.ass.Server.ViewModels
                 {
                     _offices.Filter = Filter;
                     CheckOfficeCount();
+                    RatingsChanged();
                 };
+                
                 _offices.Filter = Filter;
+
+                _offices.CurrentChanged += (sender, args) =>
+                {
+                    Suggestions.Filter = FilterSuggestion;
+                    RatingsChanged();
+                    DownloadOffice((Office) _offices.CurrentItem);
+                };
+                
                 return _offices;
             }
+        }
+
+        private void DownloadOffice(Office office)
+        {
+            Client.Send(Packet.GET_SUGGESTIONS, office.Id);
+            Client.Send(Packet.GET_REVIEWS, office.Id);
         }
 
         private bool Filter(object o)
@@ -188,11 +241,13 @@ namespace norsu.ass.Server.ViewModels
                 Models.Suggestion.Cache.CollectionChanged += (sender, args) =>
                 {
                     _suggestions.Filter = FilterSuggestion;
+                    RatingsChanged();
                 };
+
                 return _suggestions;
             }
         }
-
+        
         private bool FilterSuggestion(object o)
         {
             if (!(o is Models.Suggestion msg))
@@ -214,6 +269,10 @@ namespace norsu.ass.Server.ViewModels
                 Office.Cache.CollectionChanged += (sender, args) =>
                 {
                     _ratings.Filter = FilterRating;
+                };
+                Rating.Cache.CollectionChanged += (sender, args) =>
+                {
+                    RatingsChanged();
                 };
                 return _ratings;
             }

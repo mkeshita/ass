@@ -53,6 +53,15 @@ namespace norsu.ass.Network
             Messenger.Default.Broadcast(Messages.ServerShutdown);
         }
 
+        public static async void Send(string header, object message)
+        {
+            if (Server == null)
+                await FindServer();
+            if (Server == null) return;
+
+            await Packet.Send(header, message, Server.IP, Server.Port);
+        }
+
         public static async Task<GetUsersResult> GetUsers(int page)
         {
             if (Server == null) await FindServer();
@@ -375,7 +384,7 @@ namespace norsu.ass.Network
         {
             return await Instance._GetSuggestions(officeId,page);
         }
-
+        
         private async Task<Suggestions> _GetSuggestions(long officeId, int page)
         {
             if (Server == null)

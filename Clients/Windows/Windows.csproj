@@ -95,6 +95,7 @@
     <Compile Include="MainViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\OfficeViewModel.cs" />
+    <Compile Include="ViewModels\SuggestionsViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
