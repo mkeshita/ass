@@ -44,9 +44,34 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<long>(Packet.GET_SUGGESTIONS, HandleGetSuggestionsDesktop);
             NetworkComms.AppendGlobalIncomingPacketHandler<long>(Packet.GET_REVIEWS, HandlerGetReviewsDesktop);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetCommentsDesktop>(GetCommentsDesktop.Header, HandleGetCommentsDesktop);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetVotes>(GetVotes.Header,HandleGetVotes);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void HandleGetVotes(PacketHeader packetheader, Connection connection, GetVotes req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            var votes = Models.Like.Cache.Where(x => x.SuggestionId == req.SuggestionId && x.Id > req.HighestId)
+                .OrderBy(x => x.Id).ToList();
+
+            var result = new Votes();
+            foreach (var vote in votes)
+            {
+                result.List.Add(new Vote()
+                {
+                    SuggestionId = vote.SuggestionId,
+                    DownVote = vote.Dislike,
+                    UserId = vote.UserId,
+                    Id = vote.Id,
+                });
+            }
+
+            await result.Send(dev.IP, dev.Port);
         }
 
         private async void HandleGetCommentsDesktop(PacketHeader packetheader, Connection connection,

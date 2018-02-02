@@ -57,6 +57,31 @@ namespace norsu.ass.Server.ViewModels
             NetworkComms.AppendGlobalIncomingPacketHandler<Network.Suggestions>(Network.Suggestions.Header, HandleSuggestions);
             NetworkComms.AppendGlobalIncomingPacketHandler<Network.OfficeRatings>(OfficeRatings.Header, HandleOfficeRatings);
             NetworkComms.AppendGlobalIncomingPacketHandler<Network.Comments>(Comments.Header, HandlerComments);
+            NetworkComms.AppendGlobalIncomingPacketHandler<Network.Votes>(Votes.Header, VotesHandler);
+        }
+
+        private void VotesHandler(PacketHeader packetheader, Connection connection, Votes votes)
+        {
+            if (votes == null) return;
+            DatabaseTasks.Enqueue(new Task(() =>
+            {
+                foreach (var vote in votes.List)
+                {
+                    var v = Like.GetByServerId(vote.Id);
+                    if (v == null)
+                    {
+                        v = new Like();
+                        v.ServerId = vote.Id;
+                        v.Defer = true;
+                    }
+                    v.Dislike = vote.DownVote;
+                    v.SuggestionId = vote.SuggestionId;
+                    v.UserId = vote.UserId;
+                    v.Save();
+                    v.Defer = false;
+                }
+            }));
+            StartDatabaseTask();
         }
 
         private Queue<Task> DatabaseTasks = new Queue<Task>();
@@ -165,6 +190,8 @@ namespace norsu.ass.Server.ViewModels
                     sug.UserId = suggestion.UserId;
                     sug.Save();
                     sug.Defer = false;
+                    
+                    Client.Send(new GetVotes(){SuggestionId = sug.ServerId});
                 }
 
             }));
@@ -368,8 +395,6 @@ namespace norsu.ass.Server.ViewModels
                     }
                     req.SuggestionId = sug.ServerId;
                     Client.Send(req);
-                    
-                    
                 };
                 return _suggestions;
             }
