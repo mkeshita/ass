@@ -60,7 +60,7 @@ namespace norsu.ass.Server.ViewModels
         {
             OfficeViewModel.Instance.DownloadData();
             NetworkStatus = "Downloading users...";
-            await Client.GetUsers(-1);
+            //await Client.GetUsers(-1);
         }
 
         private bool _UsersDownloaded;
@@ -86,8 +86,8 @@ namespace norsu.ass.Server.ViewModels
             _downloadingUsers = true;
             foreach (var userPage in UserPages)
             {
-                if (!userPage.Value)
-                    await Client.GetUsers(userPage.Key);
+                //if (!userPage.Value)
+                    //await Client.GetUsers(userPage.Key);
             }
             _downloadingUsers = false;
         },d=>!_downloadingUsers && !UsersDownloaded));

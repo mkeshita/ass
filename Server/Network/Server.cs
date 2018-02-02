@@ -42,8 +42,69 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<DesktopLoginRequest>(DesktopLoginRequest.Header, DesktopLoginHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetUsers>(GetUsers.Header,GetUsersHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<long>(Packet.GET_SUGGESTIONS, HandleGetSuggestionsDesktop);
+            NetworkComms.AppendGlobalIncomingPacketHandler<long>(Packet.GET_REVIEWS, HandlerGetReviewsDesktop);
+            NetworkComms.AppendGlobalIncomingPacketHandler<GetCommentsDesktop>(GetCommentsDesktop.Header, HandleGetCommentsDesktop);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+            
+        }
+
+        private async void HandleGetCommentsDesktop(PacketHeader packetheader, Connection connection,
+            GetCommentsDesktop req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+            
+            var result = new Comments();
+            var comments = Models.Comment.Cache.Where(x => x.SuggestionId == req.SuggestionId && x.Id>req.HighestId)
+                .OrderBy(x=>x.Id).ToList();
+            foreach (var comment in comments)
+            {
+                var com = new Comment()
+                {
+                    Id = comment.Id,
+                    Message = comment.Message,
+                    ParentId = comment.ParentId,
+                    SuggestionId = req.SuggestionId,
+                    Time = comment.Time,
+                    UserId = comment.UserId,
+                };
+                
+                result.Items.Add(com);
+            }
+            await result.Send(dev.IP, dev.Port);
+        }
+
+        private async void HandlerGetReviewsDesktop(PacketHeader packetHeader, Connection connection, long id)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+            
+            var result = new OfficeRatings();
+            result.OfficeId = id;
+            
+            //Get all public reviews excluding the user's
+            var ratings = Models.Rating.Cache.Where(x => x.OfficeId == id).ToList();
+            
+            foreach (var item in ratings)
+            {
+                result.Ratings.Add(
+                    new OfficeRating()
+                    {
+                        Id = item.Id,
+                        IsPrivate = item.IsPrivate,
+                        Rating = item.Value,
+                        Message = item.Message,
+                        OfficeId = item.OfficeId,
+                        UserId = item.UserId,
+                    }
+                );
+                if (result.Ratings.Count == Settings.Default.PageSize)
+                {
+                    await result.Send(dev.IP, dev.Port);
+                    result.Ratings.Clear();
+                }
+            }
             
         }
 
@@ -53,13 +114,10 @@ namespace norsu.ass.Network
             if (dev == null) return;
             
             var result = new Suggestions();
-            var suggestions = Models.Suggestion.Cache
-                .Where(x => x.OfficeId == id).ToList();
+            var suggestions = Models.Suggestion.Cache.Where(x => x.OfficeId == id).ToList();
             
-            for (var i = 0; i < suggestions.Count; i++)
+            foreach (var item in suggestions)
             {
-                var item = suggestions[i];
-
                 result.Items.Add(new Suggestion()
                 {
                     Body = item.Body,
@@ -72,13 +130,10 @@ namespace norsu.ass.Network
                     IsPrivate = item.IsPrivate,
                     Time = item.Time,
                 });
-
-                if (result.Items.Count == Settings.Default.PageSize)
-                {
-                    await result.Send(dev.IP, dev.Port);
-                    result.Items.Clear();
-                }
             }
+
+            await result.Send(dev.IP, dev.Port);
+          
         }
 
         private async void GetUsersHandler(PacketHeader packetheader, Connection connection, GetUsers req)

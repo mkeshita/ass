@@ -40,6 +40,15 @@ namespace norsu.ass.Network
     }
 
     [ProtoContract]
+    class GetCommentsDesktop : Packet<GetCommentsDesktop>
+    {
+        [ProtoMember(1)]
+        public long SuggestionId { get; set; }
+        [ProtoMember(2)]
+        public long HighestId { get; set; }
+    }
+
+    [ProtoContract]
     class GetComments : Packet<GetComments>
     {
         [ProtoMember(1)]

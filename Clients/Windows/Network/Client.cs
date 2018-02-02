@@ -37,6 +37,7 @@ namespace norsu.ass.Network
                     if(res!=null)
                         Messenger.Default.Broadcast(Messages.OfficePictureReceived, res);
                 });
+            
             NetworkComms.AppendGlobalIncomingPacketHandler<Shutdown>(Shutdown.Header, ShutdownHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
@@ -62,35 +63,44 @@ namespace norsu.ass.Network
             await Packet.Send(header, message, Server.IP, Server.Port);
         }
 
-        public static async Task<GetUsersResult> GetUsers(int page)
+        public static async void Send<T>(Packet<T> packet) where T : Packet<T>
         {
-            if (Server == null) await FindServer();
-            if (Server == null) return null;
-
-            GetUsersResult result = null;
-
-            NetworkComms.AppendGlobalIncomingPacketHandler<GetUsersResult>(GetUsersResult.Header,
-                (h, c, res) =>
-                {
-                    NetworkComms.RemoveGlobalIncomingPacketHandler(GetUsersResult.Header);
-                    result = res;
-                });
-
-            await new GetUsers()
-            {
-                Page = page,
-            }.Send(Server.IP, Server.Port);
-
-            var start = DateTime.Now;
-            while ((DateTime.Now - start).TotalSeconds < 17)
-            {
-                if (result != null)
-                    return result;
-                await TaskEx.Delay(TimeSpan.FromSeconds(1));
-            }
-            Server = null;
-            return null;
+            if (Server == null)
+                await FindServer();
+            if (Server == null)
+                return;
+            await packet.Send(Server.IP, Server.Port);
         }
+
+        //public static async Task<GetUsersResult> GetUsers(int page)
+        //{
+        //    if (Server == null) await FindServer();
+        //    if (Server == null) return null;
+
+        //    GetUsersResult result = null;
+
+        //    NetworkComms.AppendGlobalIncomingPacketHandler<GetUsersResult>(GetUsersResult.Header,
+        //        (h, c, res) =>
+        //        {
+        //            NetworkComms.RemoveGlobalIncomingPacketHandler(GetUsersResult.Header);
+        //            result = res;
+        //        });
+
+        //    await new GetUsers()
+        //    {
+        //        Page = page,
+        //    }.Send(Server.IP, Server.Port);
+
+        //    var start = DateTime.Now;
+        //    while ((DateTime.Now - start).TotalSeconds < 17)
+        //    {
+        //        if (result != null)
+        //            return result;
+        //        await TaskEx.Delay(TimeSpan.FromSeconds(1));
+        //    }
+        //    Server = null;
+        //    return null;
+        //}
         
 
         ~Client()
@@ -287,58 +297,7 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
-
-        public static async Task<OfficeRatings> GetRatings(long officeId, int page)
-        {
-            //var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
-            //if (ratings != null) return ratings;
-            
-            return await Instance._GetRatings(officeId,page);
-        }
-        private static List<OfficeRatings> OfficeRatingCache { get; } = new List<OfficeRatings>();
-        private async Task<OfficeRatings> _GetRatings(long officeId,int page)
-        {
-            
-            if (Server == null)
-                await _FindServer();
-            if (Server == null)
-                return null;
-            
-            OfficeRatings result = null;
-
-            NetworkComms.AppendGlobalIncomingPacketHandler<OfficeRatings>(OfficeRatings.Header,
-                (h, c, res) =>
-                {
-                    NetworkComms.RemoveGlobalIncomingPacketHandler(OfficeRatings.Header);
-                    result = res;
-
-                    //var ratings = OfficeRatingCache.FirstOrDefault(x => x.OfficeId == officeId && x.Page == page);
-                    //if (ratings == null) OfficeRatingCache.Add(res);
-                    
-                    var rating = res.Ratings.FirstOrDefault(x => x.MyRating);
-                    if(rating!=null) AddRating(rating.OfficeId,rating);
-                    
-                    FetchUserPictures(res.Ratings.Select(x=>x.UserId));
-                });
-
-            await new GetRatings()
-            {
-                OfficeId = officeId,
-                Session = Session,
-                Page = page
-            }.Send(Server.IP, Server.Port);
-            
-            var start = DateTime.Now;
-            while ((DateTime.Now - start).TotalSeconds < 17)
-            {
-                if (result != null)
-                    return result;
-                await TaskEx.Delay(TimeSpan.FromSeconds(1));
-            }
-            Server = null;
-            return null;
-        }
-
+        
         public static async Task<RateOfficeResult> RateOffice(long officeId, int rating, string message, bool isPrivate, long returnCount = -1)
         {
             return await Instance._RateOffice(officeId, rating, message, isPrivate, returnCount);
@@ -380,45 +339,7 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<Suggestions> GetSuggestions(long officeId, int page)
-        {
-            return await Instance._GetSuggestions(officeId,page);
-        }
-        
-        private async Task<Suggestions> _GetSuggestions(long officeId, int page)
-        {
-            if (Server == null)
-                await _FindServer();
-            if (Server == null)
-                return null;
-
-            Suggestions result = null;
-
-            NetworkComms.AppendGlobalIncomingPacketHandler<Suggestions>(Suggestions.Header,
-                (h, c, res) =>
-                {
-                    NetworkComms.RemoveGlobalIncomingPacketHandler(Suggestions.Header);
-                    result = res;
-                    FetchUserPictures(res.Items.Select(x=>x.UserId));
-                });
-
-            await new GetSuggestions()
-            {
-                OfficeId = officeId,
-                Session = Session,
-                Page = page,
-            }.Send(Server.IP, Server.Port);
-
-            var start = DateTime.Now;
-            while ((DateTime.Now - start).TotalSeconds < 17)
-            {
-                if (result != null)
-                    return result;
-                await TaskEx.Delay(TimeSpan.FromSeconds(1));
-            }
-            Server = null;
-            return null;
-        }
+       
 
         private async void FetchUserPicture(long id)
         {
@@ -528,43 +449,7 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public static async Task<Comments> GetComments(long suggestionId)
-        {
-            return await Instance._GetComments(suggestionId);
-        }
-        private async Task<Comments> _GetComments(long suggestionId)
-        {
-            if (Server == null)
-                await _FindServer();
-            if (Server == null)
-                return null;
-
-            Comments result = null;
-
-            NetworkComms.AppendGlobalIncomingPacketHandler<Comments>(Comments.Header,
-                (h, c, res) =>
-                {
-                    NetworkComms.RemoveGlobalIncomingPacketHandler(Comments.Header);
-                    result = res;
-                    FetchUserPictures(res.Items.Select(x => x.UserId));
-                });
-
-            await new GetComments()
-            {
-                SuggestionId = suggestionId,
-                Session = Session,
-            }.Send(Server.IP, Server.Port);
-
-            var start = DateTime.Now;
-            while ((DateTime.Now - start).TotalSeconds < 17)
-            {
-                if (result != null)
-                    return result;
-                await TaskEx.Delay(TimeSpan.FromSeconds(1));
-            }
-            Server = null;
-            return null;
-        }
+       
 
         public static async Task<bool> AddComment(long suggestionId, string comment)
         {
@@ -613,16 +498,8 @@ namespace norsu.ass.Network
             {
                 try
                 {
-                    var pic = Pictures.FirstOrDefault(x => x.UserId == picture.UserId);
-                    if (pic == null)
-                    {
-                        Pictures.Add(picture);
-                    }
-                    else
-                    {
-                        pic.Picture = pic.Picture;
-                    }
-                    Messenger.Default.Broadcast(Messages.PictureReceived, pic);
+                    if(picture!=null)
+                    Messenger.Default.Broadcast(Messages.PictureReceived, picture);
                     return;
                 }
                 catch (Exception e)

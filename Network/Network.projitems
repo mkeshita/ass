@@ -28,5 +28,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Suggestion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UserPicture.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Utility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Votes.cs" />
   </ItemGroup>
 </Project>

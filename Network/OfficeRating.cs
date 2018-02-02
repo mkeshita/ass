@@ -28,5 +28,8 @@ namespace norsu.ass.Network
 
         [ProtoMember(8)]
         public long UserId { get; set; }
+
+        [ProtoMember(9)]
+        public long Id { get; set; }
     }
 }

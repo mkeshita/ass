@@ -142,9 +142,10 @@
                       </Grid.ColumnDefinitions>
                       <StackPanel Grid.RowSpan="2" Margin="0 0 20 0">
                         <md:PackIcon Kind="Account" Height="48" Width="48"
-                                                                     Visibility="{Binding User.HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                                                                     Visibility="{Binding User.HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible},FallbackValue=Visible}"
                                                                      HorizontalAlignment="Center"/>
                         <Image Source="{Binding User.Picture, Converter={converters:BytesToImage}}"
+                               Visibility="{Binding User.HasPicture,Converter={converters:BooleanToVisibility},FallbackValue=Collapsed}"
                                                                Stretch="UniformToFill"
                                                                Height="48"
                                                                Width="48"/>
