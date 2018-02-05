@@ -157,7 +157,7 @@ namespace norsu.ass.Server.ViewModels
             }
             
             LoginSuccess = true;
-            ErrorMessage = "Congratulations!";
+            ErrorMessage = "AUTHENTICATION SUCCESSFUL";
 
             var user = User.Cache.FirstOrDefault(x => x.Id == result.User.Id);
             if (user == null)

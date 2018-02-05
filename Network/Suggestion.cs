@@ -137,5 +137,21 @@ namespace norsu.ass.Network
         public Suggestion Result { get; set; }
     }
 
+    [ProtoContract]
+    class DeleteSuggestions : Packet<DeleteSuggestions>
+    {
+        [ProtoMember(1)]
+        public List<long> Ids { get; set; }
 
+        [ProtoMember(2)]
+        public long UserId { get; set; }
+    }
+
+    [ProtoContract]
+    class DeleteSuggestionsResult : Packet<DeleteSuggestionsResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        
+    }
 }

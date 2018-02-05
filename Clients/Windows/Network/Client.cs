@@ -43,9 +43,27 @@ namespace norsu.ass.Network
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
             PeerDiscovery.OnPeerDiscovered += OnPeerDiscovered;
-            Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
+            
+           
+            StartServer();
+           
+        }
 
-            PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+        private async void StartServer()
+        {
+            while (true)
+                try
+                {
+                    Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
+
+                    PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+
+                    return;
+                }
+                catch (Exception e)
+                {
+                    await TaskEx.Delay(100);
+                }
         }
         
         private void ShutdownHandler(PacketHeader packetHeader, Connection connection, Shutdown incomingObject)
@@ -189,14 +207,25 @@ namespace norsu.ass.Network
         
         private async Task _FindServer()
         {
-            var start = DateTime.Now;
-            PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
-            while ((DateTime.Now - start).TotalSeconds < 7)
-            {
-                if (Server != null)
-                    break;
-                await TaskEx.Delay(TimeSpan.FromSeconds(1));
-            }
+            while(true)
+                try
+                {
+                    var start = DateTime.Now;
+                    PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+                    while ((DateTime.Now - start).TotalSeconds < 7)
+                    {
+                        if (Server != null)
+                            break;
+                        await TaskEx.Delay(TimeSpan.FromSeconds(1));
+                    }
+                    return;
+                }
+                catch (Exception e)
+                {
+                    await TaskEx.Delay(100);
+                }
+            
+            
         }
 
         public int Session { get; set; }
@@ -299,6 +328,43 @@ namespace norsu.ass.Network
                 SuggestionId = suggestionId,
                 UserId = userId,
                 Message = message,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<DeleteSuggestionsResult> DeleteSuggestions(long userId, List<long> ids)
+        {
+            return await Instance._DeleteSuggestions(userId, ids);
+        }
+
+        private async Task<DeleteSuggestionsResult> _DeleteSuggestions(long userId, List<long> ids)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            DeleteSuggestionsResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<DeleteSuggestionsResult>(DeleteSuggestionsResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(DeleteSuggestionsResult.Header);
+                    result = r;
+                });
+
+            await new DeleteSuggestions()
+            {
+                UserId = userId,
+                Ids = ids
             }.Send(Server.IP, Server.Port);
 
             var start = DateTime.Now;

@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Input;
+using norsu.ass.Models;
 using norsu.ass.Network;
+using Suggestion = norsu.ass.Models.Suggestion;
 
 namespace norsu.ass.Server.ViewModels
 {
@@ -22,6 +24,11 @@ namespace norsu.ass.Server.ViewModels
             {
                 _suggestions.Filter = FilterSuggestion;
             };
+            
+            Messenger.Default.AddListener<Suggestion>(Messages.ModelSelected, s =>
+            {
+                OnPropertyChanged(nameof(CanDeleteSuggestions));
+            });
         }
 
         private bool FilterSuggestion(object o)
@@ -202,6 +209,49 @@ namespace norsu.ass.Server.ViewModels
             
         }));
 
+        private bool _CanDeleteSuggestions = true;
 
+        public bool CanDeleteSuggestions
+        {
+            get => _CanDeleteSuggestions && ((Client.Server?.CanDeleteSuggestion??false) || LoginViewModel.Instance.User?.Access == AccessLevels.SuperAdmin) && GetSuggestions().Count>0;
+            set
+            {
+                if(value == _CanDeleteSuggestions)
+                    return;
+                _CanDeleteSuggestions = value;
+                OnPropertyChanged(nameof(CanDeleteSuggestions));
+            }
+        }
+
+        public List<Models.Suggestion> GetSuggestions()
+        {
+            if(Suggestions.Cast<Models.Suggestion>().All(x=>!x.IsSelected))
+                return new List<Suggestion>();
+            return Suggestions.Cast<Models.Suggestion>()
+                .Where(x => x.IsSelected).ToList();
+        }
+
+        private ICommand _DeleteSelectedSuggestionsCommand;
+
+        public ICommand DeleteSelectedSuggestionsCommand =>
+            _DeleteSelectedSuggestionsCommand ?? (_DeleteSelectedSuggestionsCommand = new DelegateCommand(
+                async d =>
+                {
+                    if (GetSuggestions().Count == 0) return;
+                    CanDeleteSuggestions = false;
+                    
+                    var res = await Client.DeleteSuggestions(LoginViewModel.Instance.User.Id,
+                        GetSuggestions().Select(x=>x.ServerId).ToList());
+                    CanDeleteSuggestions = true;
+
+                    if (res?.Success ?? false)
+                    {
+                        Models.Suggestion.Delete(GetSuggestions().Select(x => x.Id).ToList());
+                    }
+                    else
+                    {
+                        MainViewModel.ShowToast("Failed to delete suggestions.");
+                    }
+                }));
     }
 }

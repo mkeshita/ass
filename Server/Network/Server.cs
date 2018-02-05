@@ -47,9 +47,21 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<GetVotes>(GetVotes.Header,HandleGetVotes);
             NetworkComms.AppendGlobalIncomingPacketHandler<ToggleComments>(ToggleComments.Header,HandleToggleCOmments);
             NetworkComms.AppendGlobalIncomingPacketHandler<ReplyComment>(ReplyComment.Header,ReplyCommentHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<DeleteSuggestions>(DeleteSuggestions.Header,DeleteSuggestionsHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void DeleteSuggestionsHandler(PacketHeader packetheader, Connection connection, DeleteSuggestions req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+            
+            Models.Suggestion.Delete(req.Ids);
+
+            await new DeleteSuggestionsResult() {Success = true}.Send(dev.IP, dev.Port);
+
         }
 
         private async void ReplyCommentHandler(PacketHeader packetheader, Connection connection, ReplyComment req)
