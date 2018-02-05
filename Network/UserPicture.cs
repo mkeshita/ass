@@ -13,6 +13,9 @@ namespace norsu.ass.Network
         
         [ProtoMember(2)]
         public byte[] Picture { get; set; }
+        
+        [ProtoMember(3)]
+        public long Revision { get; set; }
     }
 
     [ProtoContract]
@@ -20,7 +23,11 @@ namespace norsu.ass.Network
     {
         [ProtoMember(1)]
         public int Page { get; set; }
+        
+        [ProtoMember(2)]
+        public long HighestId { get; set; }
     }
+    
     [ProtoContract]
     class GetUsersResult : Packet<GetUsersResult>
     {
@@ -60,6 +67,15 @@ namespace norsu.ass.Network
 
         [ProtoMember(8)]
         public string Description { get; set; }
+
+        [ProtoMember(9)]
+        public bool IsAnonymous { get; set; }
+
+        [ProtoMember(10)]
+        public string StudentId { get; set; }
+
+        [ProtoMember(11)]
+        public long PictureRevision { get; set; }
     }
 
     [ProtoContract]
@@ -69,5 +85,8 @@ namespace norsu.ass.Network
         public int Session { get; set; }
         [ProtoMember(2)]
         public long UserId { get; set; }
+
+        [ProtoMember(3)]
+        public long Revision { get; set; }
     }
 }
