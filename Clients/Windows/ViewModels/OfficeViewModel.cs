@@ -38,7 +38,7 @@ namespace norsu.ass.Server.ViewModels
                 while(true)
                     try
                     {
-                        office = Office.Cache.FirstOrDefault(x => x.ServerId == pic.OfficeId);
+                        office = Office.Cache.FirstOrDefault(x => x.Id == pic.OfficeId);
                         break;
                     }
                     catch (Exception e)
@@ -54,10 +54,10 @@ namespace norsu.ass.Server.ViewModels
                 StartDatabaseTask();
             });
             
-            NetworkComms.AppendGlobalIncomingPacketHandler<Network.Suggestions>(Network.Suggestions.Header, HandleSuggestions);
-            NetworkComms.AppendGlobalIncomingPacketHandler<Network.OfficeRatings>(OfficeRatings.Header, HandleOfficeRatings);
-            NetworkComms.AppendGlobalIncomingPacketHandler<Network.Comments>(Comments.Header, HandlerComments);
-            NetworkComms.AppendGlobalIncomingPacketHandler<Network.Votes>(Votes.Header, VotesHandler);
+            //NetworkComms.AppendGlobalIncomingPacketHandler<Network.Suggestions>(Network.Suggestions.Header, HandleSuggestions);
+            //NetworkComms.AppendGlobalIncomingPacketHandler<Network.OfficeRatings>(OfficeRatings.Header, HandleOfficeRatings);
+            //NetworkComms.AppendGlobalIncomingPacketHandler<Network.Comments>(Comments.Header, HandlerComments);
+            //NetworkComms.AppendGlobalIncomingPacketHandler<Network.Votes>(Votes.Header, VotesHandler);
 
             Models.Suggestion.Cache.CollectionChanged += (sender, args) =>
             {
@@ -72,11 +72,11 @@ namespace norsu.ass.Server.ViewModels
             {
                 foreach (var vote in votes.List)
                 {
-                    var v = Like.GetByServerId(vote.Id);
+                    var v = Like.GetById(vote.Id);
                     if (v == null)
                     {
                         v = new Like();
-                        v.ServerId = vote.Id;
+                        v.Id = vote.Id;
                         v.Defer = true;
                     }
                     v.Dislike = vote.DownVote;
@@ -129,11 +129,11 @@ namespace norsu.ass.Server.ViewModels
             {
                 foreach (var comment in c.Items)
                 {
-                    var com = Models.Comment.GetByServerId(comment.Id);
+                    var com = Models.Comment.GetById(comment.Id);
                     if (com == null)
                     {
                         com = new Models.Comment();
-                        com.ServerId = comment.Id;
+                        com.Id = comment.Id;
                         com.Defer = true;
                     }
                     com.Message = comment.Message;
@@ -158,12 +158,12 @@ namespace norsu.ass.Server.ViewModels
               
                 foreach (var rating in rate.Ratings)
                 {
-                    var r = Rating.GetByServerId(rating.Id);
+                    var r = Rating.GetById(rating.Id);
                     if (r == null)
                     {
                         r = new Rating();
                         r.Defer = true;
-                        r.ServerId = rating.Id;
+                        r.Id = rating.Id;
                     }
                     r.IsPrivate = rating.IsPrivate;
                     r.Message = rating.Message;
@@ -185,12 +185,12 @@ namespace norsu.ass.Server.ViewModels
             {
                 foreach (var suggestion in s.Items)
                 {
-                    var sug = Models.Suggestion.GetByServerId(suggestion.Id);
+                    var sug = Models.Suggestion.GetById(suggestion.Id);
                     if (sug == null)
                     {
                         sug = new Models.Suggestion();
                         sug.Defer = true;
-                        sug.ServerId = suggestion.Id;
+                        sug.Id = suggestion.Id;
                     }
 
                     sug.AllowComments = suggestion.AllowComment;
@@ -204,7 +204,7 @@ namespace norsu.ass.Server.ViewModels
                     sug.Save();
                     sug.Defer = false;
                     
-                    Client.Send(new GetVotes(){SuggestionId = sug.ServerId});
+                    Client.Send(new GetVotes(){SuggestionId = sug.Id});
                 }
 
             }));
@@ -245,36 +245,36 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        public async void DownloadData()
-        {
-            CheckOfficeCount();
+        //public async void DownloadData()
+        //{
+        //    CheckOfficeCount();
             
-            var res = await Client.GetOffices();
-            if (res == null) return;
+        //    var res = await Client.GetOffices();
+        //    if (res == null) return;
             
-            DatabaseTasks.Enqueue(new Task(() =>
-            {   
-                foreach (var item in res.Items)
-                {
-                    var office = Office.GetByServerId(item.Id);
-                    if (office == null)
-                    {
-                        office = new Office();
-                        office.Defer = true;
-                        office.ServerId = item.Id;
-                    }
-                    office.LongName = item.LongName;
-                    office.ShortName = item.ShortName;
-                    office.Save();
-                    office.Defer = false;
-                }
-            }));
-            StartDatabaseTask();
+        //    DatabaseTasks.Enqueue(new Task(() =>
+        //    {   
+        //        foreach (var item in res.Items)
+        //        {
+        //            var office = Office.GetById(item.Id);
+        //            if (office == null)
+        //            {
+        //                office = new Office();
+        //                office.Defer = true;
+        //                office.Id = item.Id;
+        //            }
+        //            office.LongName = item.LongName;
+        //            office.ShortName = item.ShortName;
+        //            office.Save();
+        //            office.Defer = false;
+        //        }
+        //    }));
+        //    StartDatabaseTask();
             
-            Client.Instance.FetchOfficePictures(res.Items.Select(x => x.Id).ToList());
-            OnPropertyChanged(nameof(Offices));
-            CheckOfficeCount();
-        }
+        //    Client.Instance.FetchOfficePictures(res.Items.Select(x => x.Id).ToList());
+        //    OnPropertyChanged(nameof(Offices));
+        //    CheckOfficeCount();
+        //}
 
         private ICommand _previousOfficeCommand;
 
@@ -349,8 +349,8 @@ namespace norsu.ass.Server.ViewModels
         private void DownloadOffice(Office office)
         {
             if (office == null) return;
-            Client.Send(Packet.GET_SUGGESTIONS, office.ServerId);
-            Client.Send(Packet.GET_REVIEWS, office.ServerId);
+            Client.Send(Packet.GET_SUGGESTIONS, office.Id);
+            Client.Send(Packet.GET_REVIEWS, office.Id);
         }
 
         private bool Filter(object o)
@@ -360,7 +360,7 @@ namespace norsu.ass.Server.ViewModels
             var ofc = o as Office;
             if (ofc == null) return false;
 
-            return OfficeAdmin.Cache.Any(x => x.OfficeId == ofc.ServerId && x.UserId == LoginViewModel.Instance.User.Id);
+            return OfficeAdmin.Cache.Any(x => x.OfficeId == ofc.Id && x.UserId == LoginViewModel.Instance.User?.Id);
             
         }
 
@@ -404,7 +404,7 @@ namespace norsu.ass.Server.ViewModels
         {
             if (!(o is Rating rating))
                 return false;
-            return rating.OfficeId == (Offices.CurrentItem as Office)?.ServerId;
+            return rating.OfficeId == (Offices.CurrentItem as Office)?.Id;
         }
 
         private bool FilterOfficeAdmins(object o)
@@ -412,7 +412,7 @@ namespace norsu.ass.Server.ViewModels
             if (Offices.CurrentItem == null)
                 return false;
             var adm = o as OfficeAdmin;
-            return adm?.OfficeId == ((Office) Offices.CurrentItem).ServerId;
+            return adm?.OfficeId == ((Office) Offices.CurrentItem).Id;
         }
 
         private ListCollectionView _officeAdmins;
@@ -435,29 +435,29 @@ namespace norsu.ass.Server.ViewModels
 
         public Rating LatestRating => Rating.Cache
             .OrderByDescending(x => x.Time)
-            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public Models.Suggestion LatestSuggestion => Models.Suggestion.Cache
             .OrderByDescending(x => x.Time)
-            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public Models.Suggestion TopSuggestion => Models.Suggestion.Cache
             .OrderByDescending(x => x.Votes)
-            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            .FirstOrDefault(x => x.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
         
         public long OneStar =>
-            Rating.Cache.Count(d => d.Value == 1 && d.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            Rating.Cache.Count(d => d.Value == 1 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long TwoStars =>
-            Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            Rating.Cache.Count(d => d.Value == 2 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long ThreeStars =>
-            Rating.Cache.Count(d => d.Value == 3 && d.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            Rating.Cache.Count(d => d.Value == 3 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long FourStars =>
-            Rating.Cache.Count(d => d.Value == 4 && d.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            Rating.Cache.Count(d => d.Value == 4 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
 
         public long FiveStars =>
-            Rating.Cache.Count(d => d.Value == 5 && d.OfficeId == ((Office) Offices?.CurrentItem)?.ServerId);
+            Rating.Cache.Count(d => d.Value == 5 && d.OfficeId == ((Office) Offices?.CurrentItem)?.Id);
     }
 }
