@@ -46,9 +46,30 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<GetCommentsDesktop>(GetCommentsDesktop.Header, HandleGetCommentsDesktop);
             NetworkComms.AppendGlobalIncomingPacketHandler<GetVotes>(GetVotes.Header,HandleGetVotes);
             NetworkComms.AppendGlobalIncomingPacketHandler<ToggleComments>(ToggleComments.Header,HandleToggleCOmments);
+            NetworkComms.AppendGlobalIncomingPacketHandler<ReplyComment>(ReplyComment.Header,ReplyCommentHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void ReplyCommentHandler(PacketHeader packetheader, Connection connection, ReplyComment req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+
+            var comment = new Models.Comment()
+            {
+                Message = req.Message,
+                UserId = req.UserId,
+                SuggestionId = req.SuggestionId
+            };
+            comment.Save();
+
+            await new ReplyCommentResult()
+            {
+                Success = true,
+                CommentId = comment.Id,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void HandleToggleCOmments(PacketHeader packetheader, Connection connection, ToggleComments req)

@@ -153,9 +153,9 @@
 
 
             <TextBlock Margin="10 20 10 0">
-              <Run Text="COMMENTS ["/><Run Text="{Binding Suggestions/Comments.Count,Mode=OneWay}"/><Run Text="]"/>
+              <Run Text="COMMENTS ["/><Run Text="{Binding Comments.Count,Mode=OneWay}"/><Run Text="]"/>
             </TextBlock>
-            <ItemsControl ItemsSource="{Binding Suggestions/Comments}"
+            <ItemsControl ItemsSource="{Binding Comments}"
                                          ScrollViewer.CanContentScroll="False">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -208,13 +208,14 @@
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <TextBox md:HintAssist.Hint="Type your message here."
-                   Text="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=ReplyText,UpdateSourceTrigger=PropertyChanged}"
+                   Text="{Binding ReplyText,UpdateSourceTrigger=PropertyChanged}"
                    x:Name="ReplyTextBox"
                    MaxHeight="74"
                    VerticalScrollBarVisibility="Auto"
                    HorizontalScrollBarVisibility="Disabled"
                    AcceptsReturn="True" />
-          <Button Grid.Column="1" Margin="10 0 0 0" Command="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=ReplyCommand}"
+          <Button Grid.Column="1" Margin="10 0 0 0" Command="{Binding ReplyCommand}"
+                  IsEnabled="{Binding CanSendComment}"
                   VerticalAlignment="Top">
             <StackPanel Orientation="Horizontal">
               <md:PackIcon Kind="Send" />

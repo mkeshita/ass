@@ -70,4 +70,26 @@ namespace norsu.ass.Network
         [ProtoMember(3)]
         public string Message { get; set; }
     }
+
+    [ProtoContract]
+    class ReplyComment : Packet<ReplyComment>
+    {
+        [ProtoMember(1)]
+        public long SuggestionId { get; set; }
+
+        [ProtoMember(2)]
+        public long UserId { get; set; }
+
+        [ProtoMember(3)]
+        public string Message { get; set; }
+    }
+
+    [ProtoContract]
+    class ReplyCommentResult : Packet<ReplyCommentResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public long CommentId { get; set; }
+    }
 }

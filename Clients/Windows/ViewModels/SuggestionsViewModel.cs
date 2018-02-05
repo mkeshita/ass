@@ -63,6 +63,30 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
+        private ListCollectionView _comments;
+
+        public ListCollectionView Comments
+        {
+            get
+            {
+                if (_comments != null) return _comments;
+                _comments = new ListCollectionView(Models.Comment.Cache);
+                Suggestions.CurrentChanged += (sender, args) =>
+                {
+                    _comments.Filter = FilterComment;
+                };
+                _comments.Filter = FilterComment;
+                return _comments;
+            }
+        }
+
+        private bool FilterComment(object o)
+        {
+            if (!(Suggestions.CurrentItem is Models.Suggestion s)) return false;
+            if (!(o is Models.Comment c)) return false;
+            return c.SuggestionId == s.ServerId;
+        }
+
         class SuggestionSorter : IComparer, IComparer<Models.Suggestion>
         {
             public int Compare(object x, object y)
@@ -86,14 +110,19 @@ namespace norsu.ass.Server.ViewModels
                 async d =>
                 {
                     EnableToggleComments = false;
-                    var res = await Client.ToggleComments(d.Id, LoginViewModel.Instance.User.Id);
+                    var res = await Client.ToggleComments(d.ServerId, LoginViewModel.Instance.User.ServerId);
                     EnableToggleComments = true;
-                    
+
                     if (res?.Success ?? false)
                     {
-                        if(d.AllowComments)
+                        d.Update(nameof(d.AllowComments), res.AllowComments);
+                    }
+                    else
+                    {
+                        if (d.AllowComments)
                             MainViewModel.ShowToast("Unable to disable comments. Please make sure you are connected to server.");
-                        d.Update(nameof(d.AllowComments),res.AllowComments);
+                        else
+                            MainViewModel.ShowToast("Unable to enable comments. Please make sure you are connected to server.");
                     }
                     OnPropertyChanged(nameof(ToggleCommentsCommand));
                 }));
@@ -112,6 +141,67 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        
+        private string _ReplyText;
+
+        public string ReplyText
+        {
+            get => _ReplyText;
+            set
+            {
+                if(value == _ReplyText)
+                    return;
+                _ReplyText = value;
+                OnPropertyChanged(nameof(ReplyText));
+                OnPropertyChanged(nameof(CanSendComment));
+            }
+        }
+
+        private bool _CanSendComment = true;
+
+        public bool CanSendComment
+        {
+            get => _CanSendComment && !string.IsNullOrEmpty(ReplyText);
+            set
+            {
+                if(value == _CanSendComment)
+                    return;
+                _CanSendComment = value;
+                OnPropertyChanged(nameof(CanSendComment));
+            }
+        }
+
+        private ICommand _replyCommand;
+
+        public ICommand ReplyCommand => _replyCommand ?? (_replyCommand = new DelegateCommand(async d =>
+        {
+            var comment = new Models.Comment()
+            {
+                Defer = true,
+                Message = ReplyText,
+                UserId = LoginViewModel.Instance.User.ServerId,
+                SuggestionId = ((Models.Suggestion) Suggestions.CurrentItem).ServerId,
+            };
+            
+            CanSendComment = false;
+            var res = await Client.SendComment(
+                comment.SuggestionId,
+                comment.UserId,
+                ReplyText);
+            CanSendComment = true;
+            
+            if (res?.Success ?? false)
+            {
+                comment.ServerId = res.CommentId;
+                comment.Save();
+                ReplyText = "";
+            }
+            else
+            {
+                MainViewModel.ShowToast("Sending comment failed!");
+            }
+            
+        }));
+
+
     }
 }

@@ -274,6 +274,44 @@ namespace norsu.ass.Network
             return null;
         }
 
+        public static async Task<ReplyCommentResult> SendComment(long suggestionId, long userId, string message)
+        {
+            return await Instance._SendComment(suggestionId, userId,message);
+        }
+
+        private async Task<ReplyCommentResult> _SendComment(long suggestionId, long userId, string message)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            ReplyCommentResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<ReplyCommentResult>(ReplyCommentResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(ReplyCommentResult.Header);
+                    result = r;
+                });
+
+            await new ReplyComment()
+            {
+                SuggestionId = suggestionId,
+                UserId = userId,
+                Message = message,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
         public async void FetchOfficePicture(long id)
         {
             if (Server == null)
