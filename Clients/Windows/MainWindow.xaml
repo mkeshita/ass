@@ -85,7 +85,7 @@
           <md:TransitionerSlide.ForwardWipe>
             <md:FadeWipe />
           </md:TransitionerSlide.ForwardWipe>
-          
+          <views:Admin/>
         </md:TransitionerSlide>
         
         <md:TransitionerSlide>
@@ -213,6 +213,7 @@
 
         <Button Grid.Row="3" Style="{StaticResource MaterialDesignToolButton}"
               Padding="0"
+                DataContext="{Binding Source={x:Static vm:LoginViewModel.Instance},Path=User}"
                 Margin="0 10"
                 Height="Auto">
           <Button.ContextMenu>
@@ -237,13 +238,13 @@
                   </VisualBrush.Visual>
                 </VisualBrush>
               </Border.OpacityMask>
-              <Image Source="{Binding CurrentUser.Picture,Converter={cnv:BytesToImage}}"
+              <Image Source="{Binding Picture,Converter={cnv:BytesToImage}}"
                    Height="48"
                    ClipToBounds="True"
                    Stretch="UniformToFill"
                    VerticalAlignment="Center"/>
             </Border>
-            <TextBlock Text="{Binding CurrentUser.Username}"
+            <TextBlock Text="{Binding Username}"
                        HorizontalAlignment="Center"
                        FontSize="7pt" />
           </StackPanel>

@@ -5,6 +5,7 @@
         PictureReceived,
         OfficePictureReceived,
         OfficeUpdate,
-        Shutdown
+        Shutdown,
+        DatabaseDownloaded
     }
 }

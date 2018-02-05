@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
@@ -11,7 +12,9 @@ using norsu.ass.Server;
 using norsu.ass.Server.Properties;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
+using NetworkCommsDotNet.Connections.TCP;
 using NetworkCommsDotNet.DPSBase;
+using NetworkCommsDotNet.DPSBase.SevenZipLZMACompressor;
 using NetworkCommsDotNet.Tools;
 
 namespace norsu.ass.Network
@@ -48,9 +51,17 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<ToggleComments>(ToggleComments.Header,HandleToggleCOmments);
             NetworkComms.AppendGlobalIncomingPacketHandler<ReplyComment>(ReplyComment.Header,ReplyCommentHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<DeleteSuggestions>(DeleteSuggestions.Header,DeleteSuggestionsHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<Database>(Database.Header,DatabaseHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private void DatabaseHandler(PacketHeader packetheader, Connection connection, Database incomingobject)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+            SendDatabase(dev);
         }
 
         private async void DeleteSuggestionsHandler(PacketHeader packetheader, Connection connection, DeleteSuggestions req)
@@ -223,44 +234,120 @@ namespace norsu.ass.Network
             var dev = GetDesktop(connection);
             if (dev == null) return;
 
-            var count = User.Cache.Count;
-            var pages = count / Settings.Default.PageSize;
-            if (count % pages > 0) pages++;
-            
-            var result = new GetUsersResult()
-            {
-                Count = count,
-                Page = pages,
-            };
-            var page = req.Page;
-            if (page == -1) page = 0;
-            
-            for (var i = page; i < count; i++)
-            {
-                var user = User.Cache[i];
-                var usr = new UserInfo()
+            var list = Models.User.Cache
+                .Where(x => x.Id > req.HighestId)
+                .Select(user => new UserInfo()
                 {
                     Access = (int) (user.Access ?? 0),
                     Id = user.Id,
                     Username = user.Username,
-                    Password = user.Password,
-                    Picture = user.Picture,
                     Firstname = user.Firstname,
                     Lastname = user.Lastname,
-                    Description = user.Course
-                };
-                result.Users.Add(usr);
-                result.Page = page;
+                    Description = user.Course,
+                    StudentId = user.StudentId,
+                    IsAnonymous = user.IsAnnonymous,
+                    PictureRevision = user.PictureRevision
+                }).ToList();
+            
+            await new GetUsersResult()
+            {
+                Users = list
+            }.Send(dev.IP,dev.Port);
+            
+        }
 
-                if (page == Settings.Default.PageSize)
+        private void SendDatabase(Desktop dev)
+        {
+            
+            var filename = Path.GetFullPath("Database.db3");
+            var remoteIP = dev.IP;
+            var remotePort = dev.DataPort;
+            
+            //Perform the send in a task so that we don't lock the GUI
+            Task.Factory.StartNew(() =>
+            {
+                try
                 {
-                    await result.Send(dev.IP, dev.Port);
-                    if (req.Page != -1) return;
+                    //Create a fileStream from the selected file
+                    FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
 
-                    page++;
-                    result.Users.Clear();
+                    //Wrap the fileStream in a threadSafeStream so that future operations are thread safe
+                    StreamTools.ThreadSafeStream safeStream = new StreamTools.ThreadSafeStream(stream);
+
+                    //Get the filename without the associated path information
+                    string shortFileName = "Database.db3";
+
+                    //Parse the remote connectionInfo
+                    //We have this in a separate try catch so that we can write a clear message to the log window
+                    //if there are problems
+                    ConnectionInfo remoteInfo;
+                    try
+                    {
+                        remoteInfo = new ConnectionInfo(remoteIP, remotePort);
+                    } catch(Exception)
+                    {
+                        throw new InvalidDataException("Failed to parse remote IP and port. Check and try again.");
+                    }
+
+                    //Get a connection to the remote side
+                    Connection connection = TCPConnection.GetConnection(remoteInfo);
+
+                    //Break the send into 20 segments. The less segments the less overhead 
+                    //but we still want the progress bar to update in sensible steps
+                    long sendChunkSizeBytes = (long)(stream.Length / 20.0) + 1;
+
+                    //Limit send chunk size to 500MB
+                    long maxChunkSizeBytes = 500L * 1024L * 1024L;
+                    if(sendChunkSizeBytes > maxChunkSizeBytes)
+                        sendChunkSizeBytes = maxChunkSizeBytes;
+
+                    long totalBytesSent = 0;
+                    do
+                    {
+                        //Check the number of bytes to send as the last one may be smaller
+                        long bytesToSend = (totalBytesSent + sendChunkSizeBytes < stream.Length ? sendChunkSizeBytes : stream.Length - totalBytesSent);
+
+                        //Wrap the threadSafeStream in a StreamSendWrapper so that we can get NetworkComms.Net
+                        //to only send part of the stream.
+                        StreamTools.StreamSendWrapper streamWrapper = new StreamTools.StreamSendWrapper(safeStream, totalBytesSent, bytesToSend);
+
+                        var customOptions = NetworkComms.DefaultSendReceiveOptions;
+
+                        //We want to record the packetSequenceNumber
+                        long packetSequenceNumber;
+                        //Send the select data
+                        connection.SendObject("PartialFileData", streamWrapper,customOptions, out packetSequenceNumber);
+                        //Send the associated SendInfo for this send so that the remote can correctly rebuild the data
+                        connection.SendObject("PartialFileDataInfo", new SendInfo(shortFileName, stream.Length, totalBytesSent, packetSequenceNumber), customOptions);
+
+                        totalBytesSent += bytesToSend;
+
+                        //Update the GUI with our send progress
+                        Console.WriteLine($"Sending database to {dev.IP}: {((double) totalBytesSent / stream.Length)*100}%");
+                        
+                    } while(totalBytesSent < stream.Length);
+
+                    //Clean up any unused memory
+                    GC.Collect();
+
+                    Console.WriteLine("Completed file send to '" + connection.ConnectionInfo.ToString() + "'.");
+                } catch(CommunicationException)
+                {
+                    //If there is a communication exception then we just write a connection
+                    //closed message to the log window
+                    Console.WriteLine("Failed to complete send as connection was closed.");
+                } catch(Exception ex)
+                {
+                    //If we get any other exception which is not an InvalidDataException
+                    //we log the error
+                    if(ex.GetType() != typeof(InvalidDataException))
+                    {
+                        Console.WriteLine(ex.Message.ToString());
+                        LogTools.LogException(ex, "SendFileError");
+                    }
                 }
-            }
+                
+            });
         }
 
         private async void DesktopLoginHandler(PacketHeader packetheader, Connection connection, DesktopLoginRequest login)
@@ -337,14 +424,18 @@ namespace norsu.ass.Network
         private async void DesktopHandshakeHandler(PacketHeader packetheader, Connection connection, Desktop d)
         {
             var dev = GetDesktop(d.IP);
+            
             if (dev == null)
             {
 #if CLI
                 Program.Log($"Handshake received from desktop client at {d.IP}");
 #endif
                 _DesktopClients.Add(d);
+                dev = d;
             }
-            
+
+            SendDatabase(dev);
+
             var serverInfo = new ServerInfo()
             {
                 AllowAnnonymous = Settings.Default.AllowAnnonymousUser,
@@ -488,8 +579,9 @@ namespace norsu.ass.Network
                 await new UserPicture()
                 {
                     UserId = usr.Id,
-                    Picture = usr.Picture,
-                }.Send(dev.IP, dev.Port);
+                    Picture = usr.PictureRevision!=i.Revision ? usr.Picture : null,
+                    Revision = usr.PictureRevision,
+                }.Send(dIP, dPort);
             } else if (i.UserId < 0)
             {
                 var office = Models.Office.GetById(Math.Abs(i.UserId));
@@ -1022,7 +1114,7 @@ namespace norsu.ass.Network
 
         public void Start()
         {
-            Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0), true);
+            Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0), true);
             OnPropertyChanged(nameof(LocalEndPoints));
         }
 

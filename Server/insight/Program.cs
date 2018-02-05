@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,11 @@ namespace norsu.ass.Server
 
         static void Main(string[] args)
         {
+            var db = "Database.db3";
+            if(File.Exists(db))
+                File.Delete(db);
+            File.Copy(awooo.DataSource,db);
+            
             awooo.IsRunning = true;
             Console.BufferWidth = 666;
             Console.BufferHeight = 333;

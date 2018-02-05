@@ -11,5 +11,7 @@ namespace norsu.ass.Network
         [ProtoMember(2)]
         public int Port { get; set; }
         
+        [ProtoMember(3)]
+        public int DataPort { get; set; }
     }
 }

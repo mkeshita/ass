@@ -28,16 +28,6 @@ namespace norsu.ass.Server.ViewModels
             {
                 OnPropertyChanged(nameof(ServerOffline));
             });
-
-            Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived, pic =>
-            {
-                var usr = User.Cache.FirstOrDefault(x => x.Id == pic.UserId);
-                if (usr == null)
-                    return;
-                usr.Picture = pic.Picture;
-            });
-
-            NetworkComms.AppendGlobalIncomingPacketHandler<GetUsersResult>(GetUsersResult.Header, GetUsersHandler);
             
             DownloadData();
         }
@@ -56,11 +46,11 @@ namespace norsu.ass.Server.ViewModels
             }
         }
         
-        private async void DownloadData()
+        private void DownloadData()
         {
-            OfficeViewModel.Instance.DownloadData();
-            NetworkStatus = "Downloading users...";
-            //await Client.GetUsers(-1);
+            //OfficeViewModel.Instance.DownloadData();
+            //NetworkStatus = "Downloading users...";
+            //Client.GetUsers();
         }
 
         private bool _UsersDownloaded;
@@ -113,7 +103,7 @@ namespace norsu.ass.Server.ViewModels
                 user.Username = usr.Username;
                 user.Password = usr.Password;
                 user.Save();
-                Client.GetPicture(user.Id);
+               // Client.GetPicture(user.Id);
             }
             
             for (int i = 0; i < res.Pages; i++)

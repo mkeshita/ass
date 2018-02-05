@@ -4,7 +4,9 @@ using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using norsu.ass;
 using norsu.ass.Network;
 
 namespace Windows
@@ -14,8 +16,14 @@ namespace Windows
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            
+        }
+        
         protected override void OnStartup(StartupEventArgs e)
         {
+            awooo.ServerMode = false;
             awooo.IsRunning = true;
             base.OnStartup(e);
             awooo.Context = SynchronizationContext.Current;

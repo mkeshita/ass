@@ -36,7 +36,7 @@ namespace norsu.ass.Server.ViewModels
             if (!(o is Models.Suggestion msg))
                 return false;
             var selectedOffice = OfficeViewModel.Instance.Offices.CurrentItem as Models.Office;
-            return msg.OfficeId == selectedOffice?.ServerId;
+            return msg.OfficeId == selectedOffice?.Id;
         }
 
         private ListCollectionView _suggestions;
@@ -57,13 +57,13 @@ namespace norsu.ass.Server.ViewModels
                         return;
                     var sug = ((Models.Suggestion) _suggestions.CurrentItem);
                     var req = new GetCommentsDesktop();
-                    var comments = Models.Comment.Cache.Where(x => x.SuggestionId == sug.ServerId).ToList();
+                    var comments = Models.Comment.Cache.Where(x => x.SuggestionId == sug.Id).ToList();
                     if (comments.Count > 0)
                     {
-                        req.HighestId = comments.OrderByDescending(x => x.ServerId).Select(x => x.ServerId)
+                        req.HighestId = comments.OrderByDescending(x => x.Id).Select(x => x.Id)
                             .FirstOrDefault();
                     }
-                    req.SuggestionId = sug.ServerId;
+                    req.SuggestionId = sug.Id;
                     Client.Send(req);
                 };
                 return _suggestions;
@@ -91,7 +91,7 @@ namespace norsu.ass.Server.ViewModels
         {
             if (!(Suggestions.CurrentItem is Models.Suggestion s)) return false;
             if (!(o is Models.Comment c)) return false;
-            return c.SuggestionId == s.ServerId;
+            return c.SuggestionId == s.Id;
         }
 
         class SuggestionSorter : IComparer, IComparer<Models.Suggestion>
@@ -117,7 +117,7 @@ namespace norsu.ass.Server.ViewModels
                 async d =>
                 {
                     EnableToggleComments = false;
-                    var res = await Client.ToggleComments(d.ServerId, LoginViewModel.Instance.User.ServerId);
+                    var res = await Client.ToggleComments(d.Id, LoginViewModel.Instance.User.Id);
                     EnableToggleComments = true;
 
                     if (res?.Success ?? false)
@@ -185,8 +185,8 @@ namespace norsu.ass.Server.ViewModels
             {
                 Defer = true,
                 Message = ReplyText,
-                UserId = LoginViewModel.Instance.User.ServerId,
-                SuggestionId = ((Models.Suggestion) Suggestions.CurrentItem).ServerId,
+                UserId = LoginViewModel.Instance.User.Id,
+                SuggestionId = ((Models.Suggestion) Suggestions.CurrentItem).Id,
             };
             
             CanSendComment = false;
@@ -198,7 +198,7 @@ namespace norsu.ass.Server.ViewModels
             
             if (res?.Success ?? false)
             {
-                comment.ServerId = res.CommentId;
+                comment.Id = res.CommentId;
                 comment.Save();
                 ReplyText = "";
             }
@@ -241,7 +241,7 @@ namespace norsu.ass.Server.ViewModels
                     CanDeleteSuggestions = false;
                     
                     var res = await Client.DeleteSuggestions(LoginViewModel.Instance.User.Id,
-                        GetSuggestions().Select(x=>x.ServerId).ToList());
+                        GetSuggestions().Select(x=>x.Id).ToList());
                     CanDeleteSuggestions = true;
 
                     if (res?.Success ?? false)

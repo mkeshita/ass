@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using norsu.ass.Models;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
 using NetworkCommsDotNet.DPSBase;
@@ -29,8 +32,7 @@ namespace norsu.ass.Network
                 NetworkComms.DefaultSendReceiveOptions.DataProcessors, NetworkComms.DefaultSendReceiveOptions.Options);
 
             NetworkComms.AppendGlobalIncomingPacketHandler<ServerInfo>(ServerInfo.Header, ServerInfoReceived);
-            NetworkComms.AppendGlobalIncomingPacketHandler<UserPicture>(UserPicture.Header,
-                (h, c, res) =>AddPicture(res));
+           
             NetworkComms.AppendGlobalIncomingPacketHandler<OfficePicture>(OfficePicture.Header,
                 (h, c, res) =>
                 {
@@ -40,31 +42,271 @@ namespace norsu.ass.Network
             
             NetworkComms.AppendGlobalIncomingPacketHandler<Shutdown>(Shutdown.Header, ShutdownHandler);
             
-            PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+           PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
             PeerDiscovery.OnPeerDiscovered += OnPeerDiscovered;
+
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<byte[]>("PartialFileData", IncomingPartialFileData);
+
+            NetworkComms.AppendGlobalIncomingPacketHandler<SendInfo>("PartialFileDataInfo",
+                IncomingPartialFileDataInfo);
+
+            NetworkComms.AppendGlobalConnectionCloseHandler(OnConnectionClose);
+
+
+            PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
-           
-            StartServer();
-           
+            Connection.StartListening(ConnectionType.TCP, new IPEndPoint(IPAddress.Any, 4786));
+
         }
 
-        private async void StartServer()
+#region NetworkComms ExampleFileTransfer.WPF
+        object syncRoot = new object();
+
+        /// <summary>
+        /// Data context for the GUI list box
+        /// </summary>
+        public ObservableCollection<ReceivedFile> receivedFiles { get; } = new ObservableCollection<ReceivedFile>();
+
+        /// <summary>
+        /// References to received files by remote ConnectionInfo
+        /// </summary>
+        Dictionary<ConnectionInfo, Dictionary<string, ReceivedFile>> receivedFilesDict =
+            new Dictionary<ConnectionInfo, Dictionary<string, ReceivedFile>>();
+
+        /// <summary>
+        /// Incoming partial data cache. Keys are ConnectionInfo, PacketSequenceNumber. Value is partial packet data.
+        /// </summary>
+        Dictionary<ConnectionInfo, Dictionary<long, byte[]>> incomingDataCache =
+            new Dictionary<ConnectionInfo, Dictionary<long, byte[]>>();
+
+        /// <summary>
+        /// Incoming sendInfo cache. Keys are ConnectionInfo, PacketSequenceNumber. Value is sendInfo.
+        /// </summary>
+        Dictionary<ConnectionInfo, Dictionary<long, SendInfo>> incomingDataInfoCache =
+            new Dictionary<ConnectionInfo, Dictionary<long, SendInfo>>();
+
+
+        private DateTime _lastReceived = DateTime.Now;
+        private Task _timeOut;
+        private bool _done = false;
+
+        private void BytesReceived()
         {
-            while (true)
-                try
+            _lastReceived = DateTime.Now;
+            if (_timeOut != null)
+            {
+                _timeOut = Task.Factory.StartNew(async () =>
                 {
-                    Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
-
-                    PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
-
-                    return;
-                }
-                catch (Exception e)
-                {
-                    await TaskEx.Delay(100);
-                }
+                    while ((DateTime.Now - _lastReceived).TotalMilliseconds < 7777)
+                        await TaskEx.Delay(100);
+                    var db = receivedFiles.FirstOrDefault();
+                    if (!(db?.IsCompleted??false))
+                    {
+                        db?.SaveFileToDisk(awooo.DataSource);
+                        
+                        awooo.Context.Post(d =>
+                        {
+                            lock (syncRoot)
+                            {
+                                var filesToRemove = receivedFiles.ToList();
+                                
+                                foreach (ReceivedFile file in filesToRemove)
+                                {
+                                    receivedFiles.Remove(file);
+                                    file.Close();
+                                }
+                                
+                            }
+                        }, null);
+                        
+                        Client.Send(new Database());
+                    }
+                });
+            }
         }
+
+        /// <summary>
+        /// Handles an incoming packet of type 'PartialFileData'
+        /// </summary>
+        /// <param name="header">Header associated with incoming packet</param>
+        /// <param name="connection">The connection associated with incoming packet</param>
+        /// <param name="data">The incoming data</param>
+        private void IncomingPartialFileData(PacketHeader header, Connection connection, byte[] data)
+        {
+            try
+            {
+                SendInfo info = null;
+                ReceivedFile file = null;
+
+                //Perform this in a thread safe way
+                lock(syncRoot)
+                {
+                    //Extract the packet sequence number from the header
+                    //The header can also user defined parameters
+                    long sequenceNumber = header.GetOption(PacketHeaderLongItems.PacketSequenceNumber);
+
+                    if(incomingDataInfoCache.ContainsKey(connection.ConnectionInfo) && incomingDataInfoCache[connection.ConnectionInfo].ContainsKey(sequenceNumber))
+                    {
+                        //We have the associated SendInfo so we can add this data directly to the file
+                        info = incomingDataInfoCache[connection.ConnectionInfo][sequenceNumber];
+                        incomingDataInfoCache[connection.ConnectionInfo].Remove(sequenceNumber);
+
+                        //Check to see if we have already received any files from this location
+                        if(!receivedFilesDict.ContainsKey(connection.ConnectionInfo))
+                            receivedFilesDict.Add(connection.ConnectionInfo, new Dictionary<string, ReceivedFile>());
+
+                        //Check to see if we have already initialised this file
+                        if(!receivedFilesDict[connection.ConnectionInfo].ContainsKey(info.Filename))
+                        {
+                            receivedFilesDict[connection.ConnectionInfo].Add(info.Filename, new ReceivedFile(info.Filename, connection.ConnectionInfo, info.TotalBytes));
+                            awooo.Context.Post(d =>
+                            {
+                                receivedFiles.Add(receivedFilesDict[connection.ConnectionInfo][info.Filename]);
+                            },null);
+                        }
+
+                        file = receivedFilesDict[connection.ConnectionInfo][info.Filename];
+                    } else
+                    {
+                        //We do not yet have the associated SendInfo so we just add the data to the cache
+                        if(!incomingDataCache.ContainsKey(connection.ConnectionInfo))
+                            incomingDataCache.Add(connection.ConnectionInfo, new Dictionary<long, byte[]>());
+
+                        incomingDataCache[connection.ConnectionInfo].Add(sequenceNumber, data);
+                    }
+                }
+
+                //If we have everything we need we can add data to the ReceivedFile
+                if(info != null && file != null && !file.IsCompleted)
+                {
+                    file.AddData(info.BytesStart, 0, data.Length, data);
+                    BytesReceived();
+                    //Perform a little clean-up
+                    file = null;
+                    data = null;
+                    GC.Collect();
+                } else if(info == null ^ file == null)
+                    throw new Exception("Either both are null or both are set. Info is " + (info == null ? "null." : "set.") + " File is " + (file == null ? "null." : "set.") + " File is " + (file.IsCompleted ? "completed." : "not completed."));
+            } catch(Exception ex)
+            {
+                //
+            }
+        }
+
+        /// <summary>
+        /// Handles an incoming packet of type 'PartialFileDataInfo'
+        /// </summary>
+        /// <param name="header">Header associated with incoming packet</param>
+        /// <param name="connection">The connection associated with incoming packet</param>
+        /// <param name="data">The incoming data automatically converted to a SendInfo object</param>
+        private void IncomingPartialFileDataInfo(PacketHeader header, Connection connection, SendInfo info)
+        {
+            try
+            {
+                byte[] data = null;
+                ReceivedFile file = null;
+
+                //Perform this in a thread safe way
+                lock(syncRoot)
+                {
+                    //Extract the packet sequence number from the header
+                    //The header can also user defined parameters
+                    long sequenceNumber = info.PacketSequenceNumber;
+
+                    if(incomingDataCache.ContainsKey(connection.ConnectionInfo) && incomingDataCache[connection.ConnectionInfo].ContainsKey(sequenceNumber))
+                    {
+                        //We already have the associated data in the cache
+                        data = incomingDataCache[connection.ConnectionInfo][sequenceNumber];
+                        incomingDataCache[connection.ConnectionInfo].Remove(sequenceNumber);
+
+                        //Check to see if we have already received any files from this location
+                        if(!receivedFilesDict.ContainsKey(connection.ConnectionInfo))
+                            receivedFilesDict.Add(connection.ConnectionInfo, new Dictionary<string, ReceivedFile>());
+
+                        //Check to see if we have already initialised this file
+                        if(!receivedFilesDict[connection.ConnectionInfo].ContainsKey(info.Filename))
+                        {
+                            receivedFilesDict[connection.ConnectionInfo].Add(info.Filename, new ReceivedFile(info.Filename, connection.ConnectionInfo, info.TotalBytes));
+                            awooo.Context.Post(d =>
+                            {
+                                receivedFiles.Add(receivedFilesDict[connection.ConnectionInfo][info.Filename]);
+                            }, null);
+                        }
+
+                        file = receivedFilesDict[connection.ConnectionInfo][info.Filename];
+                    } else
+                    {
+                        //We do not yet have the necessary data corresponding with this SendInfo so we add the
+                        //info to the cache
+                        if(!incomingDataInfoCache.ContainsKey(connection.ConnectionInfo))
+                            incomingDataInfoCache.Add(connection.ConnectionInfo, new Dictionary<long, SendInfo>());
+
+                        incomingDataInfoCache[connection.ConnectionInfo].Add(sequenceNumber, info);
+                    }
+                }
+
+                //If we have everything we need we can add data to the ReceivedFile
+                if(data != null && file != null && !file.IsCompleted)
+                {
+                    file.AddData(info.BytesStart, 0, data.Length, data);
+                    BytesReceived();
+                    //Perform a little clean-up
+                    file = null;
+                    data = null;
+                    GC.Collect();
+                } else if(data == null ^ file == null)
+                    throw new Exception("Either both are null or both are set. Data is " + (data == null ? "null." : "set.") + " File is " + (file == null ? "null." : "set.") + " File is " + (file.IsCompleted ? "completed." : "not completed."));
+            } catch(Exception ex)
+            {
+                //If an exception occurs we write to the log window and also create an error file
+                Debug.Print(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// If a connection is closed we clean-up any incomplete ReceivedFiles
+        /// </summary>
+        /// <param name="conn">The closed connection</param>
+        private void OnConnectionClose(Connection conn)
+        {
+            ReceivedFile[] filesToRemove = null;
+
+            lock(syncRoot)
+            {
+                //Remove any associated data from the caches
+                incomingDataCache.Remove(conn.ConnectionInfo);
+                incomingDataInfoCache.Remove(conn.ConnectionInfo);
+
+                //Remove any non completed files
+                if(receivedFilesDict.ContainsKey(conn.ConnectionInfo))
+                {
+                    filesToRemove = (from current in receivedFilesDict[conn.ConnectionInfo] where !current.Value.IsCompleted select current.Value).ToArray();
+                    receivedFilesDict[conn.ConnectionInfo] = (from current in receivedFilesDict[conn.ConnectionInfo] where current.Value.IsCompleted select current).ToDictionary(entry => entry.Key, entry => entry.Value);
+                }
+            }
+            
+                awooo.Context.Post(d =>
+                {
+                lock(syncRoot)
+                {
+                    if(filesToRemove != null)
+                    {
+                        foreach(ReceivedFile file in filesToRemove)
+                        {
+                            receivedFiles.Remove(file);
+                            file.Close();
+                        }
+                    }
+                }
+                },null);
+            
+        }
+
+#endregion
+        
+      
         
         private void ShutdownHandler(PacketHeader packetHeader, Connection connection, Shutdown incomingObject)
         {
@@ -90,38 +332,60 @@ namespace norsu.ass.Network
             await packet.Send(Server.IP, Server.Port);
         }
         
-        
-
-        //public static async Task<GetUsersResult> GetUsers(int page)
+        //private static async void GetUsers()
         //{
-        //    if (Server == null) await FindServer();
-        //    if (Server == null) return null;
-
-        //    GetUsersResult result = null;
-
+        //    if(Server == null) await FindServer();
+        //    if(Server == null) return;
+            
         //    NetworkComms.AppendGlobalIncomingPacketHandler<GetUsersResult>(GetUsersResult.Header,
         //        (h, c, res) =>
         //        {
+        //            var rnd = new Random();
         //            NetworkComms.RemoveGlobalIncomingPacketHandler(GetUsersResult.Header);
-        //            result = res;
+        //            var users = new List<Models.User>();
+        //            var update = new List<Models.User>();
+        //            foreach (var u in res.Users)
+        //            {
+        //                var user = Models.User.Cache.FirstOrDefault(x => x.Id == u.Id);
+        //                if (user == null)
+        //                {
+        //                    user = new User()
+        //                    {
+        //                        Id = u.Id,
+        //                        Defer = true,
+        //                    };
+        //                }
+        //                user.Access = (AccessLevels) u.Access;
+        //                user.Course = u.Description;
+        //                user.Firstname = u.Firstname;
+        //                user.IsAnnonymous = u.IsAnonymous;
+        //                user.Lastname = u.Lastname;
+        //                user.StudentId = u.StudentId;
+        //                user.Username = u.Username;
+        //                user.Password = rnd.Next(0, int.MaxValue / 2).ToString();
+                        
+        //                if(user.PictureRevision!=u.PictureRevision)
+        //                    update.Add(user);
+                        
+        //                user.PictureRevision = u.PictureRevision;
+        //                users.Add(user);
+        //            }
+
+        //            Models.User.Save(users);
+                    
+        //            Instance.FetchUserPictures(update);
+                    
         //        });
+
+        //    //Instance.FetchUserPictures(Models.User.Cache.Select(x => x.Id).ToList());
 
         //    await new GetUsers()
         //    {
-        //        Page = page,
+        //        HighestId = 0,//Models.User.Cache.OrderByDescending(x=>x.Id)?.FirstOrDefault()?.Id??0
         //    }.Send(Server.IP, Server.Port);
-
-        //    var start = DateTime.Now;
-        //    while ((DateTime.Now - start).TotalSeconds < 17)
-        //    {
-        //        if (result != null)
-        //            return result;
-        //        await TaskEx.Delay(TimeSpan.FromSeconds(1));
-        //    }
-        //    Server = null;
-        //    return null;
+            
         //}
-        
+
 
         ~Client()
         {
@@ -145,6 +409,11 @@ namespace norsu.ass.Network
 
         public static void Stop()
         {
+            lock (Instance.syncRoot)
+            {
+                foreach (ReceivedFile file in Instance.receivedFiles)
+                    file.Close();
+            }
             Connection.StopListening();
             NetworkComms.Shutdown();
         }
@@ -177,13 +446,17 @@ namespace norsu.ass.Network
 
             var eps = endPoints[ConnectionType.UDP];
             var localEPs = Connection.AllExistingLocalListenEndPoints();
-
+            
             foreach(var value in eps)
             {
                 var ip = value as IPEndPoint;
                 if(ip?.AddressFamily != AddressFamily.InterNetwork)
                     continue;
-
+                
+                
+                
+                //if(ip.Address.ToString()!= "100.172.168.77") continue;
+                
                 foreach(var localEP in localEPs[ConnectionType.UDP])
                 {
                     var lEp = (IPEndPoint)localEP;
@@ -191,8 +464,15 @@ namespace norsu.ass.Network
                         continue;
                     info.IP = lEp.Address.ToString();
                     info.Port = lEp.Port;
+
+                    var tcp = localEPs[ConnectionType.TCP]
+                        .FirstOrDefault(x => ip.Address.IsInSameSubnet(((IPEndPoint) x).Address)) as IPEndPoint;
+
+                    info.DataPort = tcp?.Port??0;
                     await info.Send(ip);
+                    break;
                 }
+                
             }
         }
 
@@ -378,39 +658,39 @@ namespace norsu.ass.Network
             return null;
         }
 
-        public async void FetchOfficePicture(long id)
-        {
-            if (Server == null)
-                await _FindServer();
-            if (Server == null)
-                return;
+        //private async void FetchOfficePicture(long id)
+        //{
+        //    if (Server == null)
+        //        await _FindServer();
+        //    if (Server == null)
+        //        return;
             
-            await new GetOfficePicture() {Session = Session, OfficeId = id}.Send(Server.IP, Server.Port);
-        }
+        //    await new GetOfficePicture() {Session = Session, OfficeId = id}.Send(Server.IP, Server.Port);
+        //}
 
-        public async void FetchOfficePictures(IEnumerable<long> officeIds)
-        {
-            if (Server == null)
-                await _FindServer();
-            if (Server == null)
-                return;
+        //private async void FetchOfficePictures(IEnumerable<long> officeIds)
+        //{
+        //    if (Server == null)
+        //        await _FindServer();
+        //    if (Server == null)
+        //        return;
 
-            try
-            {
-                foreach (var id in officeIds)
-                {
-                    await new GetOfficePicture() {Session = Session, OfficeId = id}
-                        .Send(Server.IP, Server.Port);
-                }
-            }
-            catch (Exception e)
-            {
-                //
-            }
+        //    try
+        //    {
+        //        foreach (var id in officeIds)
+        //        {
+        //            await new GetOfficePicture() {Session = Session, OfficeId = id}
+        //                .Send(Server.IP, Server.Port);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        //
+        //    }
 
-        }
+        //}
 
-        public static async Task<Offices> GetOffices()
+        private static async Task<Offices> GetOffices()
         {
             return await Instance._GetOffices();
         }
@@ -480,37 +760,69 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
+        
+        //private async Task<UserPicture> FetchUserPicture(long id,long revision)
+        //{
+        //    if (Server == null) await _FindServer();
+        //    if (Server == null) return null;
 
-       
+        //    UserPicture result = null;
+        //    NetworkComms.AppendGlobalIncomingPacketHandler<UserPicture>(UserPicture.Header,
+        //        (h, c, res) =>
+        //        {
+        //            NetworkComms.RemoveGlobalIncomingPacketHandler(UserPicture.Header);
+        //            result = res;
+        //        });
 
-        private async void FetchUserPicture(long id)
-        {
-            if (Server == null) await _FindServer();
-            if (Server == null) return;
-            if (Pictures.Any(x => x.UserId == id)) return;
-            await new GetPicture() {Session = Session, UserId = id}.Send(Server.IP, Server.Port);
-        }
-        private async void FetchUserPictures(IEnumerable<long> userIds)
-        {
-            if (Server == null)
-                await _FindServer();
-            if (Server == null) return;
+        //    await new GetPicture()
+        //    {
+        //        Session = Session,
+        //        UserId = id,
+        //        Revision = revision,
+        //    }.Send(Server.IP, Server.Port);
+
+        //    var start = DateTime.Now;
+        //    while ((DateTime.Now - start).TotalSeconds < 17)
+        //    {
+        //        if (result != null)
+        //            return result;
+        //        await TaskEx.Delay(TimeSpan.FromSeconds(1));
+        //    }
+        //    Server = null;
+        //    return null;
+        //}
+        
+        //private async void FetchUserPictures(IEnumerable<Models.User> users)
+        //{
+        //    if (!users.Any()) return;
+        //    if (Server == null)
+        //        await _FindServer();
+        //    if (Server == null) return;
            
-            try
-            {
-                foreach (var id in userIds)
-                {
-                    if(Pictures.Any(x=>x.UserId==id)) continue;
-                    await new GetPicture() {Session = Session, UserId = id}
-                        .Send(Server.IP,Server.Port);
-                }
-            }
-            catch (Exception e)
-            {
-               //
-            }
+        //    try
+        //    {
+        //        foreach (var user in users)
+        //        {
+        //            //if(Pictures.Any(x=>x.UserId==id)) continue;
+        //            var pic = await FetchUserPicture(user.Id,user.PictureRevision);
+        //            if (pic != null)
+        //            {
+        //                var u = Models.User.Cache.FirstOrDefault(x => x.Id == pic.UserId);
+        //                if(u==null) continue;
+        //                if (pic.Revision != u.PictureRevision)
+        //                {
+        //                    u.Update(nameof(User.Picture),pic.Picture);
+        //                    u.Update(nameof(User.PictureRevision),pic.Revision);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //       //
+        //    }
             
-        }
+        //}
         
         public static Suggestion SelectedSuggestion { get; set; }
 
@@ -590,9 +902,7 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
-
-       
-
+        
         public static async Task<bool> AddComment(long suggestionId, string comment)
         {
             return await Instance._AddComment(suggestionId, comment);
@@ -632,43 +942,7 @@ namespace norsu.ass.Network
 
         }
 
-        private readonly List<UserPicture> Pictures = new List<UserPicture>();
-
-        private void AddPicture(UserPicture picture)
-        {
-            while (true)
-            {
-                try
-                {
-                    if(picture!=null)
-                    Messenger.Default.Broadcast(Messages.PictureReceived, picture);
-                    return;
-                }
-                catch (Exception e)
-                {
-                    //
-                }
-            }
-        }
-
-        public static UserPicture GetPicture(long userId)
-        {
-            while (true)
-            {
-                try
-                {
-                    var pic = Instance.Pictures.FirstOrDefault(x => x.UserId == userId);
-                    if (pic != null) return pic;
-                    break;
-                }
-                catch (Exception e)
-                {
-                    //
-                }
-            }
-            return null;
-        }
-
+      
         private Dictionary<long,OfficeRating> MyRatings = new Dictionary<long, OfficeRating>();
 
         private void AddRating(long id, OfficeRating rating)
