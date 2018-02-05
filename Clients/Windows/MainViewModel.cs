@@ -174,6 +174,11 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(ServerOffline));
             }
         }
-        
+
+
+        public static void ShowToast(string text)
+        {
+            
+        }
     }
 }

@@ -8,7 +8,7 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
              xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
-             DataContext="{Binding Source={x:Static viewModels:OfficeViewModel.Instance}}"
+             DataContext="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance}}"
              d:DesignHeight="300" d:DesignWidth="300">
   <Grid Background="{StaticResource MaterialDesignPaper}">
     <Grid.RowDefinitions>
@@ -46,7 +46,6 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <DataGrid ItemsSource="{Binding Suggestions}"
-                  x:Name="DataGrid"
                                   AutoGenerateColumns="False"
                   IsSynchronizedWithCurrentItem="True"
                   SelectionMode="Single"
@@ -54,14 +53,6 @@
                                   RowDetailsVisibilityMode="VisibleWhenSelected"
                                   CanUserDeleteRows="False"
                                   CanUserAddRows="False">
-          <DataGrid.RowDetailsTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding Body}" TextWrapping="WrapWithOverflow"
-                               MaxWidth="{Binding ElementName=DataGrid,Path=ActualWidth}"
-                                   Padding="40 0 0 0"
-                                               Margin="10"/>
-            </DataTemplate>
-          </DataGrid.RowDetailsTemplate>
           <DataGrid.Columns>
             <DataGridCheckBoxColumn Binding="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsThreeState="False"
                                         EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
@@ -97,38 +88,73 @@
                     Command="{Binding DeleteSelectedSuggestionsCommand}"/>
       </Grid>
 
-      <GroupBox Grid.Column="1" Padding="1" IsEnabled="{Binding Suggestions/,Converter={converters:IsNullConverter Invert=True}}"
-                  Margin="2 0 0 0">
-        <GroupBox.Header>
-          <Grid Margin="10">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <md:PackIcon Kind="Comment" Foreground="White"
-                                             Margin="5"
-                                             VerticalAlignment="Center"/>
-            <TextBlock Text=" COMMENTS" Foreground="White"
-                               VerticalAlignment="Center"
-                               Grid.Column="1"/>
-            <Button Content="DISABLE COMMENTS" Grid.Column="2"
-                            Style="{StaticResource MaterialDesignRaisedAccentButton}"
-                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility},FallbackValue=Collapsed}"
-                            Command="{Binding Suggestions/DisableCommentsCommand}"
-                            CommandParameter="{Binding CurrentUser.Id}"/>
-            <Button Content="ENABLE COMMENTS" Grid.Column="2"
-                            Style="{StaticResource MaterialDesignRaisedAccentButton}"
-                            Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility Collapsed,Visible},FallbackValue=Collapsed}"
-                            Command="{Binding Suggestions/EnableCommentsCommand}" />
-          </Grid>
-        </GroupBox.Header>
-        <Grid>
+      <Grid Grid.Column="1" Margin="2 0 0 0">
           <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
-          <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel>
+            <StackPanel Orientation="Horizontal"
+                        Margin="20 20 20 10">
+              <md:PackIcon Kind="MessageText" Height="24" Width="24"/>
+              <TextBlock Text=" SUGGESTION DETAILS" VerticalAlignment="Center"
+                         Style="{StaticResource MaterialDesignTitleTextBlock}"/>
+            </StackPanel>
+            
+            <TextBox Text="{Binding Suggestions/Body,Mode=OneWay}" TextWrapping="Wrap"
+                     FontSize="12pt" IsReadOnly="True"
+                       Margin="20 0 20 20"/>
+
+            <Grid Margin="20 10">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              
+              <md:PackIcon Kind="ThumbUp" FontSize="14pt" Grid.Column="0" 
+                           VerticalAlignment="Center"/>
+              <TextBlock Text="{Binding Suggestions/Likes}"
+                         Grid.Column="1"
+                         Margin="10 0 20 0"
+                         FontSize="14pt"
+                         VerticalAlignment="Center"
+                         FontWeight="Bold" />
+
+              <md:PackIcon Kind="ThumbDown" FontSize="14pt"
+                           VerticalAlignment="Center"
+                           Grid.Column="2" />
+              <TextBlock Text="{Binding Suggestions/Dislikes}"
+                         Grid.Column="3"
+                         Margin="10 0"
+                         FontSize="14pt"
+                         VerticalAlignment="Center"
+                         FontWeight="Bold" />
+
+              <Button Content="DISABLE COMMENTS" Grid.Column="4"
+                      HorizontalAlignment="Right"
+                      Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                      Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility},FallbackValue=Collapsed}"
+                      Command="{Binding ToggleCommentsCommand}"
+                      IsEnabled="{Binding EnableToggleComments}"
+                      CommandParameter="{Binding Suggestions.CurrentItem}" />
+              <Button Content="ENABLE COMMENTS" Grid.Column="4"
+                      HorizontalAlignment="Right"
+                      IsEnabled="{Binding EnableToggleComments}"
+                      Style="{StaticResource MaterialDesignRaisedButton}"
+                      Visibility="{Binding Suggestions/AllowComments,Converter={converters:BooleanToVisibility Collapsed,Visible},FallbackValue=Collapsed}"
+                      Command="{Binding ToggleCommentsCommand}"
+                      CommandParameter="{Binding Suggestions.CurrentItem}" />
+            </Grid>
+
+
+
+            <TextBlock Margin="10 20 10 0">
+              <Run Text="COMMENTS ["/><Run Text="{Binding Suggestions/Comments.Count,Mode=OneWay}"/><Run Text="]"/>
+            </TextBlock>
             <ItemsControl ItemsSource="{Binding Suggestions/Comments}"
                                          ScrollViewer.CanContentScroll="False">
               <ItemsControl.ItemTemplate>
@@ -164,7 +190,8 @@
                                                 HorizontalAlignment="Right"
                                                 Visibility="{Binding RelativeSource={RelativeSource AncestorType=Border},Path=IsMouseOver,Converter={converters:BooleanToVisibility}}"
                                                 Style="{StaticResource MaterialDesignFlatAccentButton}"
-                                                Command="{Binding DeleteCommand}"
+                                                Command="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=DeleteCommentCommand}"
+                              CommandParameter="{Binding}"
                                                 Margin="4"
                                                 Content="DELETE"/>
                     </Grid>
@@ -172,30 +199,31 @@
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
-          </ScrollViewer>
-          <Grid Grid.Row="1" Margin="10">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <TextBox md:HintAssist.Hint="Type your message here."
-                                             Text="{Binding ReplyText,UpdateSourceTrigger=PropertyChanged}"
-                                             x:Name="ReplyTextBox"
-                                             MaxHeight="74"
-                                             VerticalScrollBarVisibility="Auto"
-                                             HorizontalScrollBarVisibility="Disabled"
-                                             AcceptsReturn="True"/>
-            <Button Grid.Column="1" Margin="10 0 0 0" Command="{Binding ReplyCommand}"
-                                            VerticalAlignment="Top">
-              <StackPanel Orientation="Horizontal">
-                <md:PackIcon Kind="Send"/>
-                <TextBlock Text=" SEND"/>
-              </StackPanel>
-            </Button>
-          </Grid>
-        </Grid>
-      </GroupBox>
+          </StackPanel>
+        </ScrollViewer>
 
+        <Grid Grid.Row="1" Margin="10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBox md:HintAssist.Hint="Type your message here."
+                   Text="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=ReplyText,UpdateSourceTrigger=PropertyChanged}"
+                   x:Name="ReplyTextBox"
+                   MaxHeight="74"
+                   VerticalScrollBarVisibility="Auto"
+                   HorizontalScrollBarVisibility="Disabled"
+                   AcceptsReturn="True" />
+          <Button Grid.Column="1" Margin="10 0 0 0" Command="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=ReplyCommand}"
+                  VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal">
+              <md:PackIcon Kind="Send" />
+              <TextBlock Text=" SEND" />
+            </StackPanel>
+          </Button>
+        </Grid>
+      </Grid>
+      
       <GridSplitter Grid.Column="1" Width="2" 
                       HorizontalAlignment="Left"
                       VerticalAlignment="Stretch"/>

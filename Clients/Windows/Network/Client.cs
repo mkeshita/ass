@@ -71,6 +71,8 @@ namespace norsu.ass.Network
                 return;
             await packet.Send(Server.IP, Server.Port);
         }
+        
+        
 
         //public static async Task<GetUsersResult> GetUsers(int page)
         //{
@@ -224,6 +226,42 @@ namespace norsu.ass.Network
                 Username = username,
                 Password = password, //very secure :D
             }.Send(Server.IP,Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<ToggleCommentsResult> ToggleComments(long suggestionId,long userId)
+        {
+            return await Instance._ToggleComments(suggestionId,userId);
+        }
+        private async Task<ToggleCommentsResult> _ToggleComments(long suggestionId, long userId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            ToggleCommentsResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<ToggleCommentsResult>(ToggleCommentsResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(ToggleCommentsResult.Header);
+                    result = r;
+                });
+
+            await new ToggleComments()
+            {
+                SuggestionId = suggestionId,
+                UserId = userId,
+            }.Send(Server.IP, Server.Port);
 
             var start = DateTime.Now;
             while ((DateTime.Now - start).TotalSeconds < 17)

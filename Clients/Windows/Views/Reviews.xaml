@@ -7,17 +7,15 @@
              mc:Ignorable="d" 
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
+             xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
+             DataContext="{Binding Source={x:Static viewModels:OfficeViewModel.Instance}}"
              d:DesignHeight="300" d:DesignWidth="300">
   <Grid Background="{StaticResource MaterialDesignPaper}">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
-
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
 
     <md:ColorZone Mode="Light"
                   Grid.ColumnSpan="2"
@@ -38,5 +36,73 @@
     </md:ColorZone>
 
 
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <ItemsControl Margin="20" ItemsSource="{Binding Ratings}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="{x:Type models:Rating}">
+            <md:Card UniformCornerRadius="4" Margin="7">
+            <Grid Width="444">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+
+                <StackPanel Grid.RowSpan="2" Margin="10">
+              <Image Source="{Binding User.Picture,Converter={converters:BytesToImage}}"
+                     Height="77" Width="77"
+                     VerticalAlignment="Top"
+                     Margin="0 0 0 4"/>
+                  <TextBlock Grid.Column="1"
+                             TextAlignment="Center"
+                             TextWrapping="Wrap"
+                             Grid.Row="0"
+                             FontWeight="Bold"
+                             Text="{Binding User.Fullname}" />
+                </StackPanel>
+
+              <md:RatingBar Value="{Binding Value}" 
+                            Grid.Column="1"
+                            Margin="0 10 10 0"
+                            Grid.Row="0"
+                            IsHitTestVisible="False" />
+              
+              <TextBlock Text="{Binding Message}"
+                         Grid.ColumnSpan="2"
+                         Margin="0 0 10 10"
+                         VerticalAlignment="Top"
+                         FontSize="12pt"
+                         Grid.Row="1"
+                         Grid.Column="1"
+                         TextWrapping="Wrap"/>
+              
+              <Button Grid.Column="1"
+                      
+                      Grid.Row="0"
+                      Height="Auto"
+                      Width="Auto"
+                      Margin="7"
+                      Grid.RowSpan="2"
+                      Grid.ColumnSpan="2"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      Content="{md:PackIcon Delete}"
+                      Style="{StaticResource MaterialDesignToolButton}"/>
+            </Grid>
+            </md:Card>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+    
   </Grid>
 </UserControl>
