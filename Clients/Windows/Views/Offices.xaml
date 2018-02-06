@@ -37,7 +37,6 @@
                    RenderOptions.BitmapScalingMode="HighQuality"
                    Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
             <Button Style="{StaticResource MaterialDesignToolButton}"
-                    IsEnabled="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanChangePicture}"
                     Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=ChangePictureCommand}"
                     CommandParameter="{Binding}" Focusable="False" />
           </Grid>
@@ -54,10 +53,9 @@
                    Text="{Binding LongName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" />
           </StackPanel>
           <Button Grid.Column="2" Content="{md:PackIcon Check}"
-                  IsEnabled="{Binding  Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanUpdate}"
-                          Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=UpdateCommand}"
+                  Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=UpdateCommand}"
                   CommandParameter="{Binding}"
-                          Style="{StaticResource MaterialDesignRaisedButton}" />
+                  Style="{StaticResource MaterialDesignRaisedButton}" />
           <Button Grid.Column="3" Content="{md:PackIcon Close}"
                           Command="{Binding ResetCommand}"
                           Margin="10 0 0 0"
@@ -85,7 +83,6 @@
                    RenderOptions.BitmapScalingMode="HighQuality"
                    Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
             <Button Style="{StaticResource MaterialDesignToolButton}"
-                    IsEnabled="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanChangePicture}"
                     Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=ChangePictureCommand}"
                     CommandParameter="{Binding}" Focusable="False"/>
           </Grid>
@@ -121,7 +118,6 @@
                           Style="{StaticResource MaterialDesignFlatButton}" />
           <Button Grid.Column="3" Content="{md:PackIcon Delete}"
                   VerticalAlignment="Center"
-                  IsEnabled="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanDelete}"
                   Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=DeleteCommand}"
                   CommandParameter="{Binding}"
                       Style="{StaticResource MaterialDesignFlatButton}" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 using norsu.ass.Network;
@@ -80,6 +81,7 @@ namespace norsu.ass.Server.ViewModels
         {
             if (string.IsNullOrEmpty(NewItem.ShortName) || string.IsNullOrEmpty(NewItem.LongName)) return;
             CanAcceptNew = false;
+            
             var res = await Client.SaveOffice(0, NewItem.ShortName, NewItem.LongName);
             CanAcceptNew = true;
             if (res?.Success ?? false)
@@ -116,6 +118,83 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
+        private bool _IsProcessing;
+
+        public bool IsProcessing
+        {
+            get => _IsProcessing;
+            set
+            {
+                if(value == _IsProcessing)
+                    return;
+                _IsProcessing = value;
+                OnPropertyChanged(nameof(IsProcessing));
+            }
+        }
+
+        private string _Status;
+
+        public string Status
+        {
+            get => _Status;
+            set
+            {
+                if(value == _Status)
+                    return;
+                _Status = value;
+                OnPropertyChanged(nameof(Status));
+            }
+        }
         
+        private readonly Queue<Task> _updateTasks = new Queue<Task>();
+        private bool _updateStarted;
+        private readonly object _updateLock = new object();
+        private ICommand _updateCommand;
+        
+        public ICommand UpdateCommand => _updateCommand ?? (_updateCommand = new DelegateCommand<Models.Office>(ofc =>
+        {
+            lock(_updateLock)
+            _updateTasks.Enqueue(new Task(async o =>
+            {
+                if (!(o is Office of)) return;
+                SaveOfficeResult res = null;
+                while (!(res?.Success ?? false))
+                    res = await Client.SaveOffice(of.Id, of.ShortName, of.LongName);
+                of.Save();
+            },ofc));
+            
+            ProcessUpdates();
+        },o=>o.CanSave()));
+
+       
+
+        private void ProcessUpdates()
+        {
+            if (_updateStarted) return;
+            _updateStarted = true;
+            
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    IsProcessing = true;
+                    Task task;
+                    lock (_updateLock)
+                    {
+                        if (_updateTasks.Count == 0)
+                            break;
+                        task = _updateTasks.Dequeue();
+                    }
+
+                    if (task == null) break;
+                    
+                    task.Start();
+                    task.Wait();
+                    
+                }
+                IsProcessing = false;
+                _updateStarted = false;
+            });
+        }
     }
 }

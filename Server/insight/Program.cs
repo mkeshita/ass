@@ -19,8 +19,7 @@ namespace norsu.ass.Server
             File.Copy(awooo.DataSource,db);
             
             awooo.IsRunning = true;
-            Console.BufferWidth = 666;
-            Console.BufferHeight = 333;
+            
             Console.CancelKeyPress += ConsoleOnCancelKeyPress;
             Console.Title = "NORSU-G Suggestion Server";
             PrintTitle();

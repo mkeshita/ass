@@ -99,11 +99,11 @@ namespace norsu.ass.Network
             {
                 _timeOut = Task.Factory.StartNew(async () =>
                 {
-                    while ((DateTime.Now - _lastReceived).TotalMilliseconds < 7777)
+                    while ((DateTime.Now - _lastReceived).TotalMilliseconds < 4444)
                         await TaskEx.Delay(100);
                     var db = receivedFiles.FirstOrDefault();
-                    if (!(db?.IsCompleted??false))
-                    {
+                   // if (!(db?.IsCompleted??false))
+                   // {
                         db?.SaveFileToDisk(awooo.DataSource);
                         
                         awooo.Context.Post(d =>
@@ -122,7 +122,7 @@ namespace norsu.ass.Network
                         }, null);
                         
                         Client.Send(new Database());
-                    }
+                    //}
                 });
             }
         }
@@ -496,14 +496,14 @@ namespace norsu.ass.Network
         {
             return await Instance._SaveOffice(officeId, shortName,longName);
         }
-
+        
         private async Task<SaveOfficeResult> _SaveOffice(long officeId, string shortName, string longName)
         {
             if (Server == null)
                 await _FindServer();
             if (Server == null)
                 return null;
-
+            
             SaveOfficeResult result = null;
             NetworkComms.AppendGlobalIncomingPacketHandler<SaveOfficeResult>(SaveOfficeResult.Header,
                 (h, c, r) =>
