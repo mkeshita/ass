@@ -576,6 +576,42 @@ namespace norsu.ass.Network
             return null;
         }
 
+        public static async Task<SaveUserResult> SaveUser(UserInfo user)
+        {
+            return await Instance._SaveUser(user);
+        }
+
+        private async Task<SaveUserResult> _SaveUser(UserInfo user)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            SaveUserResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<SaveUserResult>(SaveUserResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(SaveUserResult.Header);
+                    result = r;
+                });
+
+            await new SaveUser()
+            {
+                User = user,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
         public static async Task<DeleteUserResult> DeleteUser(long officeId)
         {
             return await Instance._DeleteUser(officeId);

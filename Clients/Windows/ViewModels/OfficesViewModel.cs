@@ -92,7 +92,7 @@ namespace norsu.ass.Server.ViewModels
                 NewItem.Save();
                 try
                 {
-                    NewItem.Update("Id", res.Id);
+                    NewItem.ChangeId(res.Id);
                 }
                 catch (Exception e)
                 {

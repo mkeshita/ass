@@ -10,10 +10,10 @@ namespace norsu.ass.Network
     {
         [ProtoMember(1)]
         public long UserId { get; set; }
-        
+
         [ProtoMember(2)]
         public byte[] Picture { get; set; }
-        
+
         [ProtoMember(3)]
         public long Revision { get; set; }
     }
@@ -23,20 +23,23 @@ namespace norsu.ass.Network
     {
         [ProtoMember(1)]
         public int Page { get; set; }
-        
+
         [ProtoMember(2)]
         public long HighestId { get; set; }
     }
-    
+
     [ProtoContract]
     class GetUsersResult : Packet<GetUsersResult>
     {
         [ProtoMember(1)]
         public int Page { get; set; }
+
         [ProtoMember(2)]
         public int Count { get; set; }
+
         [ProtoMember(3)]
         public List<UserInfo> Users { get; set; } = new List<UserInfo>();
+
         [ProtoMember(4)]
         public int Pages { get; set; }
     }
@@ -83,6 +86,7 @@ namespace norsu.ass.Network
     {
         [ProtoMember(1)]
         public int Session { get; set; }
+
         [ProtoMember(2)]
         public long UserId { get; set; }
 
@@ -95,6 +99,7 @@ namespace norsu.ass.Network
     {
         [ProtoMember(1)]
         public long Id { get; set; }
+
         [ProtoMember(2)]
         public byte[] Picture { get; set; }
     }
@@ -133,4 +138,21 @@ namespace norsu.ass.Network
         [ProtoMember(1)]
         public bool Success { get; set; }
     }
+
+    [ProtoContract]
+    class SaveUser : Packet<SaveUser>
+    {
+        [ProtoMember(1)]
+        public UserInfo User { get; set; }
+    }
+
+    [ProtoContract]
+    class SaveUserResult : Packet<SaveUserResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public long Id { get; set; }
+    }
+
 }

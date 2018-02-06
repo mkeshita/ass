@@ -60,9 +60,40 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<SetPicture>(SetPicture.Header,SetPictureHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<ResetPassword>(ResetPassword.Header,ResetPasswordHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<DeleteUser>(DeleteUser.Header,DeleteUserHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<SaveUser>(SaveUser.Header,SaveUserHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void SaveUserHandler(PacketHeader packetheader, Connection connection, SaveUser req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            var user = Models.User.Cache.FirstOrDefault(x => x.Id == req.User.Id);
+            if (user == null)
+            {
+                user = new User();
+                user.DateRegistered = DateTime.Now;
+            }
+
+            user.Username = req.User.Username;
+            user.Access = (AccessLevels) req.User.Access;
+            user.Course = req.User.Description;
+            user.Firstname = req.User.Firstname;
+            user.Lastname = req.User.Lastname;
+            user.StudentId = req.User.StudentId;
+            user.Save();
+
+            Console.WriteLine("User modified");
+
+            await new SaveUserResult()
+            {
+                Success = true,
+                Id = user.Id,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void DeleteUserHandler(PacketHeader packetheader, Connection connection, DeleteUser req)
@@ -74,6 +105,8 @@ namespace norsu.ass.Network
             var office = Models.User.Cache.FirstOrDefault(x => x.Id == req.Id);
             office?.Delete(false);
 
+            Console.WriteLine("User deleted");
+            
             await new DeleteUserResult()
             {
                 Success = true,
@@ -88,7 +121,7 @@ namespace norsu.ass.Network
 
             var office = Models.User.Cache.FirstOrDefault(x => x.Id == req.Id);
             office?.Update(nameof(User.Password), "");
-
+            Console.WriteLine("User password reset");
             await new ResetPasswordResult()
             {
                 Success = true,

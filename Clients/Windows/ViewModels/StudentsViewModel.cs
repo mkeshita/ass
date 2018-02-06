@@ -33,6 +33,26 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(UpVotesCount));
                 OnPropertyChanged(nameof(DownVotesCount));
             };
+            
+            Messenger.Default.AddListener<User>(Messages.UserSaved,async user =>
+            {
+                var res = await Client.SaveUser(new UserInfo()
+                {
+                    Id = user.Id,
+                    Access =(int) (user.Access??0),
+                    Description = user.Course,
+                    Firstname = user.Firstname,
+                    Lastname = user.Lastname,
+                    StudentId = user.StudentId,
+                    Username = user.Username
+                });
+                if (res?.Success ?? false)
+                {
+                    if(res.Id!=user.Id)
+                    user.ChangeId(res.Id);
+                }
+                
+            });
         }
 
         private static StudentsViewModel _instance;

@@ -60,19 +60,18 @@
                 Margin="0 0 1 0"
               AutoGenerateColumns="False"
               CanUserAddRows="False"
-              IsReadOnly="True"
                 IsSynchronizedWithCurrentItem="True"
                 FrozenColumnCount="1"
               CanUserDeleteRows="False">
         <DataGrid.Columns>
-          <DataGridCheckBoxColumn Binding="{Binding IsSelected}"
+          <DataGridCheckBoxColumn Binding="{Binding IsSelected,UpdateSourceTrigger=PropertyChanged}"
                                   ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"
                                   EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"/>
-          <DataGridTextColumn Binding="{Binding Username}" Header="USERNAME"
+          <DataGridTextColumn Binding="{Binding Username,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Header="USERNAME"
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
-          <DataGridTextColumn Binding="{Binding Firstname}" Header="FIRST NAME"
+          <DataGridTextColumn Binding="{Binding Firstname,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Header="FIRST NAME"
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
-          <DataGridTextColumn Binding="{Binding Lastname}" Header="LAST NAME"
+          <DataGridTextColumn Binding="{Binding Lastname,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Header="LAST NAME"
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
           <DataGridTextColumn Binding="{Binding Course}" Header="COURSE"
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
