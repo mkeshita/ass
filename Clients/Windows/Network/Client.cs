@@ -56,7 +56,8 @@ namespace norsu.ass.Network
 
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
-            
+
+            Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
             Connection.StartListening(ConnectionType.TCP, new IPEndPoint(IPAddress.Any, 4786));
 
         }

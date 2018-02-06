@@ -50,22 +50,7 @@ namespace norsu.ass.Server.ViewModels
                 _suggestions = new ListCollectionView(Models.Suggestion.Cache);
                 _suggestions.Filter = FilterSuggestion;
                 _suggestions.CustomSort = new SuggestionSorter();
-                
-                _suggestions.CurrentChanged += (sender, args) =>
-                {
-                    if (_suggestions.CurrentItem == null)
-                        return;
-                    var sug = ((Models.Suggestion) _suggestions.CurrentItem);
-                    var req = new GetCommentsDesktop();
-                    var comments = Models.Comment.Cache.Where(x => x.SuggestionId == sug.Id).ToList();
-                    if (comments.Count > 0)
-                    {
-                        req.HighestId = comments.OrderByDescending(x => x.Id).Select(x => x.Id)
-                            .FirstOrDefault();
-                    }
-                    req.SuggestionId = sug.Id;
-                    Client.Send(req);
-                };
+               
                 return _suggestions;
             }
         }
