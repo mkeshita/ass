@@ -540,6 +540,41 @@ namespace norsu.ass.Network
             return null;
         }
 
+        public static async Task<ResetPasswordResult> ResetPassword(long officeId)
+        {
+            return await Instance._ResetPassword(officeId);
+        }
+
+        private async Task<ResetPasswordResult> _ResetPassword(long officeId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            ResetPasswordResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<ResetPasswordResult>(ResetPasswordResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(ResetPasswordResult.Header);
+                    result = r;
+                });
+
+            await new ResetPassword()
+            {
+                Id = officeId,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
         public static async Task<SetPictureResult> SetPicture(long officeId, byte[] picture)
         {
             if (picture?.Length > 0)

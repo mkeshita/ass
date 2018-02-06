@@ -71,6 +71,21 @@ namespace norsu.ass.Server.ViewModels
             }
         },d=>d!=null));
 
+        private ICommand _resetPasswordCommand;
+
+        public ICommand ResetPasswordCommand => _resetPasswordCommand ?? (_resetPasswordCommand = new DelegateCommand<User>(
+        async d =>
+        {
+            var result = await Client.ResetPassword(d.Id);
+            if (result?.Success ?? false)
+            {
+                
+            }
+            else
+            {
+                MainViewModel.ShowToast("Error resetting password");
+            }
+        },d=>d!=null));
         private bool FilterStudent(object o)
         {
             if (!(o is Models.User s)) return false;

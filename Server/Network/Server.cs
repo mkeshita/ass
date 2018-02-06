@@ -58,9 +58,25 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<SetOfficePicture>(SetOfficePicture.Header,SetOfficePictureHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<SettingsViewModel>("settings",SettingsHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<SetPicture>(SetPicture.Header,SetPictureHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<ResetPassword>(ResetPassword.Header,ResetPasswordHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void ResetPasswordHandler(PacketHeader packetheader, Connection connection, ResetPassword req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            var office = Models.User.Cache.FirstOrDefault(x => x.Id == req.Id);
+            office?.Update(nameof(User.Password), "");
+
+            await new ResetPasswordResult()
+            {
+                Success = true,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void SetPictureHandler(PacketHeader packetheader, Connection connection, SetPicture req)

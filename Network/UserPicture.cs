@@ -106,4 +106,17 @@ namespace norsu.ass.Network
         public bool Success { get; set; }
     }
 
+    [ProtoContract]
+    class ResetPassword : Packet<ResetPassword>
+    {
+        [ProtoMember(1)]
+        public long Id { get; set; }
+    }
+
+    [ProtoContract]
+    class ResetPasswordResult : Packet<ResetPasswordResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+    }
 }
