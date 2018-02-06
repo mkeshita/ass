@@ -7,30 +7,144 @@
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d" 
+             DataContext="{Binding Source={x:Static viewModels:OfficesViewModel.Instance}}"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:models="clr-namespace:norsu.ass.Models;assembly=NORSU.ASS.Data"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
              d:DesignHeight="300" d:DesignWidth="300">
   <UserControl.Resources>
     <DataTemplate DataType="{x:Type models:Office}">
-    
+      <Grid>
+        <Grid Margin="0 10" Grid.Row="0"
+                      Visibility="{Binding EditMode,Converter={converters:BooleanToVisibility}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
+          </Grid.ColumnDefinitions>
+          <Grid Width="74" Margin="0 10 10 10">
+            <Grid.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Ellipse Height="7" Width="7" Fill="Red" />
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.OpacityMask>
+            <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility}}" />
+            <Image Source="/norsu.png"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
+            <Button Style="{StaticResource MaterialDesignToolButton}"
+                    IsEnabled="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanChangePicture}"
+                    Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=ChangePictureCommand}"
+                    CommandParameter="{Binding}" Focusable="False" />
+          </Grid>
+          <StackPanel Grid.Column="1" Margin="0 0 10 0">
+          <TextBox Grid.Column="0" 
+                   FontSize="14pt"
+                   materialDesign:HintAssist.IsFloating="True"
+                   materialDesign:HintAssist.Hint="ACRONYM"
+                           Text="{Binding ShortName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" />
+          <TextBox Grid.Column="1" 
+                   FontSize="14pt"
+                   materialDesign:HintAssist.Hint="FULL NAME"
+                   materialDesign:HintAssist.IsFloating="True"
+                   Text="{Binding LongName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" />
+          </StackPanel>
+          <Button Grid.Column="2" Content="{md:PackIcon Check}"
+                  IsEnabled="{Binding  Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanUpdate}"
+                          Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=UpdateCommand}"
+                  CommandParameter="{Binding}"
+                          Style="{StaticResource MaterialDesignRaisedButton}" />
+          <Button Grid.Column="3" Content="{md:PackIcon Close}"
+                          Command="{Binding ResetCommand}"
+                          Margin="10 0 0 0"
+                          Style="{StaticResource MaterialDesignRaisedLightButton}" />
+        </Grid>
+
+        <Grid Margin="0 7" Visibility="{Binding EditMode,Converter={converters:BooleanToVisibility Collapsed,Visible}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="icon"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Grid Width="74" Margin="0 10 10 10">
+            <Grid.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Ellipse Height="7" Width="7" Fill="Red"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.OpacityMask>
+            <Image Source="{Binding Picture,Converter={converters:BytesToImage}}" 
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility}}"/>
+            <Image Source="/norsu.png"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
+            <Button Style="{StaticResource MaterialDesignToolButton}"
+                    IsEnabled="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanChangePicture}"
+                    Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=ChangePictureCommand}"
+                    CommandParameter="{Binding}" Focusable="False"/>
+          </Grid>
+
+          <StackPanel Orientation="Vertical"
+                      VerticalAlignment="Center"
+                      Grid.Column="1" Margin="0 0 10 0">
+            <WrapPanel VerticalAlignment="Center"
+                        Orientation="Horizontal">
+              <TextBlock FontSize="14pt"
+                         Margin="0 0 20 0"
+                         TextWrapping="Wrap"
+                         Text="{Binding ShortName,Mode=OneWay}" FontWeight="Bold"
+                         VerticalAlignment="Center" />
+              <TextBlock Text="{Binding LongName,Mode=OneWay}"
+                         TextWrapping="Wrap"
+                         FontSize="14pt" />
+            </WrapPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0" HorizontalAlignment="Left">
+              <md:RatingBar Value="{Binding Rating}" IsHitTestVisible="False" Focusable="False"
+                            Margin="0 0 7 0"/>
+              <md:PackIcon Kind="AccountMultiple" Margin="4 0" Height="20" Width="20" 
+                           VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="2" FontSize="14pt" Text="{Binding RatingCount}"
+                         VerticalAlignment="Center"/>
+              </StackPanel>
+         </StackPanel>
+          
+          <Button Grid.Column="2" Content="{md:PackIcon Pencil}"
+                          Command="{Binding EditCommand}"
+                          Margin="10 0"
+                  VerticalAlignment="Center"
+                          Style="{StaticResource MaterialDesignFlatButton}" />
+          <Button Grid.Column="3" Content="{md:PackIcon Delete}"
+                  VerticalAlignment="Center"
+                  IsEnabled="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=CanDelete}"
+                  Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=DeleteCommand}"
+                  CommandParameter="{Binding}"
+                      Style="{StaticResource MaterialDesignFlatButton}" />
+        </Grid>
+      </Grid>
     </DataTemplate>
 
     
   </UserControl.Resources>
-  <Grid>
+  <Grid IsSharedSizeScope="True">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <TextBlock Text="Manage Violations" Style="{StaticResource MaterialDesignHeadlineTextBlock}"
+    <TextBlock Text="Manage Offices" Style="{StaticResource MaterialDesignHeadlineTextBlock}"
                FontWeight="Bold"
                Margin="74 20"/>
     <Button Grid.Row="0"
             Margin="74 20"
-            Command="{Binding AddViolationCommand}"
+            Command="{Binding AddCommand}"
             HorizontalAlignment="Right"
             VerticalAlignment="Center"
-            Content="NEW VIOLATION"/>
+            Content="NEW OFFICE"/>
     <Rectangle Grid.Row="0"
                Height="1"
                VerticalAlignment="Bottom"
@@ -41,7 +155,7 @@
         <RowDefinition Height="*" />
       </Grid.RowDefinitions>
 
-      <Grid Margin="74 20" Grid.Row="0"
+      <Grid Margin="47 20" Grid.Row="0"
             Visibility="{Binding ShowNewItem,Converter={converters:BooleanToVisibility}}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*" />
@@ -50,28 +164,46 @@
           <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
           <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" Margin="0 0 0 0" Text="{Binding NewItem.Name,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" 
-                 md:HintAssist.Hint="ACRONYM"
+        <TextBox Grid.Column="0" Margin="0 0 0 0" Text="{Binding NewItem.ShortName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" 
+                 md:HintAssist.Hint="ACRONYM" FontSize="14pt"
+                 IsEnabled="{Binding Path=CanAcceptNew}"
                  md:HintAssist.IsFloating="True"/>
         <TextBox Grid.Column="1" Margin="20 0"
-                 Text="{Binding NewItem.Name,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                 FontSize="14pt"
+                 IsEnabled="{Binding Path=CanAcceptNew}"
+                 Text="{Binding NewItem.LongName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
                  md:HintAssist.Hint="FULL NAME"
                  md:HintAssist.IsFloating="True" />
         
         <Button Grid.Column="3" Content="{md:PackIcon Check}"
                 Command="{Binding AcceptNewCommand}"
+                IsEnabled="{Binding Path=CanAcceptNew}"
                 Style="{StaticResource MaterialDesignRaisedButton}" />
         <Button Grid.Column="4" Content="{md:PackIcon Close}"
-                Command="{Binding CancelViolationCommand}"
+                Command="{Binding CancelAddCommand}"
                 Margin="10 0 0 0"
+                IsEnabled="{Binding Path=CanAcceptNew}"
                 Style="{StaticResource MaterialDesignRaisedLightButton}" />
+
+        <Grid Grid.ColumnSpan="5" Background="#77ffffff" Visibility="{Binding CanAcceptNew,Converter={converters:BooleanToVisibility Collapsed,Visible}}">
+          <md:Card HorizontalAlignment="Center"
+                   Padding="10"
+                   VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" >
+            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                         IsIndeterminate="True"/>
+            <TextBlock Text="  Saving new item... " FontSize="12pt"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+          </md:Card>
+        </Grid>
       </Grid>
       <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
         <StackPanel Margin="74 20">
           
           <ItemsControl Grid.IsSharedSizeScope="True"
-                        Margin="20 0 0 20"
-                    ItemsSource="{Binding ElementaryItems}">
+                        Margin="0 0 0 20"
+                    ItemsSource="{Binding Offices}">
           </ItemsControl>
           
         </StackPanel>

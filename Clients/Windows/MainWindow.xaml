@@ -14,7 +14,7 @@
         Background="{DynamicResource MaterialDesignDarkBackground}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         xmlns:vm="clr-namespace:norsu.ass.Server.ViewModels"
-        MinWidth="555" MinHeight="471"
+        MinWidth="777" MinHeight="555"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         SnapsToDevicePixels="True"

@@ -306,8 +306,6 @@ namespace norsu.ass.Network
 
 #endregion
         
-      
-        
         private void ShutdownHandler(PacketHeader packetHeader, Connection connection, Shutdown incomingObject)
         {
             Server = null;
@@ -332,60 +330,7 @@ namespace norsu.ass.Network
             await packet.Send(Server.IP, Server.Port);
         }
         
-        //private static async void GetUsers()
-        //{
-        //    if(Server == null) await FindServer();
-        //    if(Server == null) return;
-            
-        //    NetworkComms.AppendGlobalIncomingPacketHandler<GetUsersResult>(GetUsersResult.Header,
-        //        (h, c, res) =>
-        //        {
-        //            var rnd = new Random();
-        //            NetworkComms.RemoveGlobalIncomingPacketHandler(GetUsersResult.Header);
-        //            var users = new List<Models.User>();
-        //            var update = new List<Models.User>();
-        //            foreach (var u in res.Users)
-        //            {
-        //                var user = Models.User.Cache.FirstOrDefault(x => x.Id == u.Id);
-        //                if (user == null)
-        //                {
-        //                    user = new User()
-        //                    {
-        //                        Id = u.Id,
-        //                        Defer = true,
-        //                    };
-        //                }
-        //                user.Access = (AccessLevels) u.Access;
-        //                user.Course = u.Description;
-        //                user.Firstname = u.Firstname;
-        //                user.IsAnnonymous = u.IsAnonymous;
-        //                user.Lastname = u.Lastname;
-        //                user.StudentId = u.StudentId;
-        //                user.Username = u.Username;
-        //                user.Password = rnd.Next(0, int.MaxValue / 2).ToString();
-                        
-        //                if(user.PictureRevision!=u.PictureRevision)
-        //                    update.Add(user);
-                        
-        //                user.PictureRevision = u.PictureRevision;
-        //                users.Add(user);
-        //            }
-
-        //            Models.User.Save(users);
-                    
-        //            Instance.FetchUserPictures(update);
-                    
-        //        });
-
-        //    //Instance.FetchUserPictures(Models.User.Cache.Select(x => x.Id).ToList());
-
-        //    await new GetUsers()
-        //    {
-        //        HighestId = 0,//Models.User.Cache.OrderByDescending(x=>x.Id)?.FirstOrDefault()?.Id??0
-        //    }.Send(Server.IP, Server.Port);
-            
-        //}
-
+        
 
         ~Client()
         {
@@ -535,6 +480,44 @@ namespace norsu.ass.Network
                 Username = username,
                 Password = password, //very secure :D
             }.Send(Server.IP,Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<SaveOfficeResult> SaveOffice(long officeId, string shortName, string longName)
+        {
+            return await Instance._SaveOffice(officeId, shortName,longName);
+        }
+
+        private async Task<SaveOfficeResult> _SaveOffice(long officeId, string shortName, string longName)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            SaveOfficeResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<SaveOfficeResult>(SaveOfficeResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(SaveOfficeResult.Header);
+                    result = r;
+                });
+
+            await new SaveOffice()
+            {
+                Id = officeId,
+                ShortName = shortName,
+                LongName = longName
+            }.Send(Server.IP, Server.Port);
 
             var start = DateTime.Now;
             while ((DateTime.Now - start).TotalSeconds < 17)

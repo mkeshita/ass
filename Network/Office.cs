@@ -113,6 +113,26 @@ namespace norsu.ass.Network
     }
 
     [ProtoContract]
+    class SaveOffice : Packet<SaveOffice>
+    {
+        [ProtoMember(1)]
+        public long Id { get; set; }
+        [ProtoMember(2)]
+        public string ShortName { get; set; }
+        [ProtoMember(3)]
+        public string LongName { get; set; }
+    }
+
+    [ProtoContract]
+    class SaveOfficeResult : Packet<SaveOfficeResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public long Id { get; set; }
+    }
+    
+    [ProtoContract]
     class Offices : Packet<Offices>
     {
         [ProtoMember(1)]
