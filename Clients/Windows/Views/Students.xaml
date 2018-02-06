@@ -11,24 +11,7 @@
              DataContext="{Binding Source={x:Static viewModels:StudentsViewModel.Instance}}"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-  <UserControl.Resources>
-    <DataTemplate DataType="{x:Type models:User}">
-      <materialDesign:Card Margin="0 0 15 15">
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*" SharedSizeGroup="width"/>
-          </Grid.ColumnDefinitions>
-          <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
-                 Height="77" RenderOptions.BitmapScalingMode="HighQuality"/>
-          <StackPanel Margin="10" Grid.Column="1">
-            <TextBlock Text="{Binding Fullname}" Style="{StaticResource MaterialDesignHeadlineTextBlock}"/>
-            <TextBlock Text="{Binding Course}" FontSize="14pt"/>
-          </StackPanel>
-        </Grid>
-      </materialDesign:Card>
-    </DataTemplate>
-  </UserControl.Resources>
+  
   
   <Grid IsSharedSizeScope="True">
     <Grid.RowDefinitions>
@@ -38,6 +21,25 @@
     <TextBlock Text="Manage Students" Style="{StaticResource MaterialDesignHeadlineTextBlock}"
                FontWeight="Bold"
                Margin="74 20"/>
+    <!--<StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                ToolTip="Number of anonymous users">
+      
+      <Path Height="32" Width="32" VerticalAlignment="Center"
+            Margin="10 0"
+            Data="M8.8365065,21.037002C8.6945072,21.097999 8.5515076,21.158996 8.4085089,21.22 7.7634979,21.495002 7.1194941,21.769996 6.4774896,22.051002 5.0234724,22.690001 4.1044642,23.373 3.4964565,24.267996 2.5284444,25.691 2.039441,27.087996 2.0014387,28.538 2.0264402,28.545996 2.0504426,28.552999 2.0754443,28.557997 3.0354532,28.763998 4.0064636,28.912001 5.0334745,29.068998L5.4344798,29.129995C9.145516,29.699994 12.426548,29.992993 15.188576,29.999997 17.187597,29.988996 18.80561,29.919995 20.419624,29.774999 22.731653,29.567998 25.160677,29.242994 27.845703,28.779997L28.101709,28.736998C28.46871,28.676001 28.797716,28.621 29.080715,28.539999 29.080715,28.537001 29.080715,28.533995 29.080715,28.529997 29.077716,28.434996 29.075718,28.338995 29.069713,28.242994 28.958713,26.407995 28.235706,24.83 26.86269,23.419997 26.134687,22.672995 25.033678,22.208998 23.868665,21.718001L23.774662,21.679C23.45166,21.542998 23.126653,21.410995 22.801653,21.278998 22.618652,21.204001 22.434652,21.128997 22.248645,21.053 20.529626,22.898001 18.126602,23.960997 15.54958,23.960997 12.964554,23.960997 10.556526,22.891997 8.8365065,21.037002z M9.4685169,18.586998C10.738527,20.610999 12.983552,21.960998 15.54958,21.960998 18.108604,21.960998 20.349624,20.617996 21.621641,18.602997 22.581649,19.048995 23.574663,19.423995 24.55067,19.835998 25.894685,20.402 27.260698,20.961997 28.294704,22.024001 29.940725,23.712996 30.92073,25.735998 31.065736,28.122 31.080736,28.361998 31.079736,28.602995 31.094736,28.843 31.142732,29.573995 30.783735,30.020993 30.12973,30.290998 29.503717,30.549993 28.842714,30.637998 28.185711,30.750997 25.668678,31.184995 23.141653,31.538999 20.597627,31.766995 18.919609,31.917996 17.236593,31.988996 15.183571,31.999997 12.052543,31.991994 8.5845057,31.637998 5.1304756,31.106999 3.9694608,30.927999 2.8064469,30.759999 1.6564337,30.512998 1.5524365,30.490994 1.4494347,30.460996 1.3474327,30.428998 0.27542312,30.092999 -0.023579702,29.648 0.0014221461,28.517996 0.046420701,26.528997 0.73442737,24.773001 1.8414408,23.143996 2.7994507,21.734 4.1624638,20.882995 5.6744801,20.22 6.9344946,19.666999 8.2075029,19.138999 9.4685169,18.586998z M14.334996,15.323001L16.777996,15.323001 16.777996,17.766001 14.334996,17.766001z M15.573996,0C17.281995,0 18.643995,0.46500015 19.660995,1.3939991 20.676994,2.323 21.185995,3.4470005 21.185995,4.7659998 21.185995,5.5290003 21.006994,6.2320004 20.649994,6.875 20.291994,7.5180006 19.592994,8.3010006 18.552995,9.2220001 17.853996,9.842001 17.396995,10.299001 17.181995,10.593 16.967996,10.886001 16.808996,11.224 16.705995,11.605 16.602996,11.987 16.542995,12.606001 16.526996,13.464001L14.465996,13.464001C14.457996,13.178001 14.453996,12.964001 14.453996,12.821001 14.453996,11.979001 14.572996,11.252001 14.810996,10.640001 14.985996,10.179001 15.267995,9.7150002 15.656995,9.2460003 15.942996,8.9050007 16.457996,8.4060001 17.199995,7.7510004 17.942995,7.0950003 18.425994,6.573 18.647995,6.184 18.869995,5.7950001 18.981994,5.3699999 18.981994,4.9090004 18.981994,4.0749998 18.655994,3.342 18.004995,2.7110004 17.352995,2.0790005 16.554996,1.7630005 15.609995,1.7630005 14.695996,1.7630005 13.933996,2.0489998 13.321996,2.6210003 12.709997,3.1929998 12.308997,4.0869999 12.117997,5.302L9.9139973,5.04C10.112998,3.4119997 10.702997,2.1650009 11.683997,1.2989998 12.664997,0.43300056 13.960996,0 15.573996,0z" Stretch="Uniform" 
+            Fill="{StaticResource MaterialDesignLightForeground}" RenderTransformOrigin="0.5,0.5">
+        <Path.RenderTransform>
+          <TransformGroup>
+            <TransformGroup.Children>
+              <RotateTransform Angle="0" />
+              <ScaleTransform ScaleX="1" ScaleY="1" />
+            </TransformGroup.Children>
+          </TransformGroup>
+        </Path.RenderTransform>
+      </Path>
+      <TextBlock Text="{Binding AnonymousCount}" FontSize="15pt" VerticalAlignment="Center"/>
+    </StackPanel>-->
     <Button Grid.Row="0"
             Margin="74 20"
             Command="{Binding AddCommand}"
@@ -48,20 +50,188 @@
                Height="1"
                VerticalAlignment="Bottom"
                Fill="{StaticResource MaterialDesignDivider}"/>
+
     <Grid Grid.Row="1" IsSharedSizeScope="True">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <DataGrid ItemsSource="{Binding Students}"
+                Margin="0 0 1 0"
+              AutoGenerateColumns="False"
+              CanUserAddRows="False"
+              IsReadOnly="True"
+                IsSynchronizedWithCurrentItem="True"
+                FrozenColumnCount="1"
+              CanUserDeleteRows="False">
+        <DataGrid.Columns>
+          <DataGridCheckBoxColumn Binding="{Binding IsSelected}"
+                                  ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"
+                                  EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"/>
+          <DataGridTextColumn Binding="{Binding Username}" Header="USERNAME"
+                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
+          <DataGridTextColumn Binding="{Binding Firstname}" Header="FIRST NAME"
+                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+          <DataGridTextColumn Binding="{Binding Lastname}" Header="LAST NAME"
+                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+          <DataGridTextColumn Binding="{Binding Course}" Header="COURSE"
+                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+          <DataGridTextColumn Binding="{Binding StudentId}" Header="ID NUMBER"
+                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+          <!--<DataGridTextColumn Binding="{Binding Status}" Header="STATUS"
+                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
+          <DataGridTextColumn Binding="{Binding StatusDescription}" Header="REMARKS"
+                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />-->
+        </DataGrid.Columns>
+      </DataGrid>
 
-      <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+      <Rectangle Grid.Column="0"
+                 Width="1"
+                 HorizontalAlignment="Right"
+                 Fill="{StaticResource MaterialDesignDivider}" />
 
-        <ItemsControl ItemsSource="{Binding Students}" Margin="20" HorizontalAlignment="Center">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <WrapPanel Orientation="Horizontal"/>
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                    Grid.Column="1">
+      <StackPanel Grid.Column="1"  Margin="20">
+
+          <StackPanel Orientation="Horizontal">
+        <Image Source="{Binding Students/Picture,Converter={converters:BytesToImage}}"
+               RenderOptions.BitmapScalingMode="HighQuality"
+               Height="111" Width="111"
+               HorizontalAlignment="Center"
+               Margin="0 10 20 10"
+               Stretch="UniformToFill"/>
+            <StackPanel VerticalAlignment="Center">
+              <Button Margin="0 4" Content="CHANGE PHOTO" Style="{StaticResource MaterialDesignRaisedLightButton}"
+                      Command="{Binding ChangePictureCommand}"
+                      CommandParameter="{Binding Students.CurrentItem}"/>
+              <Button Margin="0 4" Content="RESET PASSWORD" Style="{StaticResource MaterialDesignRaisedLightButton}"
+                      Command="{Binding ResetPasswordCommand}"
+                      CommandParameter="{Binding Students.CurrentItem}" />
+              <Button Margin="0 4" Content="DELETE ACCOUNT" Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                      Command="{Binding DeleteCommand}"
+                      CommandParameter="{Binding Students.CurrentItem}" />
+            </StackPanel>
+          </StackPanel>
+
+          <materialDesign:Card Margin="10 20 10 10" IsHitTestVisible="False">
+          <Grid Margin="20">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+            
+            <TextBlock Text="REVIEWS" Style="{StaticResource MaterialDesignTitleTextBlock}" 
+                       Grid.ColumnSpan="2"/>
+            
+              <materialDesign:RatingBar Value="1"
+                                        Margin="0 10 0 0"
+                                        Grid.Column="0"
+                                        Grid.Row="1"
+                                        VerticalAlignment="Center"/>
+            <materialDesign:RatingBar Value="1"
+                                      Margin="0 10 0 0"
+                                      Grid.Column="0"
+                                      Grid.Row="2"
+                                      VerticalAlignment="Center" />
+            <materialDesign:RatingBar Value="1"
+                                      Margin="0 10 0 0"
+                                      Grid.Column="0"
+                                      Grid.Row="3"
+                                      VerticalAlignment="Center" />
+            <materialDesign:RatingBar Value="1"
+                                      Margin="0 10 0 0"
+                                      Grid.Column="0"
+                                      Grid.Row="4"
+                                      VerticalAlignment="Center" />
+            <materialDesign:RatingBar Value="1"
+                                      Margin="0 10 0 0"
+                                      Grid.Column="0"
+                                      Grid.Row="5"
+                                      VerticalAlignment="Center" />
+            
+              <TextBlock Text="{Binding OneStarCount}" TextAlignment="Right"
+                         FontSize="15pt"
+                         Margin="20 0 0 0"
+                         Grid.Column="1"
+                         Grid.Row="1"
+                         VerticalAlignment="Center"/>
+              <TextBlock Text="{Binding TwoStarCount}" TextAlignment="Right"
+                       FontSize="15pt"
+                       Margin="20 0 0 0"
+                       Grid.Column="1"
+                       Grid.Row="2"
+                       VerticalAlignment="Center" />
+              <TextBlock Text="{Binding ThreeStarCount}" TextAlignment="Right"
+                       FontSize="15pt"
+                       Margin="20 0 0 0"
+                       Grid.Column="1"
+                       Grid.Row="3"
+                       VerticalAlignment="Center" />
+              <TextBlock Text="{Binding FourStarCount}" TextAlignment="Right"
+                       FontSize="15pt"
+                       Margin="20 0 0 0"
+                       Grid.Column="1"
+                       Grid.Row="4"
+                       VerticalAlignment="Center" />
+              <TextBlock Text="{Binding FiveStarCount}" TextAlignment="Right"
+                       FontSize="15pt"
+                       Margin="20 0 0 0"
+                       Grid.Column="1"
+                       Grid.Row="5"
+                       VerticalAlignment="Center" />
+
+            </Grid>
+        </materialDesign:Card>
+
+        <materialDesign:Card Margin="10 10 10 10">
+          <Grid Margin="20">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <TextBlock Text="SUGGESTIONS" Grid.Column="0" FontSize="14pt" Grid.Row="0" Margin="10" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding SuggestionsCount}" Grid.Column="1" FontSize="14pt" FontWeight="Bold" Grid.Row="0" VerticalAlignment="Center"
+                       TextAlignment="Right" />
+
+            <TextBlock Text="COMMENTS" Grid.Column="0" FontSize="14pt" Grid.Row="1" Margin="10"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="{Binding CommentsCount}" Grid.Column="1" FontSize="14pt" FontWeight="Bold" Grid.Row="1"
+                       TextAlignment="Right"
+                       VerticalAlignment="Center" />
+
+            <TextBlock Text="UP VOTES" Grid.Column="0" FontSize="14pt" Grid.Row="2" Margin="10"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="{Binding UpVotesCount}" Grid.Column="1" FontSize="14pt" FontWeight="Bold" Grid.Row="2"
+                       TextAlignment="Right"
+                       VerticalAlignment="Center" />
+
+            <TextBlock Text="DOWN VOTES" Grid.Column="0" FontSize="14pt" Grid.Row="3" Margin="10"
+                       VerticalAlignment="Center" />
+            <TextBlock Text="{Binding DownVotesCount}" Grid.Column="1" FontSize="14pt" FontWeight="Bold" Grid.Row="3"
+                       TextAlignment="Right"
+                       VerticalAlignment="Center" />
+          </Grid>
+        </materialDesign:Card>
+      </StackPanel>
       </ScrollViewer>
-      
     </Grid>
 
   </Grid>

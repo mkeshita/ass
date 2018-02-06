@@ -101,7 +101,7 @@ namespace norsu.ass.Network
             {
                 _timeOut = Task.Factory.StartNew(async () =>
                 {
-                    while ((DateTime.Now - _lastReceived).TotalMilliseconds < 4444)
+                    while ((DateTime.Now - _lastReceived).TotalMilliseconds < 2222)
                         await TaskEx.Delay(100);
                     var db = receivedFiles.FirstOrDefault();
                     // if (!(db?.IsCompleted??false))

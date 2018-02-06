@@ -9,7 +9,14 @@ namespace norsu.ass.Server.ViewModels
 {
     class StudentsViewModel : ViewModelBase
     {
-        private StudentsViewModel() { }
+        private StudentsViewModel()
+        {
+            User.Cache.CollectionChanged += (sender, args) =>
+            {
+                _students.Filter = FilterStudent;
+                OnPropertyChanged(nameof(AnonymousCount));
+            };
+        }
 
         private static StudentsViewModel _instance;
         public static StudentsViewModel Instance => _instance ?? (_instance = new StudentsViewModel());
@@ -23,10 +30,7 @@ namespace norsu.ass.Server.ViewModels
                 if (_students != null) return _students;
                 _students = new ListCollectionView(Models.User.Cache);
                 _students.Filter = FilterStudent;
-                User.Cache.CollectionChanged += (sender, args) =>
-                {
-                    _students.Filter = FilterStudent;
-                };
+                
                 return _students;
             }
         }
@@ -34,7 +38,9 @@ namespace norsu.ass.Server.ViewModels
         private bool FilterStudent(object o)
         {
             if (!(o is Models.User s)) return false;
-            return s.Access == AccessLevels.Student;
+            return s.Access == AccessLevels.Student && !s.IsAnnonymous;
         }
+
+        public long AnonymousCount => User.Cache.Count(x => x.IsAnnonymous);
     }
 }
