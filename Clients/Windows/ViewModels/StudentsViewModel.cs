@@ -78,5 +78,94 @@ namespace norsu.ass.Server.ViewModels
         }
 
         public long AnonymousCount => User.Cache.Count(x => x.IsAnnonymous);
+
+        public long OneStarCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u)) return 0;
+                return Rating.Cache.Count(x => x.UserId == u.Id && x.Value == 1);
+            }
+        }
+
+        public long TwoStarCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Rating.Cache.Count(x => x.UserId == u.Id && x.Value == 2);
+            }
+        }
+
+        public long ThreeStarCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Rating.Cache.Count(x => x.UserId == u.Id && x.Value == 3);
+            }
+        }
+
+        public long FourStarCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Rating.Cache.Count(x => x.UserId == u.Id && x.Value == 4);
+            }
+        }
+
+        public long FiveStarCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Rating.Cache.Count(x => x.UserId == u.Id && x.Value == 5);
+            }
+        }
+
+        public long SuggestionsCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Suggestion.Cache.Count(x => x.Id == u.Id);
+            }
+        }
+
+        public long CommentsCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Comment.Cache.Count(x => x.UserId == u.Id);
+            }
+        }
+
+        public long UpVotesCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Like.Cache.Count(x => x.UserId == u.Id && !x.Dislike);
+            }
+        }
+
+        public long DownVotesCount
+        {
+            get
+            {
+                if (!(Students.CurrentItem is User u))
+                    return 0;
+                return Like.Cache.Count(x => x.UserId == u.Id && x.Dislike);
+            }
+        }
     }
 }
