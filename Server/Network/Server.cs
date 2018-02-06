@@ -54,9 +54,29 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<Database>(Database.Header,DatabaseHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<SaveOffice>(SaveOffice.Header,SaveOfficeHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<DeleteOffice>(DeleteOffice.Header,DeleteOfficeHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<SetOfficePicture>(SetOfficePicture.Header,SetOfficePictureHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void SetOfficePictureHandler(PacketHeader packetheader, Connection connection, SetOfficePicture req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            var office = Models.Office.Cache.FirstOrDefault(x => x.Id == req.Id);
+            if (office != null)
+            {
+                office.Update(nameof(Office.Picture),req.Picture);
+                Console.WriteLine($"Office picture updated. Source: {dev.IP} Office: {office.ShortName}");
+            }
+
+            await new SetOfficePictureResult()
+            {
+                Success = true,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void DeleteOfficeHandler(PacketHeader packetheader, Connection connection, DeleteOffice req)

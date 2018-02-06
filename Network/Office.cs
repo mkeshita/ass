@@ -113,6 +113,22 @@ namespace norsu.ass.Network
     }
 
     [ProtoContract]
+    class SetOfficePicture : Packet<SetOfficePicture>
+    {
+        [ProtoMember(1)]
+        public long Id { get; set; }
+        [ProtoMember(2)]
+        public byte[] Picture { get; set; }
+    }
+
+    [ProtoContract]
+    class SetOfficePictureResult : Packet<SetOfficePictureResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+    }
+
+    [ProtoContract]
     class DeleteOffice : Packet<DeleteOffice>
     {
         [ProtoMember(1)]

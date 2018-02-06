@@ -46,6 +46,8 @@ namespace norsu.ass.Server.ViewModels
         public ICommand CancelAddCommand => _cancelAddCommand ?? (_cancelAddCommand = new DelegateCommand(d =>
         {
             ShowNewItem = false;
+            NewItem = null;
+            GC.Collect();
         }));
 
         private ICommand _addCommand;
@@ -157,6 +159,7 @@ namespace norsu.ass.Server.ViewModels
         
         public ICommand UpdateCommand => _updateCommand ?? (_updateCommand = new DelegateCommand<Models.Office>(ofc =>
         {
+            ofc.IsProcessing = true;
             lock(_updateLock)
             _updateTasks.Enqueue(new Task(async o =>
             {
@@ -176,6 +179,7 @@ namespace norsu.ass.Server.ViewModels
 
         public ICommand DeleteCommand => _deleteCommand ?? (_deleteCommand = new DelegateCommand<Models.Office>(d =>
         {
+            d.IsProcessing = true;
             lock(_updateLock)
                 _updateTasks.Enqueue(new Task(async o =>
                 {
@@ -218,6 +222,35 @@ namespace norsu.ass.Server.ViewModels
                 _updateStarted = false;
             });
         }
-        
+
+        private ICommand _changePictureCommand;
+
+        public ICommand ChangePictureCommand => _changePictureCommand ?? (_changePictureCommand = new DelegateCommand<Office>(
+        d =>
+        {
+            var image = ImageProcessor.GetPicture(256);
+            if (image == null) return;
+            if (d.Id == 0)
+            {
+                d.Picture = image;
+                return;
+            }
+
+            d.IsProcessing = true;
+            
+            lock(_updateLock)
+                _updateTasks.Enqueue(new Task(async o =>
+                {
+                    if (!(o is Office of)) return;
+                    of.IsProcessing = true;
+                    SetOfficePictureResult res = null;
+                    while (!(res?.Success ?? false))
+                        res = await Client.SetOfficePicture(of.Id,image);
+                    of.Update(nameof(Office.Picture),image);
+                    of.IsProcessing = false;
+                },d));
+            
+            ProcessUpdates();
+        }));
     }
 }
