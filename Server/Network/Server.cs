@@ -59,9 +59,25 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<SettingsViewModel>("settings",SettingsHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<SetPicture>(SetPicture.Header,SetPictureHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<ResetPassword>(ResetPassword.Header,ResetPasswordHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<DeleteUser>(DeleteUser.Header,DeleteUserHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void DeleteUserHandler(PacketHeader packetheader, Connection connection, DeleteUser req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            var office = Models.User.Cache.FirstOrDefault(x => x.Id == req.Id);
+            office?.Delete(false);
+
+            await new DeleteUserResult()
+            {
+                Success = true,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void ResetPasswordHandler(PacketHeader packetheader, Connection connection, ResetPassword req)

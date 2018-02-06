@@ -86,6 +86,22 @@ namespace norsu.ass.Server.ViewModels
                 MainViewModel.ShowToast("Error resetting password");
             }
         },d=>d!=null));
+
+        private ICommand _deleteCommand;
+
+        public ICommand DeleteCommand => _deleteCommand ?? (_deleteCommand = new DelegateCommand<User>(async d =>
+        {
+            var result = await Client.DeleteUser(d.Id);
+            if (result?.Success ?? false)
+            {
+                d.Delete(false);
+            }
+            else
+            {
+                MainViewModel.ShowToast("Error deleting student");
+            }
+        }));
+
         private bool FilterStudent(object o)
         {
             if (!(o is Models.User s)) return false;

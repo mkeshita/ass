@@ -119,4 +119,18 @@ namespace norsu.ass.Network
         [ProtoMember(1)]
         public bool Success { get; set; }
     }
+
+    [ProtoContract]
+    class DeleteUser : Packet<DeleteUser>
+    {
+        [ProtoMember(1)]
+        public long Id { get; set; }
+    }
+
+    [ProtoContract]
+    class DeleteUserResult : Packet<DeleteUserResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+    }
 }

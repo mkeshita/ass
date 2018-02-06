@@ -575,6 +575,43 @@ namespace norsu.ass.Network
             Server = null;
             return null;
         }
+
+        public static async Task<DeleteUserResult> DeleteUser(long officeId)
+        {
+            return await Instance._DeleteUser(officeId);
+        }
+
+        private async Task<DeleteUserResult> _DeleteUser(long officeId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            DeleteUserResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<DeleteUserResult>(DeleteUserResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(DeleteUserResult.Header);
+                    result = r;
+                });
+
+            await new DeleteUser()
+            {
+                Id = officeId,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
         public static async Task<SetPictureResult> SetPicture(long officeId, byte[] picture)
         {
             if (picture?.Length > 0)
