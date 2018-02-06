@@ -29,6 +29,7 @@
                      VerticalAlignment="Center"
                      Height="48" Width="48"
                      Margin="7 0" />
+        
         <TextBlock Text=" REVIEWS" FontWeight="Bold" VerticalAlignment="Center"
                    Style="{StaticResource MaterialDesignHeadlineTextBlock}" />
       </StackPanel>
