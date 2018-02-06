@@ -89,4 +89,21 @@ namespace norsu.ass.Network
         [ProtoMember(3)]
         public long Revision { get; set; }
     }
+
+    [ProtoContract]
+    class SetPicture : Packet<SetPicture>
+    {
+        [ProtoMember(1)]
+        public long Id { get; set; }
+        [ProtoMember(2)]
+        public byte[] Picture { get; set; }
+    }
+
+    [ProtoContract]
+    class SetPictureResult : Packet<SetPictureResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+    }
+
 }

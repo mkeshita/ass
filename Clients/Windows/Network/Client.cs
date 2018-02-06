@@ -540,6 +540,45 @@ namespace norsu.ass.Network
             return null;
         }
 
+        public static async Task<SetPictureResult> SetPicture(long officeId, byte[] picture)
+        {
+            if (picture?.Length > 0)
+                return await Instance._SetPicture(officeId, picture);
+            return null;
+        }
+
+        private async Task<SetPictureResult> _SetPicture(long officeId, byte[] picture)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            SetPictureResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<SetPictureResult>(SetPictureResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(SetPictureResult.Header);
+                    result = r;
+                });
+
+            await new SetPicture()
+            {
+                Id = officeId,
+                Picture = picture,
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
         public static async Task<SetOfficePictureResult> SetOfficePicture(long officeId, byte[] picture)
         {
             if(picture?.Length>0)
