@@ -1,0 +1,292 @@
+﻿<UserControl x:Class="norsu.ass.Server.Views.Settings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:norsu.ass.Server.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
+             xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             mc:Ignorable="d" 
+             
+             d:DesignHeight="300" d:DesignWidth="300">
+  <Grid>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0"
+                HorizontalScrollBarVisibility="Disabled">
+    <Grid Margin="74 47 74 147"
+          DataContext="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=Settings}"
+          IsEnabled="{Binding Source={x:Static viewModels:LoginViewModel.Instance},Path=User.IsSuperAdmin,Mode=OneWay,FallbackValue=False}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+      <TextBlock Text="Global Settings" Style="{StaticResource MaterialDesignHeadlineTextBlock}"
+                 Margin="0 0 0 40" />
+
+
+      <Grid Grid.Row="1" TextElement.FontSize="17pt">
+        <Grid.Resources>
+          <Style TargetType="ToggleButton">
+            <Setter Property="Margin" Value="20 0 0 0"/>
+          </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="0 0 0 40">
+          <TextBlock Text="Android Registration" FontWeight="Bold"/>
+          <TextBlock Text="Students can register through the android app."
+                           Visibility="{Binding ElementName=RegistrationToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                           TextWrapping="Wrap"
+                           Opacity="0.7"/>
+          <TextBlock Text="Registration through android app is disabled."
+                           TextWrapping="Wrap"
+                           Visibility="{Binding ElementName=RegistrationToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                           Opacity="0.7" />
+        </StackPanel>
+
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}" 
+                          x:Name="RegistrationToggle" Focusable="False"
+                          IsChecked="{Binding AndroidRegistration}"
+                          VerticalAlignment="Top"
+                          Grid.Column="1"/>
+
+        <StackPanel Margin="0 0 0 40" Grid.Row="1">
+          <TextBlock Text="Anonymous Login" FontWeight="Bold" />
+          <TextBlock Text="Allow anonymous reviews and/or suggestions."
+                           Visibility="{Binding ElementName=AnonymousToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                           TextWrapping="Wrap"
+                           Opacity="0.7" />
+          <TextBlock Text="A student account is required to give reviews and/or suggestions."
+                           TextWrapping="Wrap"
+                           Visibility="{Binding ElementName=AnonymousToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                           Opacity="0.7" />
+        </StackPanel>
+
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                          x:Name="AnonymousToggle"
+                          IsChecked="{Binding AllowAnonymous}"
+                          Grid.Row="1" Focusable="False"
+                          VerticalAlignment="Top"
+                          Grid.Column="1" />
+
+        <StackPanel Margin="0 0 0 40" Grid.Row="2">
+          <TextBlock Text="Private Reviews/Suggestions" FontWeight="Bold" />
+          <TextBlock Text="Students can make their reviews and suggestions private. Private reviews and suggestions are only visible to administrators."
+                           Visibility="{Binding ElementName=PrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                           TextWrapping="Wrap"
+                           Opacity="0.7" />
+          <TextBlock Text="New reviews and suggestions will be visible to all. Existing private reviews and suggestions will remain private."
+                           TextWrapping="Wrap"
+                           Visibility="{Binding ElementName=PrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                           Opacity="0.7" />
+        </StackPanel>
+
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                          x:Name="PrivateToggle"
+                          IsChecked="{Binding AllowPrivate}"
+                          Grid.Row="2" Focusable="False"
+                          VerticalAlignment="Top"
+                          Grid.Column="1" />
+
+        <TextBlock Grid.Row="3" Text="OFFICE ADMINISTRATORS" FontWeight="Bold"
+                       Margin="0 10"/>
+        <StackPanel Margin="0 0 0 40" Grid.Row="4">
+          <TextBlock Text="Delete Suggestions" FontWeight="Bold" />
+          <TextBlock
+                        Text="Office administrators can delete suggestions."
+                        Visibility="{Binding ElementName=AdminDeleteToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                        TextWrapping="Wrap"
+                        Opacity="0.7" />
+          <TextBlock
+                        Text="Only SuperAdmins can delete suggestions. Admins can still turn off commenting."
+                        TextWrapping="Wrap"
+                        Visibility="{Binding ElementName=AdminDeleteToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                        Opacity="0.7" />
+        </StackPanel>
+
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                              x:Name="AdminDeleteToggle"
+                              IsChecked="{Binding OfficeAdminCanDeleteSuggestions}"
+                              Grid.Row="4" Focusable="False"
+                              VerticalAlignment="Top"
+                              Grid.Column="1" />
+
+        <StackPanel Margin="0 0 0 40" Grid.Row="5">
+          <TextBlock Text="Student Privacy" FontWeight="Bold" />
+          <TextBlock
+                            Text="Names of private suggestions and reviews are visible to Office Admins."
+                            Visibility="{Binding ElementName=AdminPrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+          <TextBlock
+                            Text="Office admins can not see the names of private suggestions and reviews."
+                            TextWrapping="Wrap"
+                            Visibility="{Binding ElementName=AdminPrivateToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                            Opacity="0.7" />
+        </StackPanel>
+
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                                  x:Name="AdminPrivateToggle"
+                                  IsChecked="{Binding OfficeAdminCanSeePrivate}"
+                                  Grid.Row="5" Focusable="False"
+                                  VerticalAlignment="Top"
+                                  Grid.Column="1" />
+
+        <StackPanel Margin="0 0 0 40" Grid.Row="6">
+          <TextBlock Text="Reply As Office" FontWeight="Bold" />
+          <TextBlock
+                            Text="Office admins will reply as the office itself. Their names are hidden to public."
+                            Visibility="{Binding ElementName=AdminReplyAsToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility}}"
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+          <TextBlock
+                            Text="Office admins will reply as themselves. Their names will be visible."
+                            TextWrapping="Wrap"
+                            Visibility="{Binding ElementName=AdminReplyAsToggle, Path=IsChecked,
+                                        Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                            Opacity="0.7" />
+        </StackPanel>
+
+        <ToggleButton Style="{StaticResource MaterialDesignSwitchAccentToggleButton}"
+                                  x:Name="AdminReplyAsToggle"
+                                  IsChecked="{Binding OfficeAdminReplyAs}"
+                                  Grid.Row="6" Focusable="False"
+                                  VerticalAlignment="Top"
+                                  Grid.Column="1" />
+
+        <StackPanel Margin="0 0 0 40" Grid.Row="7" Grid.ColumnSpan="2">
+          <TextBlock Text="SUGGESTIONS" FontWeight="Bold"
+                                   Margin="0 10" />
+          <TextBlock Text="TITLE MINIMUM" FontWeight="Bold"/>
+          <TextBlock
+                            Text="Minimum number of characters for title."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding ElementName=TitleMin,Path=Value}"
+                                       VerticalAlignment="Center"
+                                       Grid.Column="1"
+                                       Margin="10 0 0 0"/>
+            <Slider Minimum="4"
+                                    VerticalAlignment="Center"
+                                    Grid.Column="0"
+                                    x:Name="TitleMin"
+                                    Maximum="{Binding ElementName=TitleMax,Path=Value}"
+                                    Value="{Binding SuggestionTitleMinimum}" />
+          </Grid>
+          <TextBlock Text="TITLE MAXIMUM" FontWeight="Bold"
+                                   Margin="0 20 0 0"/>
+          <TextBlock
+                            Text="Maximum number of characters for title."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Slider Minimum="{Binding ElementName=TitleMin,Path=Value}"
+                                Maximum="174"
+                                VerticalAlignment="Center"
+                                Grid.Column="0"
+                                x:Name="TitleMax"
+                                Value="{Binding SuggestionTitleMaximum}" />
+            <TextBlock Text="{Binding ElementName=TitleMax,Path=Value}"
+                                   VerticalAlignment="Center"
+                                   Margin="10 0 0 0"
+                                   Grid.Column="1" />
+          </Grid>
+
+          <TextBlock Text="BODY MINIMUM" FontWeight="Bold"
+                                   Margin="0 20 0 0" />
+          <TextBlock
+                            Text="Minimum number of characters for body."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding ElementName=BodyMin,Path=Value}"
+                                       VerticalAlignment="Center"
+                                       Grid.Column="1"
+                                       Margin="10 0 0 0"/>
+            <Slider Minimum="47"
+                                    VerticalAlignment="Center"
+                                    Grid.Column="0"
+                                    x:Name="BodyMin"
+                                    Maximum="{Binding ElementName=BodyMax,Path=Value}"
+                                    Value="{Binding SuggestionBodyMinimum}" />
+          </Grid>
+          <TextBlock Text="BODY MAXIMUM" FontWeight="Bold"
+                                   Margin="0 20 0 0" />
+          <TextBlock
+                            Text="Maximum number of characters for body."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Slider Minimum="{Binding ElementName=BodyMin,Path=Value}"
+                                Maximum="471"
+                                VerticalAlignment="Center"
+                                Grid.Column="0"
+                                x:Name="BodyMax"
+                                Value="{Binding SuggestionBodyMaximum}" />
+            <TextBlock Text="{Binding ElementName=BodyMax,Path=Value}"
+                                   VerticalAlignment="Center"
+                                   Margin="10 0 0 0"
+                                   Grid.Column="1" />
+          </Grid>
+        </StackPanel>
+      </Grid>
+
+
+    </Grid>
+  </ScrollViewer>
+    <Button HorizontalAlignment="Right" VerticalAlignment="Bottom"
+            Margin="33"
+            materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=IsSavingSettings}"
+            materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=IsSavingSettings}"
+            IsEnabled="{Binding Source={x:Static viewModels:MainViewModel.Instance},Path=IsSavingSettings,Converter={converters:Inverter}}"
+            Command="{Binding  Source={x:Static viewModels:MainViewModel.Instance},Path=SaveSettingsCommand}"
+            ToolTip="Save Settings"
+            Style="{StaticResource MaterialDesignFloatingActionButton}">
+      <materialDesign:PackIcon Kind="ContentSaveSettings"
+                               Height="32" Width="32"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+    </Button>
+  </Grid>
+</UserControl>

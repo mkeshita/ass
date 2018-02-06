@@ -99,6 +99,8 @@
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\OfficesViewModel.cs" />
     <Compile Include="ViewModels\OfficeViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\StudentsViewModel.cs" />
     <Compile Include="ViewModels\SuggestionsViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\Admin.xaml.cs">
@@ -121,6 +123,12 @@
     </Compile>
     <Compile Include="Views\Reviews.xaml.cs">
       <DependentUpon>Reviews.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Settings.xaml.cs">
+      <DependentUpon>Settings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Students.xaml.cs">
+      <DependentUpon>Students.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Suggestions.xaml.cs">
       <DependentUpon>Suggestions.xaml</DependentUpon>
@@ -189,6 +197,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Reviews.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Settings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Students.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

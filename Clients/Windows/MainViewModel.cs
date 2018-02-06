@@ -29,6 +29,13 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(ServerOffline));
             });
             
+            NetworkComms.AppendGlobalIncomingPacketHandler<SettingsViewModel>("settings",
+                (header, connection, settings) =>
+                {
+                    Settings = settings;
+                    IsSavingSettings = false;
+                });
+            
             DownloadData();
         }
 
@@ -45,7 +52,48 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(NetworkStatus));
             }
         }
-        
+
+        private SettingsViewModel _Setting;
+
+        public SettingsViewModel Settings
+        {
+            get => _Setting;
+            set
+            {
+                if(value == _Setting)
+                    return;
+                _Setting = value;
+                if (_Setting != null)
+                    _Setting.PropertyChanged += (sender, args) =>
+                    {
+                        IsSavingSettings = false;
+                    };
+                OnPropertyChanged(nameof(Settings));
+            }
+        }
+
+        private bool _IsSavingSettings;
+
+        public bool IsSavingSettings
+        {
+            get => _IsSavingSettings;
+            set
+            {
+                if(value == _IsSavingSettings)
+                    return;
+                _IsSavingSettings = value;
+                OnPropertyChanged(nameof(IsSavingSettings));
+            }
+        }
+
+        private ICommand _saveSettingsCommand;
+
+        public ICommand SaveSettingsCommand => _saveSettingsCommand ?? (_saveSettingsCommand = new DelegateCommand(d =>
+        {
+            IsSavingSettings = true;
+            Client.Send("settings",Settings);
+        }));
+
         private void DownloadData()
         {
             //OfficeViewModel.Instance.DownloadData();

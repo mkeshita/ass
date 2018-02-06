@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using norsu.ass.Models;
 using norsu.ass.Server;
 using norsu.ass.Server.Properties;
+using norsu.ass.Server.ViewModels;
 using NetworkCommsDotNet;
 using NetworkCommsDotNet.Connections;
 using NetworkCommsDotNet.Connections.TCP;
@@ -55,9 +56,31 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<SaveOffice>(SaveOffice.Header,SaveOfficeHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<DeleteOffice>(DeleteOffice.Header,DeleteOfficeHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<SetOfficePicture>(SetOfficePicture.Header,SetOfficePictureHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<SettingsViewModel>("settings",SettingsHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void SettingsHandler(PacketHeader packetheader, Connection connection, SettingsViewModel req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            Settings.Default.AllowAnnonymousUser = req.AllowAnonymous;
+            Settings.Default.AllowUserPrivateSuggestion = req.AllowPrivate;
+            Settings.Default.AllowAndroidRegistration = req.AndroidRegistration;
+            Settings.Default.OfficeAdminCanDeleteSuggestions = req.OfficeAdminCanDeleteSuggestions;
+            Settings.Default.OfficeAdminCanSeeUserFullname = req.OfficeAdminCanSeePrivate;
+            Settings.Default.OfficeAdminCommentAsOffice = req.OfficeAdminReplyAs;
+            Settings.Default.SuggestionBodyMax = req.SuggestionBodyMaximum;
+            Settings.Default.SuggestionBodyMin = req.SuggestionBodyMinimum;
+            Settings.Default.SuggestionTitleMax = req.SuggestionTitleMaximum;
+            Settings.Default.SuggestionTitleMin = req.SuggestionTitleMinimum;
+            Settings.Default.Save();
+            
+            await Packet.Send("settings", req, dev.IP, dev.Port);
         }
 
         private async void SetOfficePictureHandler(PacketHeader packetheader, Connection connection, SetOfficePicture req)
@@ -495,6 +518,21 @@ namespace norsu.ass.Network
                 Success = true,
                 User = usr,
             }.Send(dev.IP, dev.Port);
+
+            await Packet.Send("settings", new SettingsViewModel()
+            {
+                AllowAnonymous = Settings.Default.AllowAnnonymousUser,
+                AllowPrivate = Settings.Default.AllowUserPrivateSuggestion,
+                AndroidRegistration = Settings.Default.AllowAndroidRegistration,
+                OfficeAdminCanDeleteSuggestions = Settings.Default.OfficeAdminCanDeleteSuggestions,
+                OfficeAdminCanSeePrivate = Settings.Default.OfficeAdminCanSeeUserFullname,
+                OfficeAdminReplyAs = Settings.Default.OfficeAdminCommentAsOffice,
+                SuggestionBodyMaximum = Settings.Default.SuggestionBodyMax,
+                SuggestionBodyMinimum = Settings.Default.SuggestionBodyMin,
+                SuggestionTitleMaximum = Settings.Default.SuggestionTitleMax,
+                SuggestionTitleMinimum = Settings.Default.SuggestionTitleMin,
+
+            }, dev.IP, dev.Port);
         }
 
         private Desktop GetDesktop(Connection con)
@@ -1125,6 +1163,8 @@ namespace norsu.ass.Network
                 }
             }
             await result.Send(dev.IP, dev.Port);
+
+            
         }
 
         private AndroidDevice GetDevice(string ip)
