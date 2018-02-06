@@ -22,7 +22,6 @@
              VerticalAlignment="Center">
           <ProgressBar Value="{Binding CompletedPercent,Mode=OneWay}" Maximum="1"
                        DataContext="{Binding Source={x:Static network:Client.Instance},Path=receivedFiles[0]}"
-                       Height="77" Width="77"
                        Style="{StaticResource MaterialDesignCircularProgressBar}"/>
     </Viewbox>
         

@@ -13,11 +13,6 @@ namespace norsu.ass.Server
 
         static void Main(string[] args)
         {
-            var db = "Database.db3";
-            if(File.Exists(db))
-                File.Delete(db);
-            File.Copy(awooo.DataSource,db);
-            
             awooo.IsRunning = true;
             
             Console.CancelKeyPress += ConsoleOnCancelKeyPress;

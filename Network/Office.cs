@@ -113,6 +113,20 @@ namespace norsu.ass.Network
     }
 
     [ProtoContract]
+    class DeleteOffice : Packet<DeleteOffice>
+    {
+        [ProtoMember(1)]
+        public long Id { get; set; }
+    }
+
+    [ProtoContract]
+    class DeleteOfficeResult : Packet<DeleteOfficeResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+    }
+
+    [ProtoContract]
     class SaveOffice : Packet<SaveOffice>
     {
         [ProtoMember(1)]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,20 +25,17 @@ namespace norsu.ass.Server.ViewModels
             {
                 if (_offices != null) return _offices;
                 _offices = new ListCollectionView(Models.Office.Cache);
-                
                 return _offices;
             }
         }
-
-        private Models.Office _NewItem;
+        
+        private static Models.Office _NewItem;
 
         public Models.Office NewItem
         {
             get => _NewItem;
             set
             {
-                if(value == _NewItem)
-                    return;
                 _NewItem = value;
                 OnPropertyChanged(nameof(NewItem));
             }
@@ -48,7 +46,6 @@ namespace norsu.ass.Server.ViewModels
         public ICommand CancelAddCommand => _cancelAddCommand ?? (_cancelAddCommand = new DelegateCommand(d =>
         {
             ShowNewItem = false;
-            NewItem = null;
         }));
 
         private ICommand _addCommand;
@@ -56,7 +53,11 @@ namespace norsu.ass.Server.ViewModels
         public ICommand AddCommand => _addCommand ?? (_addCommand = new DelegateCommand(d =>
         {
             CanAcceptNew = true;
-            NewItem = new Office();
+            NewItem = new Office
+            {
+                IsProcessing = false,
+                EditMode = true
+            };
             ShowNewItem = true;
         }));
 
@@ -67,8 +68,6 @@ namespace norsu.ass.Server.ViewModels
             get => _ShowNewItem;
             set
             {
-                if(value == _ShowNewItem)
-                    return;
                 _ShowNewItem = value;
                 OnPropertyChanged(nameof(ShowNewItem));
             }
@@ -80,10 +79,12 @@ namespace norsu.ass.Server.ViewModels
         async d =>
         {
             if (string.IsNullOrEmpty(NewItem.ShortName) || string.IsNullOrEmpty(NewItem.LongName)) return;
-            CanAcceptNew = false;
+
+            NewItem.EditMode = false;
+            NewItem.IsProcessing = true;
             
             var res = await Client.SaveOffice(0, NewItem.ShortName, NewItem.LongName);
-            CanAcceptNew = true;
+            
             if (res?.Success ?? false)
             {
                 NewItem.Save();
@@ -95,14 +96,17 @@ namespace norsu.ass.Server.ViewModels
                 {
                     //
                 }
-
                 ShowNewItem = false;
             }
             else
             {
+                ShowNewItem = true;
+                NewItem.EditMode = true;
                 MainViewModel.ShowToast("Adding new office failed!");
             }
-        }));
+
+            NewItem.IsProcessing = false;
+        },d=> !(string.IsNullOrEmpty(NewItem.ShortName) || string.IsNullOrEmpty(NewItem.LongName))));
 
         private bool _CanAcceptNew;
 
@@ -118,19 +122,19 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-        private bool _IsProcessing;
+        //private bool _IsProcessing;
 
-        public bool IsProcessing
-        {
-            get => _IsProcessing;
-            set
-            {
-                if(value == _IsProcessing)
-                    return;
-                _IsProcessing = value;
-                OnPropertyChanged(nameof(IsProcessing));
-            }
-        }
+        //public bool IsProcessing
+        //{
+        //    get => _IsProcessing;
+        //    set
+        //    {
+        //        if(value == _IsProcessing)
+        //            return;
+        //        _IsProcessing = value;
+        //        OnPropertyChanged(nameof(IsProcessing));
+        //    }
+        //}
 
         private string _Status;
 
@@ -157,16 +161,34 @@ namespace norsu.ass.Server.ViewModels
             _updateTasks.Enqueue(new Task(async o =>
             {
                 if (!(o is Office of)) return;
+                of.IsProcessing = true;
                 SaveOfficeResult res = null;
                 while (!(res?.Success ?? false))
                     res = await Client.SaveOffice(of.Id, of.ShortName, of.LongName);
                 of.Save();
+                of.IsProcessing = false;
             },ofc));
             
             ProcessUpdates();
         },o=>o.CanSave()));
 
-       
+        private ICommand _deleteCommand;
+
+        public ICommand DeleteCommand => _deleteCommand ?? (_deleteCommand = new DelegateCommand<Models.Office>(d =>
+        {
+            lock(_updateLock)
+                _updateTasks.Enqueue(new Task(async o =>
+                {
+                    if (!(o is Office of)) return;
+                    of.IsProcessing = true;
+                    DeleteOfficeResult res = null;
+                    while (!(res?.Success ?? false))
+                        res = await Client.DeleteOffice(of.Id);
+                    of.Delete();
+                },d));
+
+            ProcessUpdates();
+        },d=>d.CanDelete()));
 
         private void ProcessUpdates()
         {
@@ -177,7 +199,7 @@ namespace norsu.ass.Server.ViewModels
             {
                 while (true)
                 {
-                    IsProcessing = true;
+                    //IsProcessing = true;
                     Task task;
                     lock (_updateLock)
                     {
@@ -192,9 +214,10 @@ namespace norsu.ass.Server.ViewModels
                     task.Wait();
                     
                 }
-                IsProcessing = false;
+               // IsProcessing = false;
                 _updateStarted = false;
             });
         }
+        
     }
 }

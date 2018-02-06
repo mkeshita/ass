@@ -61,6 +61,8 @@ namespace norsu.ass.Network
 
         }
 
+        public bool DatabaseDownloaded { get; set; }
+
 #region NetworkComms ExampleFileTransfer.WPF
         object syncRoot = new object();
 
@@ -102,26 +104,26 @@ namespace norsu.ass.Network
                     while ((DateTime.Now - _lastReceived).TotalMilliseconds < 4444)
                         await TaskEx.Delay(100);
                     var db = receivedFiles.FirstOrDefault();
-                   // if (!(db?.IsCompleted??false))
-                   // {
-                        db?.SaveFileToDisk(awooo.DataSource);
-                        
-                        awooo.Context.Post(d =>
+                    // if (!(db?.IsCompleted??false))
+                    // {
+                    db?.SaveFileToDisk(awooo.DataSource);
+                    DatabaseDownloaded = true;
+                    awooo.Context.Post(d =>
+                    {
+                        lock (syncRoot)
                         {
-                            lock (syncRoot)
+                            var filesToRemove = receivedFiles.ToList();
+
+                            foreach (ReceivedFile file in filesToRemove)
                             {
-                                var filesToRemove = receivedFiles.ToList();
-                                
-                                foreach (ReceivedFile file in filesToRemove)
-                                {
-                                    receivedFiles.Remove(file);
-                                    file.Close();
-                                }
-                                
+                                receivedFiles.Remove(file);
+                                file.Close();
                             }
-                        }, null);
-                        
-                        Client.Send(new Database());
+
+                        }
+                    }, null);
+
+                    Client.Send(new Database());
                     //}
                 });
             }
@@ -329,8 +331,18 @@ namespace norsu.ass.Network
                 return;
             await packet.Send(Server.IP, Server.Port);
         }
-        
-        
+
+        public static async Task<bool> SendAsync<T>(Packet<T> packet) where T : Packet<T>
+        {
+            if (Server == null)
+                await FindServer();
+            if (Server == null)
+                return false;
+            await packet.Send(Server.IP, Server.Port);
+            return true;
+        }
+
+
 
         ~Client()
         {
@@ -480,6 +492,42 @@ namespace norsu.ass.Network
                 Username = username,
                 Password = password, //very secure :D
             }.Send(Server.IP,Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
+        public static async Task<DeleteOfficeResult> DeleteOffice(long officeId)
+        {
+            return await Instance._DeleteOffice(officeId);
+        }
+
+        private async Task<DeleteOfficeResult> _DeleteOffice(long officeId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            DeleteOfficeResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<DeleteOfficeResult>(DeleteOfficeResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(DeleteOfficeResult.Header);
+                    result = r;
+                });
+
+            await new DeleteOffice()
+            {
+                Id = officeId,
+            }.Send(Server.IP, Server.Port);
 
             var start = DateTime.Now;
             while ((DateTime.Now - start).TotalSeconds < 17)

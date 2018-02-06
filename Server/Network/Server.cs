@@ -52,9 +52,56 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<ReplyComment>(ReplyComment.Header,ReplyCommentHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<DeleteSuggestions>(DeleteSuggestions.Header,DeleteSuggestionsHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<Database>(Database.Header,DatabaseHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<SaveOffice>(SaveOffice.Header,SaveOfficeHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<DeleteOffice>(DeleteOffice.Header,DeleteOfficeHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void DeleteOfficeHandler(PacketHeader packetheader, Connection connection, DeleteOffice req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            var office = Models.Office.Cache.FirstOrDefault(x => x.Id == req.Id);
+            if (office != null)
+            {
+                office.Delete(false);
+                Console.WriteLine($"Office deleted. Source: {dev.IP} Office: {office.ShortName}");
+            }
+            
+            await new DeleteOfficeResult()
+            {
+                Success = true,
+            }.Send(dev.IP, dev.Port);
+        }
+
+        private async void SaveOfficeHandler(PacketHeader packetheader, Connection connection, SaveOffice req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null) return;
+
+            var office = Models.Office.Cache.FirstOrDefault(x => x.Id == req.Id);
+            if (office == null)
+                office = new Models.Office();
+            office.LongName = req.LongName;
+            office.ShortName = req.ShortName;
+            
+            if(office.Id==0)
+                Console.WriteLine($"New office added. Source: {dev.IP} Office: #{office.Id} {office.ShortName} | {office.LongName}");
+            else
+                Console.WriteLine(
+                    $"Office details changed. Source: {dev.IP} Office: #{office.Id}");
+
+            office.Save();
+
+            await new SaveOfficeResult()
+            {
+                Success = true,
+                Id = office.Id,
+            }.Send(dev.IP, dev.Port);
         }
 
         private void DatabaseHandler(PacketHeader packetheader, Connection connection, Database incomingobject)
@@ -88,6 +135,8 @@ namespace norsu.ass.Network
             };
             comment.Save();
 
+            Console.WriteLine($"New comment added for suggestion #{req.SuggestionId}. IP: {dev.IP}");
+            
             await new ReplyCommentResult()
             {
                 Success = true,
@@ -110,6 +159,11 @@ namespace norsu.ass.Network
                suggestion.CommentsDisabledBy = req.UserId;
             suggestion.AllowComments = !suggestion.AllowComments;
             suggestion.Save();
+            
+            if(suggestion.AllowComments)
+                Console.WriteLine($"Commenting for suggestion #{req.SuggestionId} is enabled. IP: {dev.IP}");
+            else
+                Console.WriteLine($"Commenting for suggestion #{req.SuggestionId} is disabled. IP: {dev.IP}");
 
             await new ToggleCommentsResult()
             {
@@ -259,15 +313,38 @@ namespace norsu.ass.Network
         private void SendDatabase(Desktop dev)
         {
             
-            var filename = Path.GetFullPath("Database.db3");
-            var remoteIP = dev.IP;
-            var remotePort = dev.DataPort;
             
             //Perform the send in a task so that we don't lock the GUI
             Task.Factory.StartNew(() =>
             {
                 try
                 {
+                    var db = Path.GetRandomFileName();
+                    try
+                    {
+                        if (File.Exists(db))
+                            File.Delete(db);
+                    }
+                    catch (Exception e)
+                    {
+                        //
+                    }
+
+                    try
+                    {
+                        File.Copy(awooo.DataSource, db,true);
+                    }
+                    catch (Exception e)
+                    {
+                        //
+                    }
+                    
+
+                    var filename = Path.GetFullPath(db);
+                    var remoteIP = dev.IP;
+                    var remotePort = dev.DataPort;
+                    
+                    
                     //Create a fileStream from the selected file
                     FileStream stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
 
@@ -323,14 +400,14 @@ namespace norsu.ass.Network
                         totalBytesSent += bytesToSend;
 
                         //Update the GUI with our send progress
-                        Console.WriteLine($"Sending database to {dev.IP}: {((double) totalBytesSent / stream.Length)*100}%");
+                        //Console.WriteLine($"Sending database to {dev.IP}: {((double) totalBytesSent / stream.Length)*100}%");
                         
                     } while(totalBytesSent < stream.Length);
 
                     //Clean up any unused memory
                     GC.Collect();
 
-                    Console.WriteLine("Completed file send to '" + connection.ConnectionInfo.ToString() + "'.");
+                   // Console.WriteLine("Completed file send to '" + connection.ConnectionInfo.ToString() + "'.");
                 } catch(CommunicationException)
                 {
                     //If there is a communication exception then we just write a connection
@@ -343,7 +420,7 @@ namespace norsu.ass.Network
                     if(ex.GetType() != typeof(InvalidDataException))
                     {
                         Console.WriteLine(ex.Message.ToString());
-                        LogTools.LogException(ex, "SendFileError");
+                        //LogTools.LogException(ex, "SendFileError");
                     }
                 }
                 
@@ -433,9 +510,7 @@ namespace norsu.ass.Network
                 _DesktopClients.Add(d);
                 dev = d;
             }
-
-            SendDatabase(dev);
-
+            
             var serverInfo = new ServerInfo()
             {
                 AllowAnnonymous = Settings.Default.AllowAnnonymousUser,

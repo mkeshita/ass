@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -42,6 +43,22 @@ namespace norsu.ass.Server.Views
                 
                 
             });
+
+            Download();
+        }
+
+        private async void Download()
+        {
+            var _downloadStarted = DateTime.Now;
+            while (!await Client.SendAsync(new Database()))
+            {
+                await TaskEx.Delay(100);
+                if ((DateTime.Now - _downloadStarted).TotalMilliseconds > 4444)
+                {
+                    MessageBox.Show("Cannot find server");
+                    Application.Current.Shutdown();
+                }
+            }
         }
     }
 }

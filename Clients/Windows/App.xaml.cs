@@ -25,6 +25,7 @@ namespace Windows
         {
             awooo.ServerMode = false;
             awooo.IsRunning = true;
+            
             base.OnStartup(e);
             awooo.Context = SynchronizationContext.Current;
            // Client.Start();

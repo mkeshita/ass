@@ -14,8 +14,9 @@
              d:DesignHeight="300" d:DesignWidth="300">
   <UserControl.Resources>
     <DataTemplate DataType="{x:Type models:Office}">
-      <Grid>
+      <Grid >
         <Grid Margin="0 10" Grid.Row="0"
+              IsEnabled="{Binding IsProcessing,Converter={converters:Inverter}}"
                       Visibility="{Binding EditMode,Converter={converters:BooleanToVisibility}}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
@@ -37,9 +38,19 @@
                    RenderOptions.BitmapScalingMode="HighQuality"
                    Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
             <Button Style="{StaticResource MaterialDesignToolButton}"
+                    VerticalAlignment="Stretch"
+                    Height="Auto"
                     Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=ChangePictureCommand}"
                     CommandParameter="{Binding}" Focusable="False" />
+            
           </Grid>
+          <Viewbox Width="74" Margin="0 10 10 10"
+                   Visibility="{Binding IsProcessing,Converter={converters:BooleanToVisibility}}">
+            <ProgressBar IsIndeterminate="True"
+                         VerticalAlignment="Bottom"
+                         Style="{StaticResource MaterialDesignCircularProgressBar}" />
+          </Viewbox>
+          
           <StackPanel Grid.Column="1" Margin="0 0 10 0">
           <TextBox Grid.Column="0" 
                    FontSize="14pt"
@@ -62,7 +73,8 @@
                           Style="{StaticResource MaterialDesignRaisedLightButton}" />
         </Grid>
 
-        <Grid Margin="0 7" Visibility="{Binding EditMode,Converter={converters:BooleanToVisibility Collapsed,Visible}}">
+        <Grid Margin="0 7" Visibility="{Binding EditMode,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+              IsEnabled="{Binding IsProcessing,Converter={converters:Inverter}}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" SharedSizeGroup="icon"/>
             <ColumnDefinition Width="*" />
@@ -83,9 +95,18 @@
                    RenderOptions.BitmapScalingMode="HighQuality"
                    Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
             <Button Style="{StaticResource MaterialDesignToolButton}"
+                    VerticalAlignment="Stretch"
+                    Height="Auto"
                     Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=ChangePictureCommand}"
                     CommandParameter="{Binding}" Focusable="False"/>
           </Grid>
+          <Viewbox Visibility="{Binding IsProcessing,Converter={converters:BooleanToVisibility}}"
+                   Width="74" Margin="0 10 10 10">
+            <ProgressBar IsIndeterminate="True"
+                         VerticalAlignment="Bottom"
+                         Foreground="{StaticResource ValidationErrorBrush}"
+                         Style="{StaticResource MaterialDesignCircularProgressBar}" />
+          </Viewbox>
 
           <StackPanel Orientation="Vertical"
                       VerticalAlignment="Center"
@@ -122,6 +143,8 @@
                   CommandParameter="{Binding}"
                       Style="{StaticResource MaterialDesignFlatButton}" />
         </Grid>
+        
+        
       </Grid>
     </DataTemplate>
 
@@ -151,52 +174,120 @@
         <RowDefinition Height="*" />
       </Grid.RowDefinitions>
 
-      <Grid Margin="47 20" Grid.Row="0"
-            Visibility="{Binding ShowNewItem,Converter={converters:BooleanToVisibility}}">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*" />
-          <ColumnDefinition Width="2*" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
-          <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
-        </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" Margin="0 0 0 0" Text="{Binding NewItem.ShortName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" 
-                 md:HintAssist.Hint="ACRONYM" FontSize="14pt"
-                 IsEnabled="{Binding Path=CanAcceptNew}"
-                 md:HintAssist.IsFloating="True"/>
-        <TextBox Grid.Column="1" Margin="20 0"
-                 FontSize="14pt"
-                 IsEnabled="{Binding Path=CanAcceptNew}"
-                 Text="{Binding NewItem.LongName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
-                 md:HintAssist.Hint="FULL NAME"
-                 md:HintAssist.IsFloating="True" />
-        
-        <Button Grid.Column="3" Content="{md:PackIcon Check}"
-                Command="{Binding AcceptNewCommand}"
-                IsEnabled="{Binding Path=CanAcceptNew}"
-                Style="{StaticResource MaterialDesignRaisedButton}" />
-        <Button Grid.Column="4" Content="{md:PackIcon Close}"
-                Command="{Binding CancelAddCommand}"
-                Margin="10 0 0 0"
-                IsEnabled="{Binding Path=CanAcceptNew}"
-                Style="{StaticResource MaterialDesignRaisedLightButton}" />
+      <Grid Margin="74 10" Grid.Row="0"
+            Visibility="{Binding ShowNewItem,Converter={converters:BooleanToVisibility},FallbackValue=Collapsed}">
+        <Grid Margin="0 10" Grid.Row="0"
+              DataContext="{Binding NewItem}"
+              IsEnabled="{Binding IsProcessing,Converter={converters:Inverter}}"
+                      Visibility="{Binding EditMode,Converter={converters:BooleanToVisibility}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid Width="74" Margin="0 10 10 10">
+            <Grid.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Ellipse Height="7" Width="7" Fill="Red" />
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.OpacityMask>
+            <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility}}" />
+            <Image Source="/norsu.png"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
+            <Button Style="{StaticResource MaterialDesignToolButton}"
+                    Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=ChangePictureCommand}"
+                    CommandParameter="{Binding}" Focusable="False" />
 
-        <Grid Grid.ColumnSpan="5" Background="#77ffffff" Visibility="{Binding CanAcceptNew,Converter={converters:BooleanToVisibility Collapsed,Visible}}">
-          <md:Card HorizontalAlignment="Center"
-                   Padding="10"
-                   VerticalAlignment="Center">
-          <StackPanel Orientation="Horizontal" >
-            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
-                         IsIndeterminate="True"/>
-            <TextBlock Text="  Saving new item... " FontSize="12pt"
-                       VerticalAlignment="Center"/>
+          </Grid>
+          <Viewbox Width="74" Margin="0 10 10 10"
+                   Visibility="{Binding IsProcessing,Converter={converters:BooleanToVisibility}}">
+            <ProgressBar IsIndeterminate="True"
+                         VerticalAlignment="Bottom"
+                         Style="{StaticResource MaterialDesignCircularProgressBar}" />
+          </Viewbox>
+
+          <StackPanel Grid.Column="1" Margin="0 0 10 0">
+            <TextBox Grid.Column="0" 
+                   FontSize="14pt"
+                   materialDesign:HintAssist.IsFloating="True"
+                   materialDesign:HintAssist.Hint="ACRONYM"
+                           Text="{Binding ShortName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" />
+            <TextBox Grid.Column="1" 
+                   FontSize="14pt"
+                   materialDesign:HintAssist.Hint="FULL NAME"
+                   materialDesign:HintAssist.IsFloating="True"
+                   Text="{Binding LongName,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}" />
           </StackPanel>
-          </md:Card>
+          <StackPanel VerticalAlignment="Center"
+                      Grid.Column="2">
+          <Button Grid.Column="2" Content="SAVE"
+                  Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=AcceptNewCommand}"
+                  Margin="10 0 0 5"
+                  Style="{StaticResource MaterialDesignRaisedButton}" />
+          <Button Grid.Column="3" Content="CANCEL"
+                  Margin="10 5 0 0"
+                  Command="{Binding Source={x:Static viewModels:OfficesViewModel.Instance},Path=CancelAddCommand}"
+                  Style="{StaticResource MaterialDesignRaisedLightButton}" />
+          </StackPanel>
+        </Grid>
+
+        <Grid Margin="0 7" Visibility="{Binding EditMode,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+              DataContext="{Binding NewItem}"
+              IsEnabled="{Binding IsProcessing,Converter={converters:Inverter}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="icon"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" SharedSizeGroup="a" />
+            <ColumnDefinition Width="Auto" SharedSizeGroup="a" />
+          </Grid.ColumnDefinitions>
+          <Grid Width="74" Margin="0 10 10 10">
+            <Grid.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Ellipse Height="7" Width="7" Fill="Red"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.OpacityMask>
+            <Image Source="{Binding Picture,Converter={converters:BytesToImage}}" 
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility}}"/>
+            <Image Source="/norsu.png"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
+          </Grid>
+          <Viewbox Visibility="{Binding IsProcessing,Converter={converters:BooleanToVisibility}}"
+                   Width="74" Margin="0 10 10 10">
+            <ProgressBar IsIndeterminate="True"
+                         VerticalAlignment="Bottom"
+                         Foreground="{StaticResource ValidationErrorBrush}"
+                         Style="{StaticResource MaterialDesignCircularProgressBar}" />
+          </Viewbox>
+
+          <StackPanel Orientation="Vertical"
+                      VerticalAlignment="Center"
+                      Grid.Column="1" Margin="0 0 10 0">
+            <WrapPanel VerticalAlignment="Center"
+                        Orientation="Horizontal">
+              <TextBlock FontSize="14pt"
+                         Margin="0 0 20 0"
+                         TextWrapping="Wrap"
+                         Text="{Binding ShortName,Mode=OneWay}" FontWeight="Bold"
+                         VerticalAlignment="Center" />
+              <TextBlock Text="{Binding LongName,Mode=OneWay}"
+                         TextWrapping="Wrap"
+                         FontSize="14pt" />
+            </WrapPanel>
+          </StackPanel>
         </Grid>
       </Grid>
+      
+     
       <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
         <StackPanel Margin="74 20">
-          
+
           <ItemsControl Grid.IsSharedSizeScope="True"
                         Margin="0 0 0 20"
                     ItemsSource="{Binding Offices}">
