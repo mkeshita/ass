@@ -14,6 +14,7 @@ namespace norsu.ass.Server
         static void Main(string[] args)
         {
             awooo.IsRunning = true;
+            awooo.Context = SynchronizationContext.Current;
             
             Console.CancelKeyPress += ConsoleOnCancelKeyPress;
             Console.Title = "NORSU-G Suggestion Server";

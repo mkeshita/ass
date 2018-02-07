@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 using norsu.ass.Models;
 using norsu.ass.Network;
+using Office = norsu.ass.Models.Office;
 
 namespace norsu.ass.Server.ViewModels
 {
@@ -134,5 +136,72 @@ namespace norsu.ass.Server.ViewModels
         },
         d => !(string.IsNullOrEmpty(NewItem.Username) ||
                 string.IsNullOrEmpty(NewItem.Firstname))));
+
+
+        private readonly Queue<Task> _updateTasks = new Queue<Task>();
+        private bool _updateStarted;
+        private readonly object _updateLock = new object();
+        private ICommand _updateCommand;
+
+        public ICommand UpdateCommand => _updateCommand ?? (_updateCommand = new DelegateCommand<Models.User>(ofc =>
+        {
+            ofc.IsProcessing = true;
+            lock (_updateLock)
+                _updateTasks.Enqueue(new Task(async o =>
+                {
+                    if (!(o is User of))
+                        return;
+
+                    var user = new UserInfo()
+                    {
+                        Username = ofc.Username,
+                        Firstname = ofc.Firstname,
+                        Access = (int) (ofc.Access ?? AccessLevels.OfficeAdmin),
+                        Id = ofc.Id,
+                    };
+
+                    of.IsProcessing = true;
+                    SaveUserResult res = null;
+                    while (!(res?.Success ?? false))
+                        res = await Client.SaveUser(user);
+                    of.Save();
+                    of.IsProcessing = false;
+                }, ofc));
+
+            ProcessUpdates();
+        }, o => o.CanSave()));
+        
+        
+        private void ProcessUpdates()
+        {
+            if (_updateStarted)
+                return;
+            _updateStarted = true;
+
+            Task.Factory.StartNew(() =>
+            {
+                while (true)
+                {
+                    //IsProcessing = true;
+                    Task task;
+                    lock (_updateLock)
+                    {
+                        if (_updateTasks.Count == 0)
+                            break;
+                        task = _updateTasks.Dequeue();
+                    }
+
+                    if (task == null)
+                        break;
+
+                    task.Start();
+                    task.Wait();
+
+                }
+                // IsProcessing = false;
+                _updateStarted = false;
+            });
+        }
+
     }
 }
