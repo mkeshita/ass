@@ -170,8 +170,41 @@ namespace norsu.ass.Server.ViewModels
 
             ProcessUpdates();
         }, o => o.CanSave()));
-        
-        
+
+        private ICommand _ToggleAccessCommand;
+
+        public ICommand ToggleAccessCommand => _ToggleAccessCommand ?? (_ToggleAccessCommand = new DelegateCommand<Models.User>(ofc =>
+        {
+            ofc.IsProcessing = true;
+            lock (_updateLock)
+                _updateTasks.Enqueue(new Task(async o =>
+                {
+                    if (!(o is User of))
+                        return;
+
+                    var user = new UserInfo()
+                    {
+                        Username = ofc.Username,
+                        Firstname = ofc.Firstname,
+                        Access = (int) (ofc.Access==AccessLevels.OfficeAdmin ? AccessLevels.SuperAdmin : AccessLevels.OfficeAdmin),
+                        Id = ofc.Id,
+                    };
+
+                    of.IsProcessing = true;
+                    SaveUserResult res = null;
+                    while (!(res?.Success ?? false))
+                        res = await Client.SaveUser(user);
+                    of.Access = ofc.Access == AccessLevels.OfficeAdmin
+                        ? AccessLevels.SuperAdmin
+                        : AccessLevels.OfficeAdmin;
+                    of.Save();
+                    of.IsProcessing = false;
+                }, ofc));
+
+            ProcessUpdates();
+        }, o => o.CanSave() && o.Id!=LoginViewModel.Instance.User?.Id));
+
+
         private ICommand _deleteCommand;
 
         public ICommand DeleteCommand => _deleteCommand ?? (_deleteCommand = new DelegateCommand<Models.User>(d =>
