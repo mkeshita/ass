@@ -172,6 +172,26 @@ namespace norsu.ass.Server.ViewModels
         }, o => o.CanSave()));
         
         
+        private ICommand _deleteCommand;
+
+        public ICommand DeleteCommand => _deleteCommand ?? (_deleteCommand = new DelegateCommand<Models.User>(d =>
+        {
+            d.IsProcessing = true;
+            lock (_updateLock)
+                _updateTasks.Enqueue(new Task(async o =>
+                {
+                    if (!(o is User of))
+                        return;
+                    of.IsProcessing = true;
+                    DeleteUserResult res = null;
+                    while (!(res?.Success ?? false))
+                        res = await Client.DeleteUser(of.Id);
+                    of.Delete();
+                }, d));
+
+            ProcessUpdates();
+        }, d => d.CanDelete()));
+
         private void ProcessUpdates()
         {
             if (_updateStarted)
