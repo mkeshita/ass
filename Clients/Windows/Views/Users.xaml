@@ -140,9 +140,19 @@
             
           </StackPanel>
 
-          <ItemsControl Grid.Column="2" ItemsSource="{Binding Offices}" HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Margin="40 0">
+          <StackPanel Orientation="Horizontal" Grid.Column="2"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      FlowDirection="RightToLeft"
+                      Visibility="{Binding IsSuperAdmin,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                      Margin="40 0">
+            
+                
+                
+              
+            
+            
+            <ItemsControl  ItemsSource="{Binding Offices}" Margin="-20 0 0 0">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
                 <StackPanel Orientation="Horizontal" IsItemsHost="True" FlowDirection="RightToLeft"/>
@@ -151,7 +161,7 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate DataType="{x:Type models:Office}">
                 <materialDesign:ColorZone CornerRadius="666" Padding="2"
-                                          Margin="-20 0 0 0">
+                                          Margin="-30 0 0 0">
                 <Grid Height="48" Width="48" >
                   <Grid.OpacityMask>
                     <VisualBrush>
@@ -176,8 +186,27 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
 
+            <Button VerticalAlignment="Center"
+                    Height="48" Width="48"
+                    Margin="-30 0 0 0"
+                    ToolTip="Add Managed Office"
+                    Command="{Binding Source={x:Static viewModels:UsersViewModel.Instance},Path=AddOfficeCommand}"
+                    CommandParameter="{Binding}"
+                    Padding="0"
+                    IsHitTestVisible="{Binding IsAddingOffice,Converter={converters:Inverter}}"
+                    materialDesign:ButtonProgressAssist.IsIndeterminate="{Binding IsAddingOffice}"
+                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsAddingOffice}"
+                    Style="{StaticResource MaterialDesignFloatingActionDarkButton}">
+
+              <materialDesign:PackIcon Kind="Plus" Height="32" Width="32"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"
+                                       HorizontalAlignment="Center" />
+            </Button>
+          </StackPanel>
+
           <UniformGrid Grid.Column="3" Rows="1" Margin="10 0">
-           
+            
             <Button Grid.Column="3" Content="{materialDesign:PackIcon Pencil}"
                           Command="{Binding EditCommand}"
                           
@@ -215,7 +244,8 @@
                Height="1"
                VerticalAlignment="Bottom"
                Fill="{StaticResource MaterialDesignDivider}"/>
-    <Grid Grid.Row="1" IsSharedSizeScope="True">
+    <Grid Grid.Row="1" IsSharedSizeScope="True"
+          IsEnabled="{Binding ShowAddOffice,Converter={converters:Inverter}}">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
         <RowDefinition Height="*" />
@@ -331,7 +361,73 @@
 
         </StackPanel>
       </ScrollViewer>
+      
+      
     </Grid>
 
+    <Grid Grid.RowSpan="2" Background="#77777777"
+          Visibility="{Binding ShowAddOffice,Converter={converters:BooleanToVisibility}}">
+
+      <materialDesign:Card HorizontalAlignment="Center" VerticalAlignment="Center"
+                           materialDesign:ShadowAssist.ShadowDepth="Depth4"
+                           materialDesign:ShadowAssist.ShadowEdges="All"
+                           UniformCornerRadius="7">
+        <StackPanel>
+          <StackPanel Orientation="Horizontal" Margin="10">
+            <Rectangle Height="32" Width="32" Fill="{StaticResource MaterialDesignLightForeground}">
+              <Rectangle.OpacityMask>
+                <VisualBrush Visual="{StaticResource OfficeIcon}" />
+              </Rectangle.OpacityMask>
+            </Rectangle>
+            <TextBlock Text="  Select Office" Style="{StaticResource MaterialDesignHeadlineTextBlock}"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+          <Rectangle Height="1" Fill="{StaticResource MaterialDesignDivider}"/>
+          <ListBox ItemsSource="{Binding Offices}"
+                   IsSynchronizedWithCurrentItem="True"
+                   x:Name="ListBox"
+                   Margin="0 10"
+                   MaxWidth="444"
+                   MaxHeight="333">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Margin="10">
+                  <Grid Height="32" Width="32">
+                    <Grid.OpacityMask>
+                      <VisualBrush>
+                        <VisualBrush.Visual>
+                          <Ellipse Height="7" Width="7" Fill="Red"/>
+                        </VisualBrush.Visual>
+                      </VisualBrush>
+                    </Grid.OpacityMask>
+                  <Image Source="{Binding Picture,Converter={converters:BytesToImage}}" 
+                         Stretch="UniformToFill"
+                         HorizontalAlignment="Center"
+                         Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility}}"/>
+                  <Image Source="/norsu.png" 
+                         Stretch="UniformToFill"
+                         HorizontalAlignment="Center"
+                         RenderOptions.BitmapScalingMode="HighQuality"
+                         Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
+                  </Grid>
+                  <TextBlock Text="{Binding ShortName}" FontSize="12pt" Margin="10 0 0 0" VerticalAlignment="Center"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <UniformGrid Rows="1" Margin="0 10 0 0">
+            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    Content="CANCEL"
+                    Command="{Binding CancelAddOfficeCommand}"/>
+            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    Content="ACCEPT"
+                    Command="{Binding AcceptAddOfficeCommand}"
+                    CommandParameter="{Binding ElementName=ListBox,Path=SelectedItem}"/>
+          </UniformGrid>
+        </StackPanel>
+      </materialDesign:Card>
+      
+    </Grid>
   </Grid>
 </UserControl>

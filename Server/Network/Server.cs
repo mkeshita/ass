@@ -61,9 +61,32 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<ResetPassword>(ResetPassword.Header,ResetPasswordHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<DeleteUser>(DeleteUser.Header,DeleteUserHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<SaveUser>(SaveUser.Header,SaveUserHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<AddOfficeAdmin>(AddOfficeAdmin.Header,AddOfficeAdminHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void AddOfficeAdminHandler(PacketHeader packetheader, Connection connection, AddOfficeAdmin req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            if (!Models.OfficeAdmin.Cache.Any(x => x.UserId == req.UserId && x.OfficeId == req.OfficeId))
+            {
+                new OfficeAdmin()
+                {
+                    UserId = req.UserId,
+                    OfficeId = req.OfficeId,
+                }.Save();
+                Console.WriteLine("New office admin added.");
+            }
+            
+            await new AddOfficeAdminResult()
+            {
+                Success = true,
+            }.Send(dev.IP, dev.Port);
         }
 
         private async void SaveUserHandler(PacketHeader packetheader, Connection connection, SaveUser req)

@@ -577,6 +577,44 @@ namespace norsu.ass.Network
             return null;
         }
 
+        public static async Task<AddOfficeAdminResult> AddOfficeAdmin(long officeId, long userId)
+        {
+            return await Instance._AddOfficeAdmin(officeId,userId);
+        }
+
+        private async Task<AddOfficeAdminResult> _AddOfficeAdmin(long officeId,long userId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            AddOfficeAdminResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<AddOfficeAdminResult>(AddOfficeAdminResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(AddOfficeAdminResult.Header);
+                    result = r;
+                });
+
+            await new AddOfficeAdmin()
+            {
+                UserId = userId,
+                OfficeId = officeId
+                
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
         public static async Task<SaveUserResult> SaveUser(UserInfo user)
         {
             return await Instance._SaveUser(user);

@@ -129,6 +129,25 @@ namespace norsu.ass.Network
     }
 
     [ProtoContract]
+    class AddOfficeAdmin : Packet<AddOfficeAdmin>
+    {
+        [ProtoMember(1)]
+        public long OfficeId { get; set; }
+        [ProtoMember(2)]
+        public long UserId { get; set; }
+    }
+
+    [ProtoContract]
+    class AddOfficeAdminResult : Packet<AddOfficeAdminResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+
+        [ProtoMember(2)]
+        public long Id { get; set; }
+    }
+
+    [ProtoContract]
     class DeleteOffice : Packet<DeleteOffice>
     {
         [ProtoMember(1)]

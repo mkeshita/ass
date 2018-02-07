@@ -289,5 +289,84 @@ namespace norsu.ass.Server.ViewModels
 
                     ProcessUpdates();
                 }));
+
+        private ICommand _showAddOfficeCommand;
+        private User _addOfficeUser;
+        public ICommand AddOfficeCommand => _showAddOfficeCommand ?? (_showAddOfficeCommand = new DelegateCommand<User>(
+        d =>
+        {
+            _addOfficeUser = d;
+            ShowAddOffice = true;
+            Offices.Filter = FilterOffice;
+        },d=>!d?.IsSuperAdmin??false));
+
+        private bool _ShowAddOffice;
+
+        public bool ShowAddOffice
+        {
+            get => _ShowAddOffice;
+            set
+            {
+                if(value == _ShowAddOffice)
+                    return;
+                _ShowAddOffice = value;
+                OnPropertyChanged(nameof(ShowAddOffice));
+            }
+        }
+
+        private ListCollectionView _offices;
+
+        public ListCollectionView Offices
+        {
+            get
+            {
+                if (_offices != null) return _offices;
+                _offices = new ListCollectionView(Office.Cache);
+                _offices.Filter = FilterOffice;
+                return _offices;
+            }
+        }
+
+        private bool FilterOffice(object o)
+        {
+            if (_addOfficeUser == null)
+                return false;
+            if (!(o is Office office)) return false;
+            return !_addOfficeUser.Offices.Any(x => x.Id == office.Id);
+        }
+
+        private ICommand _cancelAddOfficeCommand;
+
+        public ICommand CancelAddOfficeCommand =>
+            _cancelAddOfficeCommand ?? (_cancelAddOfficeCommand = new DelegateCommand(
+                d =>
+                {
+                    ShowAddOffice = false;
+                }));
+
+        private ICommand _acceptAddOfficeCommand;
+
+        public ICommand AcceptAddOfficeCommand =>
+            _acceptAddOfficeCommand ?? (_acceptAddOfficeCommand = new DelegateCommand<Office>(
+                async d =>
+                {
+                    ShowAddOffice = false;
+                    _addOfficeUser.IsAddingOffice = true;
+                    var res = await Client.AddOfficeAdmin(d.Id, _addOfficeUser.Id);
+                    _addOfficeUser.IsAddingOffice = false;
+                    if (res?.Success ?? false)
+                    {
+                        var office = new OfficeAdmin()
+                        {
+                            UserId = _addOfficeUser.Id,
+                            OfficeId = d.Id,
+
+                        };
+                        office.Save();
+                        _addOfficeUser.RefreshOffices();
+                    }
+                    
+                    
+                },d=>d!=null));
     }
 }
