@@ -203,5 +203,38 @@ namespace norsu.ass.Server.ViewModels
             });
         }
 
+        private ICommand _changePictureCommand;
+
+        public ICommand ChangePictureCommand => _changePictureCommand ?? (_changePictureCommand =
+            new DelegateCommand<User>(
+                d =>
+                {
+                    var image = ImageProcessor.GetPicture(256);
+                    if (image == null)
+                        return;
+                    if (d.Id == 0)
+                    {
+                        d.Picture = image;
+                        return;
+                    }
+
+                    d.IsProcessing = true;
+
+                    lock (_updateLock)
+                        _updateTasks.Enqueue(new Task(async o =>
+                        {
+                            if (!(o is User of))
+                                return;
+                            of.IsProcessing = true;
+                            SetPictureResult res = null;
+                            while (!(res?.Success ?? false))
+                                res = await Client.SetPicture(of.Id,
+                                    image);
+                            of.Update(nameof(User.Picture), image);
+                            of.IsProcessing = false;
+                        }, d));
+
+                    ProcessUpdates();
+                }));
     }
 }
