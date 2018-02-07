@@ -85,9 +85,15 @@ namespace norsu.ass.Network
             user.Firstname = req.User.Firstname;
             user.Lastname = req.User.Lastname;
             user.StudentId = req.User.StudentId;
+
+            if(user.Id>0)
+                Console.WriteLine("User modified");
+            else
+                Console.WriteLine("New user added");
+            
             user.Save();
 
-            Console.WriteLine("User modified");
+            
 
             await new SaveUserResult()
             {

@@ -157,8 +157,24 @@ namespace norsu.ass.Network
 
             if(!File.Exists(Filename))
                 throw new Exception("The transferred file should have been created within the local application directory. Where has it gone?");
-            File.Delete(saveLocation);
-            File.Copy(Filename, saveLocation);
+            try
+            {
+                File.Delete(saveLocation);
+            }
+            catch (Exception e)
+            {
+                //
+            }
+
+            try
+            {
+                File.Copy(Filename, saveLocation, true);
+            }
+            catch (Exception e)
+            {
+                //
+            }
+            
         }
 
         /// <summary>

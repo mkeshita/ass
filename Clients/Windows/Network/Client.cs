@@ -22,8 +22,8 @@ namespace norsu.ass.Network
                 return;
             _started = true;
 
-            //  NetworkComms.DisableLogging();
-            NetworkComms.EnableLogging();
+            NetworkComms.DisableLogging();
+            //NetworkComms.EnableLogging();
 
             NetworkComms.IgnoreUnknownPacketTypes = true;
             var serializer = DPSManager.GetDataSerializer<NetworkCommsDotNet.DPSBase.ProtobufSerializer>();
@@ -908,35 +908,35 @@ namespace norsu.ass.Network
 
         //}
 
-        private static async Task<Offices> GetOffices()
-        {
-            return await Instance._GetOffices();
-        }
-        private async Task<Offices> _GetOffices()
-        {
-            if (Server == null) await _FindServer();
-            if (Server == null) return null;
+        //private static async Task<Offices> GetOffices()
+        //{
+        //    return await Instance._GetOffices();
+        //}
+        //private async Task<Offices> _GetOffices()
+        //{
+        //    if (Server == null) await _FindServer();
+        //    if (Server == null) return null;
 
-            Offices result = null;
-            NetworkComms.AppendGlobalIncomingPacketHandler<Offices>(Offices.Header,
-                (h, c, res) =>
-                {
-                    NetworkComms.RemoveGlobalIncomingPacketHandler(Offices.Header);
-                    result = res;
-                });
+        //    Offices result = null;
+        //    NetworkComms.AppendGlobalIncomingPacketHandler<Offices>(Offices.Header,
+        //        (h, c, res) =>
+        //        {
+        //            NetworkComms.RemoveGlobalIncomingPacketHandler(Offices.Header);
+        //            result = res;
+        //        });
 
-            await Packet.Send(Requests.GET_OFFICES,Server.IP,Server.Port);
+        //    await Packet.Send(Requests.GET_OFFICES,Server.IP,Server.Port);
 
-            var start = DateTime.Now;
-            while ((DateTime.Now - start).TotalSeconds < 17)
-            {
-                if (result != null)
-                    return result;
-                await TaskEx.Delay(TimeSpan.FromSeconds(1));
-            }
-            Server = null;
-            return null;
-        }
+        //    var start = DateTime.Now;
+        //    while ((DateTime.Now - start).TotalSeconds < 17)
+        //    {
+        //        if (result != null)
+        //            return result;
+        //        await TaskEx.Delay(TimeSpan.FromSeconds(1));
+        //    }
+        //    Server = null;
+        //    return null;
+        //}
         
         public static async Task<RateOfficeResult> RateOffice(long officeId, int rating, string message, bool isPrivate, long returnCount = -1)
         {

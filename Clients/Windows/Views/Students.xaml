@@ -59,7 +59,6 @@
       <DataGrid ItemsSource="{Binding Students}"
                 Margin="0 0 1 0"
               AutoGenerateColumns="False"
-              CanUserAddRows="False"
                 IsSynchronizedWithCurrentItem="True"
                 FrozenColumnCount="1"
               CanUserDeleteRows="False">

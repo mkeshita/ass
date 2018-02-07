@@ -53,6 +53,11 @@ namespace norsu.ass.Server.ViewModels
                 }
                 
             });
+            
+            Messenger.Default.AddListener<User>(Messages.NewUserBegin, user =>
+            {
+                user.Access = AccessLevels.Student;
+            });
         }
 
         private static StudentsViewModel _instance;

@@ -55,7 +55,7 @@ namespace norsu.ass.Server.Views
                 await TaskEx.Delay(100);
                 if ((DateTime.Now - _downloadStarted).TotalMilliseconds > 4444)
                 {
-                    MessageBox.Show("Cannot find server");
+                    MessageBox.Show("Could not find server");
                     Application.Current.Shutdown();
                 }
             }

@@ -114,22 +114,7 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(UsersDownloaded));
             }
         }
-        
-        private ICommand _downloadUsersCommand;
-        private bool _downloadingUsers;
-        public ICommand DownloadUsersCommand => _downloadUsersCommand ?? (_downloadUsersCommand = new DelegateCommand(
-        async d =>
-        {
-            if (_downloadingUsers) return;
-            _downloadingUsers = true;
-            foreach (var userPage in UserPages)
-            {
-                //if (!userPage.Value)
-                    //await Client.GetUsers(userPage.Key);
-            }
-            _downloadingUsers = false;
-        },d=>!_downloadingUsers && !UsersDownloaded));
-        
+       
         private static Dictionary<int,bool> UserPages = new Dictionary<int, bool>();
         private void GetUsersHandler(PacketHeader packetheader, Connection connection, GetUsersResult res)
         {

@@ -135,8 +135,9 @@ namespace norsu.ass.Server.ViewModels
             ErrorMessage = "Signing in...";
             IsProcessing = true;
             var result = await Client.Login(Username, Password);
+            var user = User.Cache.FirstOrDefault(x => x.Id == result.User.Id);
             
-            if (result == null)
+            if (result == null || user==null)
             {
                 ErrorMessage = "Server is offline.";
                 HasError = true;
@@ -157,26 +158,9 @@ namespace norsu.ass.Server.ViewModels
             }
             
             LoginSuccess = true;
-            ErrorMessage = "AUTHENTICATION SUCCESSFUL";
-
-            var user = User.Cache.FirstOrDefault(x => x.Id == result.User.Id);
-            if (user == null)
-            {
-                user = new User();
-                user.Defer = true;
-                user.Save();
-                user.ChangeId(result.User.Id);
-            }
+            ErrorMessage = "AUTHENTICATION SUCCESSFULL";
             
-            user.Access = (AccessLevels) result.User.Access;
-            user.Course = result.User.Description;
-            user.Firstname = result.User.Firstname;
-            user.Lastname = result.User.Lastname;
-            user.Username = result.User.Username;
-            user.Password = result.User.Password;
-            user.Picture = result.User.Picture;
             User = user;
-            user.Save();
 
             await TaskEx.Delay(1000);
             IsProcessing = false;
