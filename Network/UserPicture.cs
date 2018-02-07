@@ -5,6 +5,7 @@ using ProtoBuf;
 
 namespace norsu.ass.Network
 {
+    
     [ProtoContract]
     class UserPicture : Packet<UserPicture>
     {

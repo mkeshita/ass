@@ -122,6 +122,7 @@
       </materialDesign:TransitionerSlide>
       
       <materialDesign:TransitionerSlide>
+        <local:Users/>
       </materialDesign:TransitionerSlide>
       
       <materialDesign:TransitionerSlide>

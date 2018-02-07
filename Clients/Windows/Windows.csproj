@@ -102,6 +102,7 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\StudentsViewModel.cs" />
     <Compile Include="ViewModels\SuggestionsViewModel.cs" />
+    <Compile Include="ViewModels\UsersViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\Admin.xaml.cs">
       <DependentUpon>Admin.xaml</DependentUpon>
@@ -132,6 +133,9 @@
     </Compile>
     <Compile Include="Views\Suggestions.xaml.cs">
       <DependentUpon>Suggestions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Users.xaml.cs">
+      <DependentUpon>Users.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -209,6 +213,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Suggestions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Users.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
