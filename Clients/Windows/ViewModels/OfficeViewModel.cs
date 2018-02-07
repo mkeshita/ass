@@ -339,19 +339,19 @@ namespace norsu.ass.Server.ViewModels
                 _offices.CurrentChanged += (sender, args) =>
                 {
                     RatingsChanged();
-                    DownloadOffice((Office) _offices.CurrentItem);
+                    //DownloadOffice((Office) _offices.CurrentItem);
                 };
                 
                 return _offices;
             }
         }
 
-        private void DownloadOffice(Office office)
-        {
-            if (office == null) return;
-            Client.Send(Packet.GET_SUGGESTIONS, office.Id);
-            Client.Send(Packet.GET_REVIEWS, office.Id);
-        }
+       // private void DownloadOffice(Office office)
+       // {
+           // if (office == null) return;
+           // Client.Send(Packet.GET_SUGGESTIONS, office.Id);
+           // Client.Send(Packet.GET_REVIEWS, office.Id);
+       // }
 
         private bool Filter(object o)
         {

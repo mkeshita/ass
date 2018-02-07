@@ -40,12 +40,12 @@
       </Path>
       <TextBlock Text="{Binding AnonymousCount}" FontSize="15pt" VerticalAlignment="Center"/>
     </StackPanel>-->
-    <Button Grid.Row="0"
+    <!--<Button Grid.Row="0"
             Margin="74 20"
             Command="{Binding AddCommand}"
             HorizontalAlignment="Right"
             VerticalAlignment="Center"
-            Content="NEW STUDENT"/>
+            Content="NEW STUDENT"/>-->
     <Rectangle Grid.Row="0"
                Height="1"
                VerticalAlignment="Bottom"
