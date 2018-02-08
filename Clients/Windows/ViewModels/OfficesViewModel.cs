@@ -13,7 +13,15 @@ namespace norsu.ass.Server.ViewModels
 {
     class OfficesViewModel : ViewModelBase
     {
-        private OfficesViewModel() { }
+        private OfficesViewModel()
+        {
+            Messenger.Default.AddListener(Messages.Logout, () =>
+            {
+                ShowNewItem = false;
+                NewItem = null;
+                GC.Collect();
+            });
+        }
         private static OfficesViewModel _instance;
         public static OfficesViewModel Instance => _instance ?? (_instance = new OfficesViewModel());
 
@@ -61,7 +69,7 @@ namespace norsu.ass.Server.ViewModels
                 EditMode = true
             };
             ShowNewItem = true;
-        }));
+        },d=> LoginViewModel.Instance.User?.IsSuperAdmin??false));
 
         private bool _ShowNewItem;
 

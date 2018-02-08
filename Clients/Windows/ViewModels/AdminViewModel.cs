@@ -34,7 +34,11 @@ namespace norsu.ass.Server.ViewModels
             ScreenIndex = 4;
             MainViewModel.Instance.Screen = MainViewModel.ADMIN;
         }));
-        
-        
+
+        public void CancelEdit()
+        {
+            Models.User.CancelLastEdit();
+            Models.Office.CancelLastEdit();
+        }
     }
 }

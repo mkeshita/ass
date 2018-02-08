@@ -282,6 +282,7 @@
         <StackPanel Margin="74 20">
 
           <ItemsControl Grid.IsSharedSizeScope="True"
+                        IsEnabled="{Binding Source={x:Static viewModels:LoginViewModel.Instance},Path=User.IsSuperAdmin,FallbackValue=False}"
                         Margin="0 0 0 20"
                     ItemsSource="{Binding Offices}">
           </ItemsControl>

@@ -58,6 +58,7 @@
       </Grid.ColumnDefinitions>
       <DataGrid ItemsSource="{Binding Students}"
                 Margin="0 0 1 0"
+                IsReadOnly="{Binding Source={x:Static viewModels:LoginViewModel.Instance},Path=User.IsSuperAdmin,Converter={converters:Inverter}, FallbackValue=True}"
               AutoGenerateColumns="False"
                 IsSynchronizedWithCurrentItem="True"
                 FrozenColumnCount="1"
@@ -90,7 +91,8 @@
 
       <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
                     Grid.Column="1">
-      <StackPanel Grid.Column="1"  Margin="20">
+      <StackPanel Grid.Column="1"  Margin="20"
+                  IsEnabled="{Binding Source={x:Static viewModels:LoginViewModel.Instance},Path=User.IsSuperAdmin,FallbackValue=False}">
 
           <StackPanel Orientation="Horizontal">
         <Image Source="{Binding Students/Picture,Converter={converters:BytesToImage}}"

@@ -48,7 +48,7 @@ namespace norsu.ass.Server.ViewModels
                 Picture = ImageProcessor.Generate(),
             };
             ShowNewItem = true;
-        }));
+        },d=>LoginViewModel.Instance.User?.IsSuperAdmin??false));
 
         private Models.User _NewItem;
 
@@ -169,7 +169,7 @@ namespace norsu.ass.Server.ViewModels
                 }, ofc));
 
             ProcessUpdates();
-        }, o => o.CanSave()));
+        }, o => (LoginViewModel.Instance.User?.IsSuperAdmin??false) && o.CanSave()));
 
         private ICommand _ToggleAccessCommand;
 

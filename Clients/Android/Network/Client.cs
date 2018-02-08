@@ -37,7 +37,18 @@ namespace norsu.ass.Network
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
             PeerDiscovery.OnPeerDiscovered += OnPeerDiscovered;
-            Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
+            
+            while(true)
+                try
+                {
+                    Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            
 
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
         }

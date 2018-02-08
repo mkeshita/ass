@@ -600,6 +600,7 @@ namespace norsu.ass.Network
                     ErrorMessage = "Invalid username/password!",
                     Success = false,
                 }.Send(dev.IP, dev.Port);
+                Console.WriteLine($"Logged attempt failed! {dev.IP}");
                 return;
             }
             if(string.IsNullOrEmpty(user.Password))
@@ -612,6 +613,7 @@ namespace norsu.ass.Network
                     ErrorMessage = "Invalid username/password!",
                     Success = false,
                 }.Send(dev.IP, dev.Port);
+                Console.WriteLine($"Logged attempt failed! {dev.IP}");
                 return;
             }
             
@@ -626,6 +628,8 @@ namespace norsu.ass.Network
                 Lastname = user.Lastname,
                 Description = user.Course
             };
+
+            Console.WriteLine($"{user.Username} has logged in. {dev.IP}");
 
             await new DesktopLoginResult()
             {

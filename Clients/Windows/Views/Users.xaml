@@ -145,11 +145,7 @@
                       VerticalAlignment="Center"
                       FlowDirection="RightToLeft"
                       Visibility="{Binding IsSuperAdmin,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
-                      Margin="40 0">
-            
-                
-                
-              
+                      Margin="40 0 66 0">
             
             
             <ItemsControl  ItemsSource="{Binding Offices}" Margin="-20 0 0 0">
@@ -355,6 +351,8 @@
         <StackPanel Margin="74 20">
 
           <ItemsControl Grid.IsSharedSizeScope="True"
+                        Focusable="False"
+                        IsEnabled="{Binding Source={x:Static viewModels:LoginViewModel.Instance},Path=User.IsSuperAdmin,FallbackValue=False}"
                         Margin="0 0 0 20"
                     ItemsSource="{Binding Users}">
           </ItemsControl>

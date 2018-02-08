@@ -53,12 +53,32 @@ namespace norsu.ass.Network
                 IncomingPartialFileDataInfo);
 
             NetworkComms.AppendGlobalConnectionCloseHandler(OnConnectionClose);
-
-
+            
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
-            Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
-            Connection.StartListening(ConnectionType.TCP, new IPEndPoint(IPAddress.Any, 4786));
+            while (true)
+                try
+                {
+                    Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+
+            while(true)
+                try
+                {
+                    Connection.StartListening(ConnectionType.TCP, new IPEndPoint(IPAddress.Any, 4786));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+
+            
 
         }
 
