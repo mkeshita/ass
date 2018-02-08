@@ -561,6 +561,44 @@ namespace norsu.ass.Network
             return null;
         }
 
+        public static async Task<ChangePasswordResult> ChangePassword(string password, string newPassword, long userId)
+        {
+            return await Instance._ChangePassword(password,newPassword,userId);
+        }
+
+        private async Task<ChangePasswordResult> _ChangePassword(string password, string newPassword, long userId)
+        {
+            if (Server == null)
+                await _FindServer();
+            if (Server == null)
+                return null;
+
+            ChangePasswordResult result = null;
+            NetworkComms.AppendGlobalIncomingPacketHandler<ChangePasswordResult>(ChangePasswordResult.Header,
+                (h, c, r) =>
+                {
+                    NetworkComms.RemoveGlobalIncomingPacketHandler(ChangePasswordResult.Header);
+                    result = r;
+                });
+
+            await new ChangePassword()
+            {
+                Id = userId,
+                Current = password,
+                NewPassword = newPassword
+            }.Send(Server.IP, Server.Port);
+
+            var start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds < 17)
+            {
+                if (result != null)
+                    return result;
+                await TaskEx.Delay(TimeSpan.FromSeconds(1));
+            }
+            Server = null;
+            return null;
+        }
+
         public static async Task<ResetPasswordResult> ResetPassword(long officeId)
         {
             return await Instance._ResetPassword(officeId);

@@ -62,9 +62,47 @@ namespace norsu.ass.Network
             NetworkComms.AppendGlobalIncomingPacketHandler<DeleteUser>(DeleteUser.Header,DeleteUserHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<SaveUser>(SaveUser.Header,SaveUserHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<AddOfficeAdmin>(AddOfficeAdmin.Header,AddOfficeAdminHandler);
+            NetworkComms.AppendGlobalIncomingPacketHandler<ChangePassword>(ChangePassword.Header,DesktopChangePasswordHandler);
             
             PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
             
+        }
+
+        private async void DesktopChangePasswordHandler(PacketHeader packetheader, Connection connection, ChangePassword req)
+        {
+            var dev = GetDesktop(connection);
+            if (dev == null)
+                return;
+
+            var user = Models.User.Cache.FirstOrDefault(x => x.Id == req.Id);
+
+            var result = new ChangePasswordResult()
+            {
+                Success = true,
+            };
+
+            if (user == null)
+            {
+                result.Success = false;
+                result.ErrorMessage = "INVALID USER";
+                Console.WriteLine($"Change password failed. User Id: {req.Id}");
+            }
+            else
+            {
+                if (user.Password != req.Current || string.IsNullOrEmpty(req.NewPassword))
+                {
+                    result.Success = false;
+                    result.ErrorMessage = "INVALID PASSWORD";
+                    Console.WriteLine($"{user.Username} change password failed. IP: {dev.IP}");
+                }
+
+                if(result.Success)
+                {
+                    user.Update(nameof(User.Password), req.NewPassword);
+                }
+            }
+            
+            await result.Send(dev.IP, dev.Port);
         }
 
         private async void AddOfficeAdminHandler(PacketHeader packetheader, Connection connection, AddOfficeAdmin req)

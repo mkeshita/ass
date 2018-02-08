@@ -96,6 +96,7 @@
     <Compile Include="ImageProcessor.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="ViewModels\AdminViewModel.cs" />
+    <Compile Include="ViewModels\ChangePasswordViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\OfficesViewModel.cs" />
     <Compile Include="ViewModels\OfficeViewModel.cs" />
@@ -106,6 +107,9 @@
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\Admin.xaml.cs">
       <DependentUpon>Admin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ChangePassword.xaml.cs">
+      <DependentUpon>ChangePassword.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Downloader.xaml.cs">
       <DependentUpon>Downloader.xaml</DependentUpon>
@@ -177,6 +181,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\Admin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ChangePassword.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -50,6 +51,8 @@ namespace Windows
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
+            ContextMenu.PlacementTarget = (UIElement) sender;
+            ContextMenu.Placement = PlacementMode.Right;
             ContextMenu.IsOpen = true;
         }
     }

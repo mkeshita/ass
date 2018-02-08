@@ -120,6 +120,26 @@ namespace norsu.ass.Network
     }
 
     [ProtoContract]
+    class ChangePassword : Packet<ChangePassword>
+    {
+        [ProtoMember(1)]
+        public string Current { get; set; }
+        [ProtoMember(2)]
+        public string NewPassword { get; set; }
+        [ProtoMember(3)]
+        public long Id { get; set; }
+    }
+
+    [ProtoContract]
+    class ChangePasswordResult : Packet<ChangePasswordResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public string ErrorMessage { get; set; }
+    }
+
+    [ProtoContract]
     class ResetPasswordResult : Packet<ResetPasswordResult>
     {
         [ProtoMember(1)]

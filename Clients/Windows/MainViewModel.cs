@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -45,6 +46,14 @@ namespace norsu.ass.Server.ViewModels
             DownloadData();
         }
 
+        private ICommand _runExternalCommand;
+
+        public ICommand RunExternalCommand => _runExternalCommand ?? (_runExternalCommand = new DelegateCommand<string>(
+        cmd =>
+        {
+            Process.Start(cmd);
+        }));
+
         private string _NetworkStatus;
 
         public string NetworkStatus
@@ -58,6 +67,65 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(NetworkStatus));
             }
         }
+
+        private ChangePasswordViewModel _ChangePassword;
+
+        public ChangePasswordViewModel ChangePassword
+        {
+            get => _ChangePassword;
+            set
+            {
+                if(value == _ChangePassword)
+                    return;
+                _ChangePassword = value;
+                OnPropertyChanged(nameof(ChangePassword));
+                OnPropertyChanged(nameof(ShowChangePassword));
+            }
+        }
+
+        private bool _ShowChangePassword;
+
+        public bool ShowChangePassword
+        {
+            get => ChangePassword!=null;
+            set
+            {
+                if(value == _ShowChangePassword)
+                    return;
+                _ShowChangePassword = value;
+                OnPropertyChanged(nameof(ShowChangePassword));
+            }
+        }
+        
+        private ICommand _changePasswordCommand;
+
+        public ICommand ChangePasswordCommand =>
+            _changePasswordCommand ?? (_changePasswordCommand = new DelegateCommand(
+                d =>
+                {
+                    ChangePassword = new ChangePasswordViewModel();
+                }));
+
+        private ICommand _cancelChangePasswordCommand;
+
+        public ICommand CancelChangePasswordCommand =>
+            _cancelChangePasswordCommand ?? (_cancelChangePasswordCommand = new DelegateCommand(
+                d =>
+                {
+                    ChangePassword = null;
+                    GC.Collect();
+                }));
+
+        private ICommand _acceptChangePasswordCommand;
+
+        public ICommand AcceptChangePasswordCommand =>
+            _acceptChangePasswordCommand ?? (_acceptChangePasswordCommand = new DelegateCommand(
+                async d =>
+                {
+                    if (! await ChangePassword.Process()) return;
+                    ChangePassword = null;
+                    GC.Collect();
+                }));
 
         private SettingsViewModel _Setting;
 

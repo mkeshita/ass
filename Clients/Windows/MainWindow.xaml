@@ -31,7 +31,8 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <Grid Grid.Column="1" Background="#f5f6f6">
+    <Grid Grid.Column="1" Background="#f5f6f6"
+          IsEnabled="{Binding ShowChangePassword,Converter={cnv:Inverter}}">
 
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -121,6 +122,7 @@
     </Grid>
 
     <md:ColorZone Grid.Column="0"
+                  IsEnabled="{Binding ShowChangePassword,Converter={cnv:Inverter}}"
                   Visibility="{Binding HasLoggedIn,Converter={cnv:BooleanToVisibility}}"
                     Height="Auto"
                     Mode="Dark"
@@ -223,11 +225,12 @@
                 Height="Auto">
           <Button.ContextMenu>
             <ContextMenu x:Name="ContextMenu">
-              <MenuItem Header="My Profile" Command="{Binding Source={x:Static vm:AdminViewModel.Instance},Path=ShowUserProfileCommand}"/>
               <MenuItem Header="Sign Out"
                         Command="{Binding Source={x:Static vm:LoginViewModel.Instance},Path=LogoutCommand}" />
+              <MenuItem Header="Change Password"
+                        Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=ChangePasswordCommand}" />
               <Separator/>
-              <MenuItem Header="About Us" Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=ShowDevCommand}"/>
+              <MenuItem Header="About Us" Command="{Binding Source={x:Static vm:AdminViewModel.Instance},Path=ShowDevCommand}"/>
               <MenuItem Header="View Source" Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=RunExternalCommand}" CommandParameter="https://github.com/awooo-ph/ass" />
             </ContextMenu>
           </Button.ContextMenu>
@@ -256,6 +259,10 @@
       </Grid>
     </md:ColorZone>
 
+    <views:ChangePassword Visibility="{Binding ShowChangePassword,Converter={cnv:BooleanToVisibility}}" 
+                          Grid.ColumnSpan="2"
+                          Grid.RowSpan="2"/>
+    
     <md:PackIcon Kind="LanDisconnect" Height="32" Width="32"
                  Grid.Column="1"
                  VerticalAlignment="Top"
@@ -267,3 +274,4 @@
                  IsHitTestVisible="False"/>
   </Grid>
 </Window>
+
