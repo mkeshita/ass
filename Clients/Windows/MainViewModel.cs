@@ -36,6 +36,12 @@ namespace norsu.ass.Server.ViewModels
                     IsSavingSettings = false;
                 });
             
+            Messenger.Default.AddListener(Messages.Logout,() =>
+            {
+                Screen = LOGIN;
+                HasLoggedIn = false;
+            });
+            
             DownloadData();
         }
 

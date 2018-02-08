@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
 
 namespace norsu.ass.Server.ViewModels
 {
@@ -25,6 +26,15 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(ScreenIndex));
             }
         }
+
+        private ICommand _showDevCommand;
+
+        public ICommand ShowDevCommand => _showDevCommand ?? (_showDevCommand = new DelegateCommand(d =>
+        {
+            ScreenIndex = 4;
+            MainViewModel.Instance.Screen = MainViewModel.ADMIN;
+        }));
+        
         
     }
 }

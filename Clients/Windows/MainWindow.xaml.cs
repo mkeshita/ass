@@ -47,5 +47,10 @@ namespace Windows
             base.OnMouseLeftButtonDown(e);
             DragMove();
         }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            ContextMenu.IsOpen = true;
+        }
     }
 }

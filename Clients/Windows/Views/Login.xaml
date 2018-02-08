@@ -52,6 +52,8 @@
                        Margin="0 0 20 0" />
           <PasswordBox md:HintAssist.Hint="Password"
                    FontSize="14pt"
+                       x:Name="PasswordBox"
+                       x:FieldModifier="private"
                        PasswordChanged="PasswordBox_OnPasswordChanged"
                    VerticalAlignment="Center"
                    md:HintAssist.IsFloating="True"

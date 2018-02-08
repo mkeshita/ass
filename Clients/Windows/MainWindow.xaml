@@ -217,18 +217,18 @@
 
         <Button Grid.Row="3" Style="{StaticResource MaterialDesignToolButton}"
               Padding="0"
+                Click="ButtonBase_OnClick"
                 DataContext="{Binding Source={x:Static vm:LoginViewModel.Instance},Path=User}"
                 Margin="0 10"
                 Height="Auto">
           <Button.ContextMenu>
             <ContextMenu x:Name="ContextMenu">
-              <MenuItem Header="My Profile" Command="{Binding ShowUserProfileCommand}"/>
+              <MenuItem Header="My Profile" Command="{Binding Source={x:Static vm:AdminViewModel.Instance},Path=ShowUserProfileCommand}"/>
               <MenuItem Header="Sign Out"
-                        Command="{Binding LogoutCommand}" />
+                        Command="{Binding Source={x:Static vm:LoginViewModel.Instance},Path=LogoutCommand}" />
               <Separator/>
-              <MenuItem Header="About Us" Command="{Binding ShowDevCommand}"/>
-              <MenuItem Header="User Guide" Command="{Binding RunExternalCommand}" CommandParameter="https://github.com/awooo-ph/sfc.gate/wiki"/>
-              <MenuItem Header="View Source" Command="{Binding RunExternalCommand}" CommandParameter="https://github.com/awooo-ph/sfc.gate" />
+              <MenuItem Header="About Us" Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=ShowDevCommand}"/>
+              <MenuItem Header="View Source" Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=RunExternalCommand}" CommandParameter="https://github.com/awooo-ph/ass" />
             </ContextMenu>
           </Button.ContextMenu>
           <StackPanel>

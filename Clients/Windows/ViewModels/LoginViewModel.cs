@@ -124,6 +124,14 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(LoginSuccess));
             }
         }
+
+        private ICommand _logoutCommand;
+
+        public ICommand LogoutCommand => _logoutCommand ?? (_logoutCommand = new DelegateCommand(d =>
+        {
+            User = null;
+            Messenger.Default.Broadcast(Messages.Logout);
+        }));
         
         private ICommand _loginCommand;
 

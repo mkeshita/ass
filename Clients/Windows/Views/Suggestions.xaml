@@ -59,6 +59,7 @@
           <DataGrid.Columns>
             <DataGridCheckBoxColumn Binding="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsThreeState="False"
                                         EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
+                                    Visibility="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=CanDeleteSuggestions,Converter={converters:BooleanToVisibility}}"
                                         ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"/>
             <DataGridTextColumn Binding="{Binding Votes}" Header="Votes" IsReadOnly="True" />
             <DataGridTemplateColumn Header="Name" IsReadOnly="True" >

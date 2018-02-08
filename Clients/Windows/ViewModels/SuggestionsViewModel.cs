@@ -29,6 +29,11 @@ namespace norsu.ass.Server.ViewModels
             {
                 OnPropertyChanged(nameof(CanDeleteSuggestions));
             });
+            
+            Messenger.Default.AddListener(Messages.LoggedIn, () =>
+            {
+                OnPropertyChanged(nameof(CanDeleteSuggestions));
+            });
         }
 
         private bool FilterSuggestion(object o)
@@ -198,7 +203,7 @@ namespace norsu.ass.Server.ViewModels
 
         public bool CanDeleteSuggestions
         {
-            get => _CanDeleteSuggestions && ((Client.Server?.CanDeleteSuggestion??false) || LoginViewModel.Instance.User?.Access == AccessLevels.SuperAdmin) && GetSuggestions().Count>0;
+            get => _CanDeleteSuggestions && ((Client.Server?.CanDeleteSuggestion??false) || LoginViewModel.Instance.User?.Access == AccessLevels.SuperAdmin);
             set
             {
                 if(value == _CanDeleteSuggestions)
@@ -237,6 +242,6 @@ namespace norsu.ass.Server.ViewModels
                     {
                         MainViewModel.ShowToast("Failed to delete suggestions.");
                     }
-                }));
+                },d=>CanDeleteSuggestions && GetSuggestions().Count>0));
     }
 }
