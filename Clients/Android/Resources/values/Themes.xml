@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<resources>
+
+  <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <!--<item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primaryDark</item>
+    <item name="colorAccent">@color/accent</item>-->
+
+    <!-- AppCompat Dialog Attributes -->
+    <!--<item name="dialogTheme">@style/AppTheme.Dialog</item>
+    <item name="alertDialogTheme">@style/AppTheme.Dialog.Alert</item>-->
+  </style>
+
+  <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <!-- AppCompat Attributes -->
+    <!--<item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primaryDark</item>
+    <item name="colorAccent">@color/accent</item>-->
+
+    <!-- AppCompat Control Attributes -->
+    
+    <!--<item name="colorButtonNormal">@color/primary</item>
+    <item name="colorControlNormal">@color/primary</item>
+    <item name="colorControlActivated">@color/primaryLight</item>-->
+    <!-- Other control states (not in this example)
+    <item name="colorControlHighlight">@color/selector_green_pressed</item>
+    -->
+
+    <!-- AppCompat Dialog Attributes -->
+  </style>
+
+  <!-- Green Dialog Theme -->
+  <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog">
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primaryDark</item>
+    <item name="colorAccent">@color/accent</item>
+  </style>
+
+  <!-- Green Alert Dialog Theme -->
+  <style name="AppTheme.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert">
+    <item name="colorPrimary">@color/primary</item>
+    <item name="colorPrimaryDark">@color/primaryDark</item>
+    <item name="colorAccent">@color/accent</item>
+  </style>
+
+
+  <style name="AppTheme.Splash" parent="AppTheme">
+    <item name="android:windowBackground">
+      @drawable/splash
+    </item>
+    <item name="android:windowActionBar">false</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowIsTranslucent">true</item>
+    <item name="android:windowIsFloating">false</item>
+    <item name="android:backgroundDimEnabled">true</item>
+  </style>
+</resources>

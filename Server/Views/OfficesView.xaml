@@ -10,7 +10,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
 
-    <materialDesign:ColorZone Mode="Light" CornerRadius="4" Padding="4"
+    <materialDesign:ColorZone Mode="Light" CornerRadius="0 0 4 4" 
                                   VerticalAlignment="Stretch">
         <Grid>
             <Grid.RowDefinitions>
@@ -18,6 +18,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ListBox ItemsSource="{Binding Offices}"
+                     Margin="0 4"
                  IsSynchronizedWithCurrentItem="True"
                  Grid.IsSharedSizeScope="True"
                  HorizontalContentAlignment="Stretch"
@@ -85,9 +86,9 @@
             </ListBox>
 
             <Button Grid.Row="1" Content="NEW OFFICE"
+                    Margin="7"
                     Visibility="{Binding CurrentUser.Access,
             Converter={converters:EqualityConverter Operand={x:Static models:AccessLevels.SuperAdmin}}}"
-                    Margin="20 0 20 20"
                     Command="{Binding AddOfficeCommand}" />
 
         </Grid>

@@ -29,5 +29,17 @@ namespace norsu.ass.Network
         
         [ProtoMember(9)]
         public int ReplyDepth { get; set; }
+
+        [ProtoMember(10)]
+        public int SuggestionTitleMin { get; set; }
+        
+        [ProtoMember(11)]
+        public int SuggestionTitleMax { get; set; }
+
+        [ProtoMember(12)]
+        public int SuggestionBodyMin { get; set; }
+
+        [ProtoMember(13)]
+        public int SuggestionBodyMax { get; set; }
     }
 }

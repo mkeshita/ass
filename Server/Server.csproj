@@ -93,27 +93,52 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\Compare.cs" />
+    <Compile Include="Converters\EqualityToVisibility.cs" />
+    <Compile Include="Converters\Inverter.cs" />
+    <Compile Include="Converters\PercentageConverter.cs" />
+    <Compile Include="Converters\RatingConverter.cs" />
     <Compile Include="ImageProcessor.cs" />
     <Compile Include="Network\Server.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\NewOfficeViewModel.cs" />
     <Compile Include="ViewModels\UserAccountViewModel.cs" />
+    <Compile Include="ViewModels\UserSelector.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\ChangePasswordDialog.xaml.cs">
+      <DependentUpon>ChangePasswordDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\LoginView.xaml.cs">
       <DependentUpon>LoginView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\OfficeEditorDialog.xaml.cs">
+      <DependentUpon>OfficeEditorDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OfficeInfoView.xaml.cs">
+      <DependentUpon>OfficeInfoView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\OfficesView.xaml.cs">
       <DependentUpon>OfficesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OfficeView.xaml.cs">
+      <DependentUpon>OfficeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RatingView.xaml.cs">
+      <DependentUpon>RatingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsView.xaml.cs">
       <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SuggestionsView.xaml.cs">
+      <DependentUpon>SuggestionsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\UserAccount.xaml.cs">
       <DependentUpon>UserAccount.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\UserEditorDialog.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Converters\BooleanToVisibility.cs" />
@@ -163,6 +188,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\ChangePasswordDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\LoginView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -175,7 +204,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\OfficeEditorDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\OfficeInfoView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\OfficesView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\OfficeView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\RatingView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -183,7 +228,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\SuggestionsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\UserAccount.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UserEditorDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -197,6 +250,9 @@
     </None>
     <Resource Include="norsu.png" />
     <SplashScreen Include="SplashScreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="server.ico" />
   </ItemGroup>
   <Import Project="..\Network\Network.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ProtoBuf;
 
 namespace norsu.ass.Network
@@ -46,6 +47,12 @@ namespace norsu.ass.Network
         
         [ProtoMember(13)]
         public long CommentsDisabledBy { get; set; }
+
+        [ProtoMember(14)]
+        public bool IsPrivate { get; set; }
+
+        [ProtoMember(15)]
+        public DateTime Time { get; set; }
     }
 
     [ProtoContract]
@@ -58,7 +65,7 @@ namespace norsu.ass.Network
         public long OfficeId { get; set; }
 
         [ProtoMember(3)]
-        public long Count { get; set; }
+        public int Page { get; set; }
     }
 
     [ProtoContract]
@@ -72,6 +79,15 @@ namespace norsu.ass.Network
 
         [ProtoMember(3)]
         public long TotalCount { get; set; }
+        
+        [ProtoMember(4)]
+        public int Page { get; set; }
+        
+        [ProtoMember(5)]
+        public bool Full { get; set; }
+
+        [ProtoMember(6)]
+        public int Pages { get; set; }
     }
 
     [ProtoContract]
@@ -105,5 +121,37 @@ namespace norsu.ass.Network
         [ProtoMember(5)]
         public bool IsPrivate { get; set; }
     }
-    
+
+    [ProtoContract]
+    class SuggestResult : Packet<SuggestResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public string ErrorMessage { get; set; }
+
+        [ProtoMember(3)]
+        public int TotalCount { get; set; }
+        
+        [ProtoMember(4)]
+        public Suggestion Result { get; set; }
+    }
+
+    [ProtoContract]
+    class DeleteSuggestions : Packet<DeleteSuggestions>
+    {
+        [ProtoMember(1)]
+        public List<long> Ids { get; set; }
+
+        [ProtoMember(2)]
+        public long UserId { get; set; }
+    }
+
+    [ProtoContract]
+    class DeleteSuggestionsResult : Packet<DeleteSuggestionsResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        
+    }
 }

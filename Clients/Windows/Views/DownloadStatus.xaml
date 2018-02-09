@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="norsu.ass.Server.Views.DownloadStatus"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:norsu.ass.Server.Views"
+             mc:Ignorable="d" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch"
+             Visibility="{Binding DownloadCompleted,Converter={converters:BooleanToVisibility Collapsed,Visible},FallbackValue=Visible}"
+             d:DesignHeight="300" d:DesignWidth="300">
+  <Grid>
+    <Grid.Background>
+      <RadialGradientBrush Center="0.5 0.5">
+        <RadialGradientBrush.GradientStops>
+          <GradientStop Color="{StaticResource Primary700}" Offset="1"/>
+          <GradientStop Color="{StaticResource Primary300}" Offset="0"/>
+        </RadialGradientBrush.GradientStops>
+      </RadialGradientBrush>
+    </Grid.Background>
+    <md:Card VerticalAlignment="Center"
+             UniformCornerRadius="7"
+             md:ShadowAssist.ShadowDepth="Depth4"
+             md:ShadowAssist.ShadowEdges="All"
+             HorizontalAlignment="Center">
+      <StackPanel Orientation="Horizontal">
+      <StackPanel Margin="20" Orientation="Horizontal">
+        <Grid Visibility="{Binding DownloadError,Converter={converters:BooleanToVisibility Collapsed,Visible}}">
+          <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                     Visibility="{Binding DownloadSuccess,Converter={converters:BooleanToVisibility Collapsed,Visible}}"
+                     Height="48" Width="48"
+                     IsIndeterminate="True"
+                     Margin="10"
+                     VerticalAlignment="Center"/>
+        </Grid>
+        <md:PackIcon Kind="CloseCircle" Foreground="{StaticResource SecondaryAccentBrush}"
+                     Height="32" Width="32"
+                     Margin="10"
+                     Visibility="{Binding DownloadError,Converter={converters:BooleanToVisibility}}"
+                     VerticalAlignment="Center"/>
+        <md:PackIcon Kind="CheckCircle" Foreground="{StaticResource PrimaryHueMidBrush}"
+                     Height="32" Width="32"
+                     Margin="10"
+                     Visibility="{Binding DownloadSuccess,Converter={converters:BooleanToVisibility}}"
+                     VerticalAlignment="Center" />
+
+        <TextBlock Text="{Binding StatusText}"
+                   Style="{StaticResource MaterialDesignHeadlineTextBlock}"
+                   VerticalAlignment="Center"
+                   Margin="10"/>
+      </StackPanel>
+        <!--<Button Command="{Binding DownloadCommand}"
+                Visibility="{Binding DownloadError,Converter={converters:BooleanToVisibility}}">
+          <StackPanel Orientation="Horizontal">
+            <md:PackIcon Kind="CloudSync" VerticalAlignment="Center"
+                         Height="24" Width="24"/>
+            <TextBlock Text="  RECONNECT" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>-->
+      </StackPanel>
+    </md:Card>
+  </Grid>
+</UserControl>

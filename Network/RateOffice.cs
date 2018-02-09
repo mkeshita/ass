@@ -26,4 +26,13 @@ namespace norsu.ass.Network
         [ProtoMember(6)]
         public long ReturnCount { get; set; } = -1;
     }
+
+    [ProtoContract]
+    class RateOfficeResult : Packet<RateOfficeResult>
+    {
+        [ProtoMember(1)]
+        public bool Success { get; set; }
+        [ProtoMember(2)]
+        public string ErrorMessage { get; set; }
+    }
 }

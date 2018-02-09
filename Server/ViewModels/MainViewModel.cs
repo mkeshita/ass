@@ -361,7 +361,7 @@ namespace norsu.ass.Server.ViewModels
                 if (_suggestions != null) return _suggestions;
                 _suggestions = new ListCollectionView(Suggestion.Cache);
                 _suggestions.Filter = FilterSuggestion;
-                Office.Cache.CollectionChanged += (sender, args) =>
+                Suggestion.Cache.CollectionChanged += (sender, args) =>
                 {
                     _suggestions.Filter = FilterSuggestion;
                 };

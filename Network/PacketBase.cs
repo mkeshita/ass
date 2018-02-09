@@ -33,9 +33,13 @@ namespace norsu.ass.Network
             await Send(dev.IP, dev.Port);
         }
     }
-
+    
     class Packet
     {
+        public const string GET_SUGGESTIONS = "get_suggestions";
+        public const string GET_REVIEWS = "get_reviews";
+        public const string GET_COMMENTS = "get_comments";
+        
         public static async Task Send(string header, object message, string ip, int port)
         {
             await Send(header, message, new IPEndPoint(IPAddress.Parse(ip), port));

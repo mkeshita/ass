@@ -32,6 +32,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <StackPanel Margin="0 0 0 20">
@@ -166,6 +167,99 @@
                                   Grid.Row="6" Focusable="False"
                                   VerticalAlignment="Top"
                                   Grid.Column="1" />
+
+                    <StackPanel Margin="0 0 0 20" Grid.Row="7" Grid.ColumnSpan="2">
+                        <TextBlock Text="SUGGESTIONS" FontWeight="Bold"
+                                   Margin="0 10" />
+                        <TextBlock Text="TITLE MINIMUM" FontWeight="Bold"/>
+                        <TextBlock
+                            Text="Minimum number of characters for title."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding ElementName=TitleMin,Path=Value}"
+                                       VerticalAlignment="Center"
+                                       Grid.Column="1"
+                                       Margin="10 0 0 0"/>
+                            <Slider Minimum="4"
+                                    VerticalAlignment="Center"
+                                    Grid.Column="0"
+                                    x:Name="TitleMin"
+                                    Maximum="{Binding ElementName=TitleMax,Path=Value}"
+                                    Value="{Binding Source={x:Static properties:Settings.Default},Path=SuggestionTitleMin}" />
+                        </Grid>
+                        <TextBlock Text="TITLE MAXIMUM" FontWeight="Bold"
+                                   Margin="0 20 0 0"/>
+                        <TextBlock
+                            Text="Maximum number of characters for title."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                        <Slider Minimum="{Binding ElementName=TitleMin,Path=Value}"
+                                Maximum="174"
+                                VerticalAlignment="Center"
+                                Grid.Column="0"
+                                x:Name="TitleMax"
+                                Value="{Binding Source={x:Static properties:Settings.Default},Path=SuggestionTitleMax}" />
+                            <TextBlock Text="{Binding ElementName=TitleMax,Path=Value}"
+                                   VerticalAlignment="Center"
+                                   Margin="10 0 0 0"
+                                   Grid.Column="1" />
+                            </Grid>
+
+                        <TextBlock Text="BODY MINIMUM" FontWeight="Bold"
+                                   Margin="0 20 0 0" />
+                        <TextBlock
+                            Text="Minimum number of characters for body."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding ElementName=BodyMin,Path=Value}"
+                                       VerticalAlignment="Center"
+                                       Grid.Column="1"
+                                       Margin="10 0 0 0"/>
+                            <Slider Minimum="47"
+                                    VerticalAlignment="Center"
+                                    Grid.Column="0"
+                                    x:Name="BodyMin"
+                                    Maximum="{Binding ElementName=BodyMax,Path=Value}"
+                                    Value="{Binding Source={x:Static properties:Settings.Default},Path=SuggestionBodyMin}" />
+                        </Grid>
+                        <TextBlock Text="BODY MAXIMUM" FontWeight="Bold"
+                                   Margin="0 20 0 0" />
+                        <TextBlock
+                            Text="Maximum number of characters for body."
+                            TextWrapping="Wrap"
+                            Opacity="0.7" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Slider Minimum="{Binding ElementName=BodyMin,Path=Value}"
+                                Maximum="471"
+                                VerticalAlignment="Center"
+                                Grid.Column="0"
+                                x:Name="BodyMax"
+                                Value="{Binding Source={x:Static properties:Settings.Default},Path=SuggestionBodyMax}" />
+                            <TextBlock Text="{Binding ElementName=BodyMax,Path=Value}"
+                                   VerticalAlignment="Center"
+                                   Margin="10 0 0 0"
+                                   Grid.Column="1" />
+                        </Grid>
+                    </StackPanel>
                 </Grid>
 
             </md:ColorZone>
