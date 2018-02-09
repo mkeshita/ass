@@ -47,9 +47,11 @@ namespace norsu.ass.Server.ViewModels
 
             Messenger.Default.AddListener<ReceivedFile>(Messages.DatabaseDownloaded, async file =>
             {
+                LastDataReceived =DateTime.Now;
+                _disconnectedCalled = false;
                 if (DownloadCompleted)
                     return;
-
+                
                 file.SaveFileToDisk(awooo.DataSource);
 
                 User.ClearPasswords();
@@ -69,17 +71,26 @@ namespace norsu.ass.Server.ViewModels
             
             Messenger.Default.AddListener(Messages.ServerShutdown,async () =>
             {
+                if (_disconnectedCalled) return;
+                _disconnectedCalled = true;
+                
                 StatusText = "DISCONNECTED FROM SERVER";
                 DownloadError = true;
                 DownloadSuccess = false;
                 DownloadCompleted = false;
                 _downloadInitiated = false;
 
-                await TaskEx.Delay(4444);
-
-                Download();
+                await TaskEx.Delay(1476);
+                StatusText = "PROGRAM WILL NOW EXIT";
+                await TaskEx.Delay(1741);
+                awooo.Context.Post(d =>
+                {
+                    Application.Current.Shutdown();
+                },null);
             });
         }
+
+        private bool _disconnectedCalled;
         
         private ICommand _runExternalCommand;
 
@@ -384,7 +395,7 @@ namespace norsu.ass.Server.ViewModels
                 StatusText = "CONNECTING TO SERVER...";
                 
                 var res = await Client.SendAsync(new Database());
-
+                
                 if (res)
                 {
                     LastDataReceived = DateTime.Now;
@@ -398,13 +409,27 @@ namespace norsu.ass.Server.ViewModels
                 }
                 else
                 {
+                    if (DownloadSuccess || DownloadCompleted)
+                        return;
                     StatusText = "CAN NOT FIND SERVER";
                 }
                 
+                DownloadSuccess = false;
                 DownloadError = true;
+                
                 await TaskEx.Delay(3333);
+                
+                if (DownloadCompleted || DownloadSuccess)
+                    return;
+                
                 StatusText = "RETRYING IN FEW SECONDS";
+
                 await TaskEx.Delay(7777);
+                
+                if (DownloadCompleted || DownloadSuccess)
+                    return;
+                
+                Client.Server = null;
             }
         }
 

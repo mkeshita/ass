@@ -85,7 +85,7 @@ namespace norsu.ass.Network
             {
                 result.Success = false;
                 result.ErrorMessage = "INVALID USER";
-                Console.WriteLine($"Change password failed. User Id: {req.Id}");
+                Program.Log($"Change password failed. User Id: {req.Id}");
             }
             else
             {
@@ -93,7 +93,7 @@ namespace norsu.ass.Network
                 {
                     result.Success = false;
                     result.ErrorMessage = "INVALID PASSWORD";
-                    Console.WriteLine($"{user.Username} change password failed. IP: {dev.IP}");
+                    Program.Log($"{user.Username} change password failed. IP: {dev.IP}");
                 }
 
                 if(result.Success)
@@ -118,7 +118,7 @@ namespace norsu.ass.Network
                     UserId = req.UserId,
                     OfficeId = req.OfficeId,
                 }.Save();
-                Console.WriteLine("New office admin added.");
+                Program.Log("New office admin added.");
             }
             
             await new AddOfficeAdminResult()
@@ -148,9 +148,9 @@ namespace norsu.ass.Network
             user.StudentId = req.User.StudentId;
 
             if(user.Id>0)
-                Console.WriteLine("User modified");
+                Program.Log("User modified");
             else
-                Console.WriteLine("New user added");
+                Program.Log("New user added");
             
             user.Save();
 
@@ -172,7 +172,7 @@ namespace norsu.ass.Network
             var office = Models.User.Cache.FirstOrDefault(x => x.Id == req.Id);
             office?.Delete(false);
 
-            Console.WriteLine("User deleted");
+            Program.Log("User deleted");
             
             await new DeleteUserResult()
             {
@@ -188,7 +188,7 @@ namespace norsu.ass.Network
 
             var office = Models.User.Cache.FirstOrDefault(x => x.Id == req.Id);
             office?.Update(nameof(User.Password), "");
-            Console.WriteLine("User password reset");
+            Program.Log("User password reset");
             await new ResetPasswordResult()
             {
                 Success = true,
@@ -205,7 +205,7 @@ namespace norsu.ass.Network
             if (office != null)
             {
                 office.Update(nameof(User.Picture), req.Picture);
-                Console.WriteLine($"User picture updated. Source: {dev.IP} User: {office.Username}");
+                Program.Log($"User picture updated. Source: {dev.IP} User: {office.Username}");
             }
 
             await new SetPictureResult()
@@ -245,7 +245,7 @@ namespace norsu.ass.Network
             if (office != null)
             {
                 office.Update(nameof(Office.Picture),req.Picture);
-                Console.WriteLine($"Office picture updated. Source: {dev.IP} Office: {office.ShortName}");
+                Program.Log($"Office picture updated. Source: {dev.IP} Office: {office.ShortName}");
             }
 
             await new SetOfficePictureResult()
@@ -264,7 +264,7 @@ namespace norsu.ass.Network
             if (office != null)
             {
                 office.Delete(false);
-                Console.WriteLine($"Office deleted. Source: {dev.IP} Office: {office.ShortName}");
+                Program.Log($"Office deleted. Source: {dev.IP} Office: {office.ShortName}");
             }
             
             await new DeleteOfficeResult()
@@ -285,9 +285,9 @@ namespace norsu.ass.Network
             office.ShortName = req.ShortName;
             
             if(office.Id==0)
-                Console.WriteLine($"New office added. Source: {dev.IP} Office: #{office.Id} {office.ShortName} | {office.LongName}");
+                Program.Log($"New office added. Source: {dev.IP} Office: #{office.Id} {office.ShortName} | {office.LongName}");
             else
-                Console.WriteLine(
+                Program.Log(
                     $"Office details changed. Source: {dev.IP} Office: #{office.Id}");
 
             office.Save();
@@ -330,7 +330,7 @@ namespace norsu.ass.Network
             };
             comment.Save();
 
-            Console.WriteLine($"New comment added for suggestion #{req.SuggestionId}. IP: {dev.IP}");
+            Program.Log($"New comment added for suggestion #{req.SuggestionId}. IP: {dev.IP}");
             
             await new ReplyCommentResult()
             {
@@ -356,9 +356,9 @@ namespace norsu.ass.Network
             suggestion.Save();
             
             if(suggestion.AllowComments)
-                Console.WriteLine($"Commenting for suggestion #{req.SuggestionId} is enabled. IP: {dev.IP}");
+                Program.Log($"Commenting for suggestion #{req.SuggestionId} is enabled. IP: {dev.IP}");
             else
-                Console.WriteLine($"Commenting for suggestion #{req.SuggestionId} is disabled. IP: {dev.IP}");
+                Program.Log($"Commenting for suggestion #{req.SuggestionId} is disabled. IP: {dev.IP}");
 
             await new ToggleCommentsResult()
             {
@@ -595,26 +595,26 @@ namespace norsu.ass.Network
                         totalBytesSent += bytesToSend;
 
                         //Update the GUI with our send progress
-                        //Console.WriteLine($"Sending database to {dev.IP}: {((double) totalBytesSent / stream.Length)*100}%");
+                        //Program.Log($"Sending database to {dev.IP}: {((double) totalBytesSent / stream.Length)*100}%");
                         
                     } while(totalBytesSent < stream.Length);
 
                     //Clean up any unused memory
                     GC.Collect();
 
-                   // Console.WriteLine("Completed file send to '" + connection.ConnectionInfo.ToString() + "'.");
+                   // Program.Log("Completed file send to '" + connection.ConnectionInfo.ToString() + "'.");
                 } catch(CommunicationException)
                 {
                     //If there is a communication exception then we just write a connection
                     //closed message to the log window
-                    Console.WriteLine("Failed to complete send as connection was closed.");
+                    Program.Log("Failed to complete send as connection was closed.");
                 } catch(Exception ex)
                 {
                     //If we get any other exception which is not an InvalidDataException
                     //we log the error
                     if(ex.GetType() != typeof(InvalidDataException))
                     {
-                        Console.WriteLine(ex.Message.ToString());
+                        Program.Log(ex.Message.ToString());
                         //LogTools.LogException(ex, "SendFileError");
                     }
                 }
@@ -638,7 +638,7 @@ namespace norsu.ass.Network
                     ErrorMessage = "Invalid username/password!",
                     Success = false,
                 }.Send(dev.IP, dev.Port);
-                Console.WriteLine($"Logged attempt failed! {dev.IP}");
+                Program.Log($"Logged attempt failed! {dev.IP}");
                 return;
             }
             if(string.IsNullOrEmpty(user.Password))
@@ -651,7 +651,7 @@ namespace norsu.ass.Network
                     ErrorMessage = "Invalid username/password!",
                     Success = false,
                 }.Send(dev.IP, dev.Port);
-                Console.WriteLine($"Logged attempt failed! {dev.IP}");
+                Program.Log($"Logged attempt failed! {dev.IP}");
                 return;
             }
             
@@ -667,7 +667,7 @@ namespace norsu.ass.Network
                 Description = user.Course
             };
 
-            Console.WriteLine($"{user.Username} has logged in. {dev.IP}");
+            Program.Log($"{user.Username} has logged in. {dev.IP}");
 
             await new DesktopLoginResult()
             {
