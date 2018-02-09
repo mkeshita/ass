@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using norsu.ass.Server.ViewModels;
+using norsu.ass.Server.Views;
 
 namespace Windows
 {
@@ -23,6 +25,13 @@ namespace Windows
         public MainWindow()
         {
             InitializeComponent();
+            
+        }
+
+        protected override void OnInitialized(EventArgs e)
+        {
+           base.OnInitialized(e);
+           MainViewModel.Instance.Download();
         }
 
         private void MinimizeClicked(object sender, RoutedEventArgs e)

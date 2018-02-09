@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using Windows;
 using norsu.ass.Models;
 using norsu.ass.Network;
+using norsu.ass.Server.ViewModels;
 
 namespace norsu.ass.Server.Views
 {
@@ -34,9 +35,7 @@ namespace norsu.ass.Server.Views
                 
                 awooo.Context.Post(d =>
                 {
-                    var w = new MainWindow();
-                    Application.Current.MainWindow = w;
-                    w.Show();
+                    Application.Current.MainWindow.DataContext = MainViewModel.Instance;
                     Close();
                 },null);
                 

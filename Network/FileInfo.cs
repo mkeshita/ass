@@ -1,4 +1,5 @@
-﻿// From NetworkComms ExampleFileTransfer.WPF
+﻿#if !__ANDROID__
+// From NetworkComms ExampleFileTransfer.WPF
 
 // 
 // Licensed to the Apache Software Foundation (ASF) under one
@@ -138,7 +139,11 @@ namespace norsu.ass.Network
                 if (ReceivedBytes == SizeBytes)
                 {
                     data.Flush();
-                    Messenger.Default.Broadcast(Messages.DatabaseDownloaded,this);
+                    Messenger.Default.Broadcast(Messages.DatabaseDownloaded, this);
+                }
+                else
+                {
+                    Messenger.Default.Broadcast(Messages.PartialDataReceived);
                 }
             }
 
@@ -257,3 +262,4 @@ namespace norsu.ass.Network
         }
     }
 }
+#endif

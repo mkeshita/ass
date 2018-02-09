@@ -18,9 +18,7 @@ namespace norsu.ass.Network
     {
         private Client()
         {
-            if (_started)
-                return;
-            _started = true;
+          
 
             NetworkComms.DisableLogging();
             //NetworkComms.EnableLogging();
@@ -78,7 +76,7 @@ namespace norsu.ass.Network
                     //
                 }
 
-            
+            _started = true;
 
         }
 
@@ -362,9 +360,7 @@ namespace norsu.ass.Network
             await packet.Send(Server.IP, Server.Port);
             return true;
         }
-
-
-
+        
         ~Client()
         {
             Stop();

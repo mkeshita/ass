@@ -26,6 +26,7 @@
         DataContext="{Binding Source={x:Static vm:MainViewModel.Instance}}"
         Icon="/server.ico">
   <Grid>
+  <Grid IsEnabled="{Binding DownloadCompleted}">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="*"/>
@@ -104,21 +105,7 @@
       <md:Snackbar Grid.Row="1" HorizontalAlignment="Stretch"
                    Width="Auto" MessageQueue="{Binding MessageQueue}"/>
 
-      <StackPanel Orientation="Horizontal"
-                  Grid.Row="0"
-                  VerticalAlignment="Top"
-                  HorizontalAlignment="Right">
-        <Button Style="{StaticResource WindowCommandButton}" Content="{md:PackIcon WindowMinimize}"
-                Click="MinimizeClicked" />
-        <Button Style="{StaticResource WindowCommandButton}"
-                Click="MaximizeClicked"
-                Content="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow},
-                          Path=WindowState,Converter={cnv:WindowStateToPackIcon }}" />
-        <Button Style="{StaticResource WindowCloseButton}" Content="{md:PackIcon WindowClose}"
-                Click="CloseClicked">
-
-        </Button>
-      </StackPanel>
+      
     </Grid>
 
     <md:ColorZone Grid.Column="0"
@@ -273,5 +260,23 @@
                  Visibility="{Binding ServerOffline,Converter={cnv:BooleanToVisibility}}"
                  IsHitTestVisible="False"/>
   </Grid>
-</Window>
+    
+    <views:DownloadStatus/>
 
+    <StackPanel Orientation="Horizontal"
+                Grid.Row="0"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Right">
+      <Button Style="{StaticResource WindowCommandButton}" Content="{md:PackIcon WindowMinimize}"
+              Click="MinimizeClicked" />
+      <Button Style="{StaticResource WindowCommandButton}"
+              Click="MaximizeClicked"
+              Content="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow},
+                          Path=WindowState,Converter={cnv:WindowStateToPackIcon }}" />
+      <Button Style="{StaticResource WindowCloseButton}" Content="{md:PackIcon WindowClose}"
+              Click="CloseClicked">
+
+      </Button>
+    </StackPanel>
+  </Grid>
+</Window>

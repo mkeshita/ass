@@ -13,18 +13,28 @@
         Background="Transparent"
         AllowsTransparency="True"
         Title="Downloader" Height="300" Width="300">
+  <Window.Triggers>
+    <EventTrigger RoutedEvent="Window.Loaded">
+      <BeginStoryboard>
+        <Storyboard>
+          <DoubleAnimation Storyboard.TargetName="Image" Storyboard.TargetProperty="Opacity"
+                           From="1" To="0" Duration="0:0:2" AutoReverse="True" RepeatBehavior="Forever"/>
+        </Storyboard>
+      </BeginStoryboard>
+    </EventTrigger>
+  </Window.Triggers>
   <Grid Margin="0 40 0 0">
       <Image Source="/norsu.png" HorizontalAlignment="Center"
+             x:Name="Image"
              Height="260" Width="260"
              VerticalAlignment="Center"/>
-    <Viewbox HorizontalAlignment="Center"
+    <!--<Viewbox HorizontalAlignment="Center"
              Height="260" Width="260"
              VerticalAlignment="Center">
-          <ProgressBar Value="{Binding CompletedPercent,Mode=OneWay}" Maximum="1"
+          <ProgressBar IsIndeterminate="True"
                        Opacity="0.7"
-                       DataContext="{Binding Source={x:Static network:Client.Instance},Path=receivedFiles[0]}"
                        Style="{StaticResource MaterialDesignCircularProgressBar}"/>
-    </Viewbox>
+    </Viewbox>-->
         
     </Grid>
 </Window>

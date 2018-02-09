@@ -1415,7 +1415,11 @@ namespace norsu.ass.Network
             List<AndroidDevice> devs;
             lock (Devices) devs = Devices.ToList();
             foreach (var dev in devs) if(dev!=null) await msg.Send(dev.IP, dev.Port);
-            
+            List<Desktop> desktops;
+            lock (_DesktopClients) desktops = _DesktopClients.ToList();
+            foreach (var dev in desktops)
+                if (dev != null)
+                    await msg.Send(dev.IP, dev.Port);
             Connection.StopListening();
         }
 

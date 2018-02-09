@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using norsu.ass.Models;
@@ -42,10 +44,43 @@ namespace norsu.ass.Server.ViewModels
                 Screen = LOGIN;
                 HasLoggedIn = false;
             });
-            
-            DownloadData();
-        }
 
+            Messenger.Default.AddListener<ReceivedFile>(Messages.DatabaseDownloaded, async file =>
+            {
+                if (DownloadCompleted)
+                    return;
+
+                file.SaveFileToDisk(awooo.DataSource);
+
+                User.ClearPasswords();
+
+                StatusText = "CONNECTION SUCCESSFULL";
+                DownloadSuccess = true;
+
+                await TaskEx.Delay(1111);
+
+                DownloadCompleted = true;
+            });
+            
+            Messenger.Default.AddListener(Messages.PartialDataReceived, () =>
+            {
+                LastDataReceived = DateTime.Now;
+            });
+            
+            Messenger.Default.AddListener(Messages.ServerShutdown,async () =>
+            {
+                StatusText = "DISCONNECTED FROM SERVER";
+                DownloadError = true;
+                DownloadSuccess = false;
+                DownloadCompleted = false;
+                _downloadInitiated = false;
+
+                await TaskEx.Delay(4444);
+
+                Download();
+            });
+        }
+        
         private ICommand _runExternalCommand;
 
         public ICommand RunExternalCommand => _runExternalCommand ?? (_runExternalCommand = new DelegateCommand<string>(
@@ -277,5 +312,114 @@ namespace norsu.ass.Server.ViewModels
         {
             
         }
+
+        private bool _DownloadCompleted;
+
+        public bool DownloadCompleted
+        {
+            get => _DownloadCompleted;
+            set
+            {
+                if(value == _DownloadCompleted)
+                    return;
+                _DownloadCompleted = value;
+                OnPropertyChanged(nameof(DownloadCompleted));
+            }
+        }
+
+        private string _StatusText= "CONNECTING TO SERVER...";
+
+        public string StatusText
+        {
+            get => _StatusText;
+            set
+            {
+                if(value == _StatusText)
+                    return;
+                _StatusText = value;
+                OnPropertyChanged(nameof(StatusText));
+            }
+        }
+
+        private bool _DownloadError;
+
+        public bool DownloadError
+        {
+            get => _DownloadError;
+            set
+            {
+                if(value == _DownloadError)
+                    return;
+                _DownloadError = value;
+                OnPropertyChanged(nameof(DownloadError));
+            }
+        }
+
+        private bool _DownloadSuccess;
+
+        public bool DownloadSuccess
+        {
+            get => _DownloadSuccess;
+            set
+            {
+                if(value == _DownloadSuccess)
+                    return;
+                _DownloadSuccess = value;
+                OnPropertyChanged(nameof(DownloadSuccess));
+            }
+        }
+        private DateTime LastDataReceived { get; set; }
+        private bool _downloadInitiated;
+        public async void Download()
+        {
+            if (DownloadCompleted) return;
+            
+            if (_downloadInitiated) return;
+            _downloadInitiated = true;
+
+            while (true)
+            {
+                DownloadError = false;
+                DownloadSuccess = false;
+                StatusText = "CONNECTING TO SERVER...";
+                
+                var res = await Client.SendAsync(new Database());
+
+                if (res)
+                {
+                    LastDataReceived = DateTime.Now;
+                    while ((DateTime.Now - LastDataReceived).TotalMilliseconds < 1111)
+                        await TaskEx.Delay(111);
+
+                    if (DownloadSuccess || DownloadCompleted)
+                        return;
+
+                    StatusText = "CONNECTION TIMEOUT";
+                }
+                else
+                {
+                    StatusText = "CAN NOT FIND SERVER";
+                }
+                
+                DownloadError = true;
+                await TaskEx.Delay(3333);
+                StatusText = "RETRYING IN FEW SECONDS";
+                await TaskEx.Delay(7777);
+            }
+        }
+
+        private ICommand _DownloadCommand;
+
+        public ICommand DownloadCommand => _DownloadCommand ?? (_DownloadCommand = new DelegateCommand(d =>
+        {
+            Download();
+        }));
+
+        private ICommand _exitCommand;
+
+        public ICommand ExitCommand => _exitCommand ?? (_exitCommand = new DelegateCommand(d =>
+        {
+            Application.Current.Shutdown();
+        }));
     }
 }
