@@ -30,14 +30,23 @@ namespace norsu.ass.Server
             awooo.Context = SynchronizationContext.Current;
             awooo.IsRunning = true;
             
-            
             AddLog("Starting server...");
+
+            if (Models.Office.Cache.Count == 0)
+            {
+                new Models.Office()
+                {
+                    LongName = "Sample Office Name",
+                    ShortName = "SON",
+                }.Save();
+            }
             
             Network.Server.Instance.Start();
             
             AddLog("Server started");
             PrintScreen();
-            var cmd = args.FirstOrDefault()??"";
+            var cmd = args.FirstOrDefault()??"db";
+            
             while (cmd!=null)
             {
                 if(_shuttingDown) return;
@@ -74,6 +83,12 @@ namespace norsu.ass.Server
                         ShowLog = true;
                         NetworkComms.EnableLogging();
                         break;
+                    case "version":
+                        PrintTitle();
+                        break;
+                    default:
+                        AddLog("Invalid Command! Type HELP for the list of commands.");
+                        break;
                 }
                 PrintScreen();
                 PrintCommandPrompt();
@@ -96,9 +111,9 @@ namespace norsu.ass.Server
             Console.WriteLine(@"
   ╔═════════════════════════════════════════════════════════════════════════════════════════════════════╗
   ║  _  _  _____  ____  ___  __  __       ___      __    ___  ___    ___  ____  ____  _  _  ____  ____  ║
-  ║ ( \( )(  _  )(  _ \/ __)(  )(  )___  / __)    /__\  / __)/ __)  / __)( ___)(  _ \( \/ )( ___)(  _ \ ║
-  ║  )  (  )(_)(  )   /\__ \ )(__)((___)( (_-.   /(__)\ \__ \\__ \  \__ \ )__)  )   / \  /  )__)  )   / ║
-  ║ (_)\_)(_____)(_)\_)(___/(______)     \___/  (__)(__)(___/(___/  (___/(____)(_)\_)  \/  (____)(_)\_) ║
+  ║ ( \( )/  _  \(  _ \/ __)(  )(  ) __  / __)    /__\  / __)/ __)  / __)( ___)(  _ \( \/ )( ___)(  _ \ ║
+  ║ |    || (_) ||    /\__ \| (__) |(__)( (_-.   /(__)\ \__ \\__ \  \__ \| __) |    / \  / | __) |    / ║
+  ║ (_)\_)\_____/(_|\_)(___/\______)     \___/  (__)(__)(___/(___/  (___/(____)(_)\_)  \/  (____)(_)\_) ║
   ╠═════════════════════════════════════════════════════════════════════════════════════════════════════╣
   ║ NEGROS ORIENTAL STATE UNIVERSITY - GUIHULNGAN CAMPUS AUTOMATED SUGGESTION SYSTEM SERVER VERSION 0.9 ║
   ╟────────────────────────────────┬────────────────────────────────────────────────────────────────────╢
@@ -133,6 +148,16 @@ namespace norsu.ass.Server
   ╟────────────────────────────────┼────────────────────────────────────────────────────────────────────╢
   ║ COMPUTER  SCIENCE  CLASS  2018 │ COMMAND>                                                           ║
   ╚════════════════════════════════╧════════════════════════════════════════════════════════════════════╝");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.SetCursorPosition(4,7);
+            Console.Write("N");
+            Console.SetCursorPosition(11, 7);
+            Console.Write("OR");
+            Console.SetCursorPosition(20, 7);
+            Console.Write("S");
+            Console.SetCursorPosition(26, 7);
+            Console.Write("U");
+            Console.ForegroundColor = ConsoleColor.White;
             string[] logs = null;
             lock (logsync)
                 logs = Logs.ToArray();
@@ -257,7 +282,7 @@ namespace norsu.ass.Server
         public static void PrintTitle()
         {
             AddLog("");
-            AddLog("Automated Suggestion System [Version 0.9-alpha]");
+            AddLog("Automated Suggestion System [Version 0.9.1]");
             AddLog("Negros Oriental State University - Guihulngan");
             AddLog("Computer Science Thesis - Class 2018");
             AddLog("");
@@ -326,11 +351,13 @@ namespace norsu.ass.Server
             AddLog("DB          Shows database summary.");
             AddLog("EXIT        Terminates the server process.");
             AddLog("HELP        Prints the list of commands.");
+            AddLog("RESET       Resets the database.");
             AddLog("QUIT        Terminates the server process.");
             AddLog("SUMMARY     Prints database summary.");
             AddLog("SHUTDOWN    Terminates the server process.");
-            AddLog("SHOW        Shows lists of items. Type SHOW HELP for details.");
+            //AddLog("SHOW        Shows lists of items. Type SHOW HELP for details.");
             AddLog("TEAM        Prints informations about the team.");
+            AddLog("VERSION     Prints the version information.");
             AddLog("");
         }
 
