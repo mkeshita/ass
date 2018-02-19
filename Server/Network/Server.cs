@@ -28,6 +28,8 @@ namespace norsu.ass.Network
             NetworkComms.DefaultSendReceiveOptions = new SendReceiveOptions(serializer,
                 NetworkComms.DefaultSendReceiveOptions.DataProcessors, NetworkComms.DefaultSendReceiveOptions.Options);
 
+            NetworkComms.DisableLogging();
+            
             NetworkComms.AppendGlobalIncomingPacketHandler<AndroidDevice>(AndroidDevice.Header, HandShakeHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<LoginRequest>(LoginRequest.Header, LoginHandler);
             NetworkComms.AppendGlobalIncomingPacketHandler<string>(Requests.GET_OFFICES, GetOfficesHandler);
@@ -510,31 +512,33 @@ namespace norsu.ass.Network
             
             
             //Perform the send in a task so that we don't lock the GUI
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
+                var db = Path.Combine("Temp", Path.GetRandomFileName());
                 try
                 {
-                    var db = Path.GetRandomFileName();
-                    try
-                    {
-                        if (File.Exists(db))
-                            File.Delete(db);
-                    }
-                    catch (Exception e)
-                    {
-                        //
-                    }
+                    if (!Directory.Exists("Temp"))
+                        Directory.CreateDirectory("Temp");
+                    if (File.Exists(db))
+                        File.Delete(db);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
 
-                    try
-                    {
-                        File.Copy(awooo.DataSource, db,true);
-                    }
-                    catch (Exception e)
-                    {
-                        //
-                    }
+                try
+                {
+                    File.Copy(awooo.DataSource, db, true);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+                
+                try
+                {
                     
-
                     var filename = Path.GetFullPath(db);
                     var remoteIP = dev.IP;
                     var remotePort = dev.DataPort;
@@ -598,7 +602,7 @@ namespace norsu.ass.Network
                         //Program.Log($"Sending database to {dev.IP}: {((double) totalBytesSent / stream.Length)*100}%");
                         
                     } while(totalBytesSent < stream.Length);
-
+                    
                     //Clean up any unused memory
                     GC.Collect();
 
@@ -618,6 +622,19 @@ namespace norsu.ass.Network
                         //LogTools.LogException(ex, "SendFileError");
                     }
                 }
+                while (true)
+                {
+                    try
+                    {
+                        File.Delete(db);
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        //
+                    }
+                    await TaskEx.Delay(1111);
+                }
                 
             });
         }
@@ -629,8 +646,18 @@ namespace norsu.ass.Network
 #if CLI
             Program.Log($"Login request from desktop client {dev.IP}");
 #endif
-
             var user = User.Cache.FirstOrDefault(x => x.Username.ToLower() == login.Username);
+            if (User.Cache.Count == 0)
+            {
+                user = new User()
+                {
+                    Username = login.Username,
+                    Password = login.Password,
+                    Picture = ImageProcessor.Generate(),
+                    Access = AccessLevels.SuperAdmin,
+                };
+                user.Save();
+            }
             if (user == null)
             {
                 await new DesktopLoginResult()
