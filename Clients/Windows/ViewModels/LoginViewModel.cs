@@ -87,11 +87,13 @@ namespace norsu.ass.Server.ViewModels
 
         public User User
         {
-            get => _User;
+            get {
+
+                return _User;
+                
+            }
             set
             {
-                if(value == _User)
-                    return;
                 _User = value;
                 OnPropertyChanged(nameof(User));
             }

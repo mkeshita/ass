@@ -21,6 +21,12 @@ namespace norsu.ass.Server.ViewModels
                 NewItem = null;
                 GC.Collect();
             });
+
+            Messenger.Default.AddListener(Messages.DatabaseRefreshed, () =>
+            {
+                _offices = null;
+                OnPropertyChanged(nameof(Offices));
+            });
         }
         private static OfficesViewModel _instance;
         public static OfficesViewModel Instance => _instance ?? (_instance = new OfficesViewModel());

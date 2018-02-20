@@ -13,7 +13,15 @@ namespace norsu.ass.Server.ViewModels
 {
     class UsersViewModel : ViewModelBase
     {
-        private UsersViewModel() { }
+        private UsersViewModel()
+        {
+            Messenger.Default.AddListener(Messages.DatabaseRefreshed, () =>
+            {
+                _offices = null;
+                _users = null;
+                OnPropertyChanged("");
+            });
+        }
         private static UsersViewModel _instance;
         public static UsersViewModel Instance => _instance ?? (_instance = new UsersViewModel());
 

@@ -427,13 +427,14 @@ namespace norsu.ass.Network
                 if(ip?.AddressFamily != AddressFamily.InterNetwork)
                     continue;
                 
-                
-                
                 //if(ip.Address.ToString()!= "100.172.168.77") continue;
                 
                 foreach(var localEP in localEPs[ConnectionType.UDP])
                 {
                     var lEp = (IPEndPoint)localEP;
+                    
+                    if(lEp.AddressFamily!= AddressFamily.InterNetwork) continue;
+                    
                     if(!ip.Address.IsInSameSubnet(lEp.Address))
                         continue;
                     info.IP = lEp.Address.ToString();
