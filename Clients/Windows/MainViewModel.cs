@@ -53,7 +53,9 @@ namespace norsu.ass.Server.ViewModels
                     return;
                 
                 file.SaveFileToDisk(awooo.DataSource);
-
+                
+                awooo.Refresh();
+                                
                 User.ClearPasswords();
 
                 StatusText = "CONNECTION SUCCESSFULL";
@@ -62,6 +64,7 @@ namespace norsu.ass.Server.ViewModels
                 await TaskEx.Delay(1111);
 
                 DownloadCompleted = true;
+                
             });
             
             Messenger.Default.AddListener(Messages.PartialDataReceived, () =>

@@ -249,6 +249,32 @@ namespace norsu.ass.Server
         {
             if (_shuttingDown) return;
             _shuttingDown = true;
+
+            try
+            {
+                if (Directory.Exists("Temp"))
+                {
+                    var files = Directory.GetFiles("Temp");
+                    foreach (var file in files)
+                    {
+                        try
+                        {
+                            File.Delete(file);
+                        }
+                        catch (Exception e)
+                        {
+                            //
+                        }
+                        
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //
+            }
+
+            
             AddLog("Server is shutting down...");
             Network.Server.Instance.Stop();
         }
@@ -305,7 +331,7 @@ namespace norsu.ass.Server
             AddLog("");
         }
 
-        private static void PrintAbout()
+        public static void PrintAbout()
         {
             lock (logsync)
                 Logs.Clear();

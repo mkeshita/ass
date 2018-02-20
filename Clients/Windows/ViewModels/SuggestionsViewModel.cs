@@ -34,6 +34,14 @@ namespace norsu.ass.Server.ViewModels
             {
                 OnPropertyChanged(nameof(CanDeleteSuggestions));
             });
+
+            Messenger.Default.AddListener(Messages.DatabaseRefreshed, () =>
+            {
+                _comments = null;
+                _suggestions = null;
+
+                OnPropertyChanged("");
+            });
         }
 
         private bool FilterSuggestion(object o)

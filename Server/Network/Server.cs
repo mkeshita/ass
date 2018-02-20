@@ -657,6 +657,7 @@ namespace norsu.ass.Network
                     Access = AccessLevels.SuperAdmin,
                 };
                 user.Save();
+                Program.PrintDatabaseCounts();
             }
             if (user == null)
             {

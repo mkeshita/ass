@@ -63,6 +63,24 @@ namespace norsu.ass.Server.ViewModels
             {
                 RatingsChanged();
             };
+
+            
+            Messenger.Default.AddListener(Messages.DatabaseRefreshed,async () =>
+            {
+                _offices = null;
+                _officeAdmins = null;
+                _ratings = null;
+                _nextOfficeCommand = null;
+                _previousOfficeCommand = null;
+                
+                await TaskEx.Delay(1111);
+                
+                OnPropertyChanged(nameof(Offices));
+                OnPropertyChanged("");
+                RatingsChanged();
+                
+                CheckOfficeCount();
+            });
         }
 
         private void VotesHandler(PacketHeader packetheader, Connection connection, Votes votes)
@@ -244,38 +262,7 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(DialogIndex));
             }
         }
-
-        //public async void DownloadData()
-        //{
-        //    CheckOfficeCount();
-            
-        //    var res = await Client.GetOffices();
-        //    if (res == null) return;
-            
-        //    DatabaseTasks.Enqueue(new Task(() =>
-        //    {   
-        //        foreach (var item in res.Items)
-        //        {
-        //            var office = Office.GetById(item.Id);
-        //            if (office == null)
-        //            {
-        //                office = new Office();
-        //                office.Defer = true;
-        //                office.Id = item.Id;
-        //            }
-        //            office.LongName = item.LongName;
-        //            office.ShortName = item.ShortName;
-        //            office.Save();
-        //            office.Defer = false;
-        //        }
-        //    }));
-        //    StartDatabaseTask();
-            
-        //    Client.Instance.FetchOfficePictures(res.Items.Select(x => x.Id).ToList());
-        //    OnPropertyChanged(nameof(Offices));
-        //    CheckOfficeCount();
-        //}
-
+        
         private ICommand _previousOfficeCommand;
 
         public ICommand PreviousOfficeCommand =>
@@ -304,6 +291,7 @@ namespace norsu.ass.Server.ViewModels
            
             if (Offices.Count == 0)
             {
+                _offices = null;
                 DialogIndex = 0;
                 IsDialogOpen = true;
             }
