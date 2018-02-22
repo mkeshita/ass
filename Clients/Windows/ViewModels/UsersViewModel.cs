@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,8 +56,19 @@ namespace norsu.ass.Server.ViewModels
                 EditMode = true,
                 Picture = ImageProcessor.Generate(),
             };
+            NewItem.PropertyChanged += NewItemOnPropertyChanged;
             ShowNewItem = true;
         },d=>LoginViewModel.Instance.User?.IsSuperAdmin??false));
+
+        private void NewItemOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(User.EditMode) && !NewItem.IsProcessing && !NewItem.EditMode)
+            {
+                NewItem.PropertyChanged -= NewItemOnPropertyChanged;
+                NewItem = null;
+                ShowNewItem = false;
+            }
+        }
 
         private Models.User _NewItem;
 

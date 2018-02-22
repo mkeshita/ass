@@ -449,5 +449,13 @@ namespace norsu.ass.Server.ViewModels
         {
             Application.Current.Shutdown();
         }));
+
+        private ICommand _showDevCommand;
+
+        public ICommand ShowDevCommand => _showDevCommand ?? (_showDevCommand = new DelegateCommand(d =>
+        {
+            AdminViewModel.Instance?.ShowDevCommand.Execute(d);
+        }));
+
     }
 }

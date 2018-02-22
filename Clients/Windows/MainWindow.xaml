@@ -217,7 +217,7 @@
               <MenuItem Header="Change Password"
                         Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=ChangePasswordCommand}" />
               <Separator/>
-              <MenuItem Header="About Us" Command="{Binding Source={x:Static vm:AdminViewModel.Instance},Path=ShowDevCommand}"/>
+                <MenuItem Header="About Us" Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=ShowDevCommand}"/>
               <MenuItem Header="View Source" Command="{Binding Source={x:Static vm:MainViewModel.Instance},Path=RunExternalCommand}" CommandParameter="https://github.com/awooo-ph/ass" />
             </ContextMenu>
           </Button.ContextMenu>

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Data;
 using System.Windows.Input;
 using norsu.ass.Models;
 using norsu.ass.Network;
+using Xceed.Words.NET;
 using Suggestion = norsu.ass.Models.Suggestion;
 
 namespace norsu.ass.Server.ViewModels
@@ -35,12 +38,13 @@ namespace norsu.ass.Server.ViewModels
                 OnPropertyChanged(nameof(CanDeleteSuggestions));
             });
 
-            Messenger.Default.AddListener(Messages.DatabaseRefreshed, () =>
+            Messenger.Default.AddListener(Messages.OfficeViewModelRefreshed, () =>
             {
                 _comments = null;
                 _suggestions = null;
 
-                OnPropertyChanged("");
+                OnPropertyChanged(nameof(Suggestions));
+                OnPropertyChanged(nameof(Comments));
             });
         }
 
@@ -62,12 +66,17 @@ namespace norsu.ass.Server.ViewModels
                     return _suggestions;
                 _suggestions = new ListCollectionView(Models.Suggestion.Cache);
                 _suggestions.Filter = FilterSuggestion;
+                OfficeViewModel.SelectedOfficeChanged = office =>
+                {
+                    _suggestions.Refresh();
+                    SelectedOffice = office;
+                };
                 _suggestions.CustomSort = new SuggestionSorter();
                
                 return _suggestions;
             }
         }
-
+        
         private ListCollectionView _comments;
 
         public ListCollectionView Comments
@@ -106,8 +115,12 @@ namespace norsu.ass.Server.ViewModels
         }
 
         private static SuggestionsViewModel _instance;
-        public static SuggestionsViewModel Instance => _instance ?? (_instance = new SuggestionsViewModel());
-
+        //public static SuggestionsViewModel Instance => _instance ?? (_instance = new SuggestionsViewModel());
+        public static SuggestionsViewModel GetInstance()
+        {
+            return _instance ?? (_instance = new SuggestionsViewModel());
+        }
+        
         private ICommand _toggleCommentsCommand;
         
         public ICommand ToggleCommentsCommand =>
@@ -251,5 +264,155 @@ namespace norsu.ass.Server.ViewModels
                         MainViewModel.ShowToast("Failed to delete suggestions.");
                     }
                 },d=>CanDeleteSuggestions && GetSuggestions().Count>0));
+
+        internal static void Print(string path)
+        {
+            var info = new ProcessStartInfo(path);
+            info.CreateNoWindow = true;
+            info.WindowStyle = ProcessWindowStyle.Hidden;
+            info.UseShellExecute = true;
+            info.Verb = "PrintTo";
+            try
+            {
+                Process.Start(info);
+            }
+            catch (Exception e)
+            {
+                //
+            }
+        }
+
+        private Models.Office _SelectedOffice;
+
+        public Models.Office SelectedOffice
+        {
+            get => _SelectedOffice;
+            set
+            {
+                if(value == _SelectedOffice)
+                    return;
+                _SelectedOffice = value;
+                OnPropertyChanged(nameof(SelectedOffice));
+            }
+        }
+
+        
+
+        private ICommand _printSuggestionsCommand;
+
+        public ICommand PrintSuggestionsCommand =>
+            _printSuggestionsCommand ?? (_printSuggestionsCommand = new DelegateCommand(
+            d =>
+            {
+                if (!(OfficeViewModel.Instance.Offices.CurrentItem is Models.Office office)) return;
+                
+                if(!Directory.Exists("Temp"))
+                    Directory.CreateDirectory("Temp");
+
+                var temp = Path.Combine("Temp", $"Suggestions [{DateTime.Now:yy-MMM-dd}].docx");
+                var template = $@"Templates\Suggestions.docx";
+
+                var fontSize = 0d;
+                var borders = new List<double>();
+                using(var doc = File.Exists(template) ? DocX.Load(template) : DocX.Create(temp))
+                {
+                    var tbl = doc.Tables.FirstOrDefault();
+                    if (tbl == null)
+                    {
+                        tbl = doc.AddTable(1, 7);
+                        
+                        var r = tbl.Rows[0];
+                        var p = r.Cells[0].Paragraphs.First().Append("#");
+                        p.Alignment = Alignment.center;
+
+                        r.Cells[1].Paragraphs.First().Append("STUDENT").Alignment = Alignment.center;
+                        r.Cells[2].Paragraphs.First().Append("SUBJECT").Alignment = Alignment.center;
+                        r.Cells[3].Paragraphs.First().Append("BODY").Alignment = Alignment.center;
+                        r.Cells[4].Paragraphs.First().Append("DATE SUBMITTED").Alignment = Alignment.center;
+                        r.Cells[5].Paragraphs.First().Append("VOTES").Alignment = Alignment.center;
+                        r.Cells[6].Paragraphs.First().Append("COMMENTS").Alignment = Alignment.center;
+
+                        doc.InsertTable(tbl);
+                    }
+
+                    
+                    for (int i = 0; i < tbl.ColumnCount; i++)
+                    {
+                        borders.Add(tbl.Rows[0].Cells[i].Width);
+                    }
+                    
+                    var number = 0;
+                    
+                    foreach(Models.Suggestion item in Suggestions)
+                    {
+                        var r = tbl.InsertRow();
+                        number++;
+                        var p = r.Cells[0].Paragraphs.First().Append($"{number}");
+                        p.LineSpacingAfter = 0;
+                        p.Alignment = Alignment.center;
+
+                      
+                        p = r.Cells[1].Paragraphs.First().Append(item.User.Fullname);
+                        p.LineSpacingAfter = 0;
+                        p.Alignment = Alignment.left;
+
+                        p = r.Cells[2].Paragraphs.First().Append(item.Title);
+                        p.LineSpacingAfter = 0;
+                        p.Alignment = Alignment.left;
+
+                        p = r.Cells[3].Paragraphs.First().Append(item.Body);
+                        p.LineSpacingAfter = 0;
+                        p.Alignment = Alignment.left;
+                        
+                        p = r.Cells[4].Paragraphs.First().Append(item.Time.ToString("d"));
+                        p.LineSpacingAfter = 0;
+                        p.Alignment = Alignment.center;
+                        
+                        p = r.Cells[5].Paragraphs.First().Append(item.Votes.ToString());
+                        p.LineSpacingAfter = 0;
+                        p.Alignment = Alignment.center;
+                        
+                        p = r.Cells[6].Paragraphs.First().Append(item.Comments.Count.ToString());
+                        p.LineSpacingAfter = 0;
+                        p.Alignment = Alignment.center;
+                        
+                        for (var i = 0; i < borders.Count; i++)
+                        {
+                            r.Cells[i].Width = borders[i];
+                            r.Cells[i].VerticalAlignment = VerticalAlignment.Center;
+                            r.Cells[i].MarginBottom = 4;
+                            r.Cells[i].MarginTop = 2;
+                            r.Cells[i].MarginLeft = 7;
+                            r.Cells[i].MarginRight = 7;
+                            r.Cells[i].Paragraphs.First().FontSize(10);
+                        }
+                    }
+
+                    doc.ReplaceText("[OFFICE]", office.LongName);
+
+                    var border = new Xceed.Words.NET.Border(BorderStyle.Tcbs_single, BorderSize.one, 0,
+                        System.Drawing.Color.Black);
+                    tbl.SetBorder(TableBorderType.Bottom, border);
+                    tbl.SetBorder(TableBorderType.Left, border);
+                    tbl.SetBorder(TableBorderType.Right, border);
+                    tbl.SetBorder(TableBorderType.Top, border);
+                    tbl.SetBorder(TableBorderType.InsideV, border);
+                    tbl.SetBorder(TableBorderType.InsideH, border);
+                    
+                    try
+                    {
+                        File.Delete(temp);
+                    }
+                    catch (Exception e)
+                    {
+                        //
+                    }
+                    
+                    doc.SaveAs(temp);
+                }
+                
+                Print(temp);
+            }));
+
     }
 }

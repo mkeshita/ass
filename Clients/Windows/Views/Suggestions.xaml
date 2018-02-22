@@ -8,7 +8,6 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
              xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
-             DataContext="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance}}"
              d:DesignHeight="300" d:DesignWidth="300">
   <Grid Background="{StaticResource MaterialDesignPaper}">
     <Grid.RowDefinitions>
@@ -23,6 +22,12 @@
                               BorderBrush="{StaticResource MaterialDesignDivider}"
                               Grid.Row="0">
 
+      <Grid IsSharedSizeScope="True">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto" SharedSizeGroup="a"/>
+        </Grid.ColumnDefinitions>
       <StackPanel Orientation="Horizontal" Margin="20">
         
         <Path Fill="{StaticResource PrimaryHueMidBrush}"
@@ -35,6 +40,39 @@
                    Style="{StaticResource MaterialDesignHeadlineTextBlock}" />
       </StackPanel>
 
+        <StackPanel Orientation="Horizontal" Grid.Column="1"
+                    DataContext="{Binding SelectOffice}"
+                    HorizontalAlignment="Center">
+          <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                  VerticalAlignment="Bottom"
+                  Opacity="{Binding ElementName=OfficePanel,Path=IsMouseOver,Converter={converters:BooleanToObject 1,0.4}}"
+                  Command="{Binding PreviousOfficeCommand}"
+                  Content="{md:PackIcon ChevronLeft}" />
+          <Image Source="{Binding Picture,Converter={converters:BytesToImage}}"
+                 Height="64" Width="64"
+                 Margin="7"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility},FallbackValue=Collapsed}"
+                 RenderOptions.BitmapScalingMode="HighQuality" />
+          <Image Source="pack://application:,,,/norsu.png"
+                 Visibility="{Binding HasPicture,Converter={converters:BooleanToVisibility Collapsed,Visible},FallbackValue=Visible}"
+                 Height="64" Width="64"
+                 Margin="7"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 RenderOptions.BitmapScalingMode="HighQuality" />
+          <StackPanel>
+            <TextBlock Text="{Binding ShortName}"/>
+            <TextBlock Text="{Binding LongName}" />
+          </StackPanel>
+          <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
+                  VerticalAlignment="Bottom"
+                  Opacity="{Binding ElementName=OfficePanel,Path=IsMouseOver,Converter={converters:BooleanToObject 1,0.4}}"
+                  Command="{Binding NextOfficeCommand}"
+                  Content="{md:PackIcon ChevronRight}" />
+        </StackPanel>
+      </Grid>
     </md:ColorZone>
 
 
@@ -59,7 +97,7 @@
           <DataGrid.Columns>
             <DataGridCheckBoxColumn Binding="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsThreeState="False"
                                         EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"
-                                    Visibility="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=CanDeleteSuggestions,Converter={converters:BooleanToVisibility}}"
+                                    Visibility="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:Suggestions}},Path=DataContext.CanDeleteSuggestions,Converter={converters:BooleanToVisibility}}"
                                         ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"/>
             <DataGridTextColumn Binding="{Binding Votes}" Header="Votes" IsReadOnly="True" />
             <DataGridTemplateColumn Header="Name" IsReadOnly="True" >
@@ -73,9 +111,8 @@
                                                    Visibility="{Binding Source={x:Static viewModels:MainViewModel.Instance},
                                         Path=ShowPrivateName,
                                         Converter={converters:BooleanToVisibility}}" />
-                      <md:PackIcon Kind="School"
-                                                     Height="16" Width="16"
-                                                     Visibility="{Binding Source={x:Static viewModels:MainViewModel.Instance},
+                      <md:PackIcon Kind="School" Height="16" Width="16"
+                                   Visibility="{Binding Source={x:Static viewModels:MainViewModel.Instance},
                                         Path=ShowPrivateName,
                                         Converter={converters:BooleanToVisibility Collapsed,Visible}}" />
                     </Grid>
@@ -86,11 +123,20 @@
             <DataGridTextColumn Header="Title" Binding="{Binding Title}" IsReadOnly="True" />
           </DataGrid.Columns>
         </DataGrid>
-        <Button Grid.Row="1" Content="DELETE SELECTED"
-                    Margin="20"
-                Visibility="{Binding CanDeleteSuggestions,Converter={converters:BooleanToVisibility}}"
-                    HorizontalAlignment="Left"
-                    Command="{Binding DeleteSelectedSuggestionsCommand}"/>
+        <UniformGrid Grid.Row="1" Rows="1" HorizontalAlignment="Left"
+                     
+                     Margin="10">
+
+          <Button Content="DELETE SELECTED"
+                  Margin="10"
+                  Visibility="{Binding CanDeleteSuggestions,Converter={converters:BooleanToVisibility}}"
+                  Command="{Binding DeleteSelectedSuggestionsCommand}" />
+
+          <Button Content="PRINT"
+                  Margin="10"
+                  Command="{Binding PrintSuggestionsCommand}" />
+        </UniformGrid>
+        
       </Grid>
 
       <Grid Grid.Column="1" Margin="2 0 0 0">
@@ -195,7 +241,7 @@
                                                 HorizontalAlignment="Right"
                                                 Visibility="{Binding RelativeSource={RelativeSource AncestorType=Border},Path=IsMouseOver,Converter={converters:BooleanToVisibility}}"
                                                 Style="{StaticResource MaterialDesignFlatAccentButton}"
-                                                Command="{Binding Source={x:Static viewModels:SuggestionsViewModel.Instance},Path=DeleteCommentCommand}"
+                                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:Suggestions}},Path=DataContext.DeleteCommentCommand}"
                               CommandParameter="{Binding}"
                                                 Margin="4"
                                                 Content="DELETE"/>

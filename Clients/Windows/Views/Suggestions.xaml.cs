@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using norsu.ass.Server.ViewModels;
 
 namespace norsu.ass.Server.Views
 {
@@ -22,6 +23,14 @@ namespace norsu.ass.Server.Views
         public Suggestions()
         {
             InitializeComponent();
+            
+            Messenger.Default.AddListener(Messages.DatabaseRefreshed, () =>
+            {
+                awooo.Context.Post(d =>
+                {
+                    DataContext = SuggestionsViewModel.GetInstance();
+                },null);
+            });
         }
     }
 }

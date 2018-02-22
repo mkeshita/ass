@@ -8,7 +8,6 @@
              xmlns:converters="clr-namespace:norsu.ass.Server.Converters"
              xmlns:viewModels="clr-namespace:norsu.ass.Server.ViewModels"
              mc:Ignorable="d" 
-             DataContext="{Binding Source={x:Static viewModels:AdminViewModel.Instance}}"
              d:DesignHeight="300" d:DesignWidth="300">
   <Grid Background="{StaticResource MaterialDesignPaper}">
     <Grid.RowDefinitions>

@@ -11,8 +11,13 @@ namespace norsu.ass.Server.ViewModels
         private AdminViewModel() { }
         private static AdminViewModel _instance;
 
-        public static AdminViewModel Instance => _instance ?? (_instance = new AdminViewModel());
+        public static AdminViewModel GetInstance()
+        {
+            return _instance ?? (_instance = new AdminViewModel());
+        }
 
+        public static AdminViewModel Instance => _instance;
+        
         private int _ScreenIndex = 0;
 
         public int ScreenIndex

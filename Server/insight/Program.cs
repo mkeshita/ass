@@ -17,10 +17,11 @@ namespace norsu.ass.Server
         static void Main(string[] args)
         {
             SetConsoleCtrlHandler(ConsoleCloseHandler, true);
-            
+
             awooo.IsRunning = true;
             awooo.Context = SynchronizationContext.Current;
-            
+            awooo.Refresh();
+
             Console.CancelKeyPress += ConsoleOnCancelKeyPress;
             Console.WindowHeight = 41;
             Console.BufferHeight = 41;
@@ -329,6 +330,10 @@ namespace norsu.ass.Server
             AddLog($"Users:       {Pad(Models.User.Cache.Count.ToString(), 4)}");
             AddLog("");
             AddLog("");
+            var count = Models.Like.Cache.Count;
+            count = Models.OfficeAdmin.Cache.Count;
+            count = Models.Rating.Cache.Count;
+            
         }
 
         public static void PrintAbout()

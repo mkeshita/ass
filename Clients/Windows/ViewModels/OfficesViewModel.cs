@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using norsu.ass.Models;
 using norsu.ass.Network;
 using Office = norsu.ass.Models.Office;
 
@@ -39,9 +41,11 @@ namespace norsu.ass.Server.ViewModels
             {
                 if (_offices != null) return _offices;
                 _offices = new ListCollectionView(Models.Office.Cache);
+               
                 return _offices;
             }
         }
+        
         
         private static Models.Office _NewItem;
 
@@ -72,10 +76,21 @@ namespace norsu.ass.Server.ViewModels
             NewItem = new Office
             {
                 IsProcessing = false,
-                EditMode = true
+                EditMode = true,
             };
+            NewItem.PropertyChanged += NewItemOnPropertyChanged;
             ShowNewItem = true;
-        },d=> LoginViewModel.Instance.User?.IsSuperAdmin??false));
+        }, d => LoginViewModel.Instance.User?.IsSuperAdmin ?? false));
+
+        private void NewItemOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Office.EditMode) && !NewItem.IsProcessing && !NewItem.EditMode)
+            {
+                NewItem.PropertyChanged -= NewItemOnPropertyChanged;
+                NewItem = null;
+                ShowNewItem = false;
+            }
+        }
 
         private bool _ShowNewItem;
 
@@ -95,10 +110,10 @@ namespace norsu.ass.Server.ViewModels
         async d =>
         {
             if (string.IsNullOrEmpty(NewItem.ShortName) || string.IsNullOrEmpty(NewItem.LongName)) return;
-
-            NewItem.EditMode = false;
-            NewItem.IsProcessing = true;
             
+            NewItem.IsProcessing = true;
+            NewItem.EditMode = false;
+
             var res = await Client.SaveOffice(0, NewItem.ShortName, NewItem.LongName);
             
             if (res?.Success ?? false)

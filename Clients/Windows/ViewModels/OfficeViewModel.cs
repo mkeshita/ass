@@ -76,10 +76,14 @@ namespace norsu.ass.Server.ViewModels
                 await TaskEx.Delay(1111);
                 
                 OnPropertyChanged(nameof(Offices));
+                OnPropertyChanged(nameof(OfficeAdmins));
+                OnPropertyChanged(nameof(NextOfficeCommand));
                 OnPropertyChanged("");
                 RatingsChanged();
                 
                 CheckOfficeCount();
+                
+                Messenger.Default.Broadcast(Messages.OfficeViewModelRefreshed);
             });
         }
 
@@ -327,6 +331,11 @@ namespace norsu.ass.Server.ViewModels
                 _offices.CurrentChanged += (sender, args) =>
                 {
                     RatingsChanged();
+                    
+                        if (_offices.IsAddingNew)
+                            return;
+                        SelectedOfficeChanged?.Invoke((Models.Office) _offices.CurrentItem);
+                    
                     //DownloadOffice((Office) _offices.CurrentItem);
                 };
                 
@@ -334,12 +343,15 @@ namespace norsu.ass.Server.ViewModels
             }
         }
 
-       // private void DownloadOffice(Office office)
-       // {
-           // if (office == null) return;
-           // Client.Send(Packet.GET_SUGGESTIONS, office.Id);
-           // Client.Send(Packet.GET_REVIEWS, office.Id);
-       // }
+
+        public static Action<Office> SelectedOfficeChanged { get; set; }
+
+        // private void DownloadOffice(Office office)
+        // {
+        // if (office == null) return;
+        // Client.Send(Packet.GET_SUGGESTIONS, office.Id);
+        // Client.Send(Packet.GET_REVIEWS, office.Id);
+        // }
 
         private bool Filter(object o)
         {
