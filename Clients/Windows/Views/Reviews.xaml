@@ -52,7 +52,7 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
+                </Grid.ColumnDefinitions>
               
                 <StackPanel Margin="10">
               <Image Source="{Binding User.Picture,Converter={converters:BytesToImage}}"
@@ -74,6 +74,11 @@
                   </TextBlock>-->
                 </StackPanel>
 
+                <Grid Grid.Column="1">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
                 <StackPanel Grid.Column="1">
               <md:RatingBar Value="{Binding Value}" 
                             Grid.Column="1"
@@ -88,7 +93,20 @@
                          Grid.Row="1"
                          Grid.Column="1"
                          TextWrapping="Wrap"/>
+                  
                 </StackPanel>
+                  <StackPanel Orientation="Horizontal"
+                              Opacity="0.7" 
+                              Margin="10"
+                              HorizontalAlignment="Right"
+                              Grid.Row="1">
+                    <md:PackIcon Kind="Calendar" VerticalAlignment="Center"/>
+                    <TextBlock FontSize="10pt" 
+                               VerticalAlignment="Center"
+                               Text="{Binding Time,StringFormat={}\ MMM\ dd\,\ yyyy}"/>
+                  </StackPanel>
+                  
+                </Grid>
                 <!--<Button Grid.Column="2"
                       Visibility="Collapsed"
                       Grid.Row="0"

@@ -35,7 +35,7 @@ namespace norsu.ass
 
             var view = convertView ?? _context.LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null);
 
-            return GetView(convertView, item, _context);
+            return GetView(view, item, _context);
         }
 
         public static View GetView(View view, Suggestion item, Activity _context)

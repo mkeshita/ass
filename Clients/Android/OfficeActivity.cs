@@ -440,8 +440,8 @@ namespace norsu.ass
             
             LoadedSuggestions.Add(item.Id);
 
-            var row = SuggestionsAdapter.GetView(
-                LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
+            var row = SuggestionsAdapter
+                .GetView(LayoutInflater.Inflate(Resource.Layout.SuggestionRow, null, false), item, this);
 
             row.Clickable = true;
             row.Click += (sender, args) =>

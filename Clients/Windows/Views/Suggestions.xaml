@@ -40,7 +40,7 @@
                    Style="{StaticResource MaterialDesignHeadlineTextBlock}" />
       </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Column="1"
+        <!--<StackPanel Orientation="Horizontal" Grid.Column="1"
                     DataContext="{Binding SelectOffice}"
                     HorizontalAlignment="Center">
           <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
@@ -71,7 +71,7 @@
                   Opacity="{Binding ElementName=OfficePanel,Path=IsMouseOver,Converter={converters:BooleanToObject 1,0.4}}"
                   Command="{Binding NextOfficeCommand}"
                   Content="{md:PackIcon ChevronRight}" />
-        </StackPanel>
+        </StackPanel>-->
       </Grid>
     </md:ColorZone>
 
@@ -121,6 +121,8 @@
               </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
             <DataGridTextColumn Header="Title" Binding="{Binding Title}" IsReadOnly="True" />
+            <DataGridTextColumn Header="Submitted" Binding="{Binding Time,StringFormat={}MMM\ d\,\ yyyy}"
+                                IsReadOnly="True"/>
           </DataGrid.Columns>
         </DataGrid>
         <UniformGrid Grid.Row="1" Rows="1" HorizontalAlignment="Left"
