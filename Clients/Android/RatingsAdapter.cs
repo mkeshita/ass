@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.App;
 using Android.Graphics;
 using Android.Views;
@@ -45,8 +46,21 @@ namespace norsu.ass
 
             var usr = Client.GetPicture(item.UserId);
             if (usr != null)
-                view.FindViewById<ImageView>(Resource.Id.picture)
-                    .SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+
+            {
+                try
+                {
+                    var pic = BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length);
+                    if (pic == null)
+                        return view;
+                    view.FindViewById<ImageView>(Resource.Id.picture)
+                        .SetImageBitmap(pic);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
             else
             {
                 Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived,

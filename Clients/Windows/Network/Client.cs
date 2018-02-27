@@ -18,7 +18,7 @@ namespace norsu.ass.Network
     {
         private Client()
         {
-          
+           // return;
 
             NetworkComms.DisableLogging();
             //NetworkComms.EnableLogging();
@@ -30,17 +30,17 @@ namespace norsu.ass.Network
                 NetworkComms.DefaultSendReceiveOptions.DataProcessors, NetworkComms.DefaultSendReceiveOptions.Options);
 
             NetworkComms.AppendGlobalIncomingPacketHandler<ServerInfo>(ServerInfo.Header, ServerInfoReceived);
-           
+
             NetworkComms.AppendGlobalIncomingPacketHandler<OfficePicture>(OfficePicture.Header,
                 (h, c, res) =>
                 {
-                    if(res!=null)
+                    if (res != null)
                         Messenger.Default.Broadcast(Messages.OfficePictureReceived, res);
                 });
-            
+
             NetworkComms.AppendGlobalIncomingPacketHandler<Shutdown>(Shutdown.Header, ShutdownHandler);
-            
-           PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
+
+            PeerDiscovery.EnableDiscoverable(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
             PeerDiscovery.OnPeerDiscovered += OnPeerDiscovered;
 
@@ -51,33 +51,16 @@ namespace norsu.ass.Network
                 IncomingPartialFileDataInfo);
 
             NetworkComms.AppendGlobalConnectionCloseHandler(OnConnectionClose);
-            
+
             PeerDiscovery.DiscoverPeersAsync(PeerDiscovery.DiscoveryMethod.UDPBroadcast);
 
-            while (true)
-                try
-                {
-                    Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
-                    break;
-                }
-                catch (Exception e)
-                {
-                    //
-                }
 
-            while(true)
-                try
-                {
-                    Connection.StartListening(ConnectionType.TCP, new IPEndPoint(IPAddress.Any, 4786));
-                    break;
-                }
-                catch (Exception e)
-                {
-                    //
-                }
+            _Start();
+        }
 
-            _started = true;
-
+        private void StartEx()
+        {
+            
         }
 
         public bool DatabaseDownloaded { get; set; }
@@ -376,9 +359,31 @@ namespace norsu.ass.Network
             Instance._Start();
         }
         
-        private void _Start()
+        private async void _Start()
         {
-           
+            while (true)
+                try
+                {
+                    Connection.StartListening(ConnectionType.UDP, new IPEndPoint(IPAddress.Any, 0));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    await TaskEx.Delay(111);
+                }
+
+            while (true)
+                try
+                {
+                    Connection.StartListening(ConnectionType.TCP, new IPEndPoint(IPAddress.Any, 0));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    await TaskEx.Delay(111);
+                }
+
+            _started = true;
         }
 
         public static void Stop()
@@ -439,11 +444,14 @@ namespace norsu.ass.Network
                         continue;
                     info.IP = lEp.Address.ToString();
                     info.Port = lEp.Port;
+                    if(localEPs.ContainsKey(ConnectionType.TCP))
+                        
+                    { var tcp = localEPs[ConnectionType.TCP]
+                        .FirstOrDefault(x =>ip.Address.AddressFamily==AddressFamily.InterNetwork && ip.Address.IsInSameSubnet(((IPEndPoint) x).Address)) as IPEndPoint;
+                        info.DataPort = tcp?.Port ?? 0;
+                    }
 
-                    var tcp = localEPs[ConnectionType.TCP]
-                        .FirstOrDefault(x => ip.Address.IsInSameSubnet(((IPEndPoint) x).Address)) as IPEndPoint;
-
-                    info.DataPort = tcp?.Port??0;
+                    
                     await info.Send(ip);
                     break;
                 }

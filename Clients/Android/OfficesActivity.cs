@@ -85,8 +85,18 @@ namespace norsu.ass
             _username.Text = Client.Username;
             _fullname.Text = Client.Fullname;
             var usr = Client.GetPicture(Client.UserId);
-            if (usr != null)
-                _picture.SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+            if (usr?.Picture.Length>0)
+            {
+                try
+                {
+                    var pic = BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length);
+                    _picture.SetImageBitmap(pic);
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
             else
             {
                 Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived,
@@ -94,7 +104,18 @@ namespace norsu.ass
                     {
                         if (user.UserId != Client.UserId) return;
                         RunOnUiThread(() =>
-                            _picture.SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length)));
+                        {
+                            try
+                            {
+                                _picture.SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0,
+                                    user.Picture.Length));
+                            }
+                            catch (Exception e)
+                            {
+                                //
+                            }
+                            
+                        });
                     });
             }
 
@@ -111,7 +132,6 @@ namespace norsu.ass
 
             var progress = FindViewById<ProgressBar>(Resource.Id.progress);
             progress.Visibility = ViewStates.Gone;
-
             
         }
 

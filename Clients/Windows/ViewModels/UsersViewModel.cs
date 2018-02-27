@@ -62,12 +62,12 @@ namespace norsu.ass.Server.ViewModels
 
         private void NewItemOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(User.EditMode) && !NewItem.IsProcessing && !NewItem.EditMode)
-            {
-                NewItem.PropertyChanged -= NewItemOnPropertyChanged;
-                NewItem = null;
-                ShowNewItem = false;
-            }
+          //  if (e.PropertyName == nameof(User.EditMode) && !NewItem.IsProcessing && !NewItem.EditMode)
+           // {
+            //    NewItem.PropertyChanged -= NewItemOnPropertyChanged;
+             //   NewItem = null;
+              //  ShowNewItem = false;
+           // }
         }
 
         private Models.User _NewItem;
@@ -77,8 +77,6 @@ namespace norsu.ass.Server.ViewModels
             get => _NewItem;
             set
             {
-                if(value == _NewItem)
-                    return;
                 _NewItem = value;
                 OnPropertyChanged(nameof(NewItem));
             }
@@ -118,7 +116,7 @@ namespace norsu.ass.Server.ViewModels
                 MainViewModel.ShowToast("Adding new user failed. Incomplete data.");
                 return;
             }
-
+            
             NewItem.EditMode = false;
             NewItem.IsProcessing = true;
 

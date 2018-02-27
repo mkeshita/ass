@@ -178,45 +178,54 @@ namespace norsu.ass.Server
 
         private static void AddLog(string message="")
         {
-            message = message + "";
-            message = message.Replace(Environment.NewLine, "");
-            if (message.Length < 66)
-                lock(logsync)
-                Logs.Enqueue(message);
-            else
+            try
             {
-                for (int i = 0; i < message.Length; i++)
+                message = message + "";
+                message = message.Replace(Environment.NewLine, "");
+                if (message.Length < 66)
+                    lock (logsync)
+                        Logs.Enqueue(message);
+                else
                 {
-                    if (i == 0)
+                    for (int i = 0; i < message.Length; i++)
                     {
-                        lock (logsync)
-                            Logs.Enqueue(message.Substring(i, 66));
-                        i += 66;
-                    }
-                    else
-                    {
-                        if (i + 64 >= message.Length)
+                        if (i == 0)
                         {
                             lock (logsync)
-                                Logs.Enqueue("> " + message.Substring(i, 64));
-                            i += 64;
+                                Logs.Enqueue(message.Substring(i, 66));
+                            i += 66;
                         }
                         else
                         {
-                            lock (logsync)
-                                Logs.Enqueue("> " + message.Substring(i));
-                            break;
+                            if (i + 64 >= message.Length)
+                            {
+                                lock (logsync)
+                                    Logs.Enqueue("> " + message.Substring(i, 64));
+                                i += 64;
+                            }
+                            else
+                            {
+                                lock (logsync)
+                                    Logs.Enqueue("> " + message.Substring(i));
+                                break;
+                            }
+
                         }
-                        
+
                     }
-                    
+
                 }
+
+                while (Logs.Count > 28)
+                    lock (logsync)
+                        Logs.Dequeue();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 
             }
-
-            while (Logs.Count > 28)
-                lock (logsync)
-                    Logs.Dequeue();
+            
             
             
         }

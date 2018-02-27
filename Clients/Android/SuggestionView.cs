@@ -197,7 +197,17 @@ namespace norsu.ass
             var item = Client.SelectedSuggestion;
             var usr = Client.GetPicture(item.UserId);
             if (usr != null)
-                _studentPicture.SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+            {
+                try
+                {
+                    _studentPicture.SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+                
+            }
             else
             {
                 Messenger.Default.AddListener<UserPicture>(Messages.PictureReceived,
@@ -205,7 +215,18 @@ namespace norsu.ass
                     {
                         if (user.UserId != item.Id) return;
                         RunOnUiThread(() =>
-                            _studentPicture.SetImageBitmap(BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length)));
+                        {
+                            try
+                            {
+                                _studentPicture.SetImageBitmap(
+                                    BitmapFactory.DecodeByteArray(user.Picture, 0, user.Picture.Length));
+                            }
+                            catch (Exception e)
+                            {
+                                //
+                            }
+                            
+                        });
                     });
             }
         }

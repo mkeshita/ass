@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.App;
 using Android.Content;
 using Android.Graphics;
@@ -46,7 +47,20 @@ namespace norsu.ass
             var pic = view.FindViewById<ImageView>(Resource.Id.officePicture);
             var usr = Client.GetOfficePicture(item.Id);
             if (usr != null)
-                pic.SetImageBitmap(BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length));
+            {
+                try
+                {
+                    if (usr.Picture?.Length > 0)
+                    {
+                        var bitmap = BitmapFactory.DecodeByteArray(usr.Picture, 0, usr.Picture.Length);
+                        pic.SetImageBitmap(bitmap);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+            }
             else
             {
                 Messenger.Default.AddListener<OfficePicture>(Messages.PictureReceived,
@@ -54,7 +68,18 @@ namespace norsu.ass
                     {
                         if (office.OfficeId != item.Id) return;
                         _context.RunOnUiThread(() =>
-                            pic.SetImageBitmap(BitmapFactory.DecodeByteArray(office.Picture, 0, office.Picture.Length)));
+                        {
+                            try
+                            {
+                                pic.SetImageBitmap(BitmapFactory.DecodeByteArray(office.Picture, 0,
+                                    office.Picture.Length));
+                            }
+                            catch (Exception e)
+                            {
+                                //
+                            }
+                            
+                        });
                     });
             }
 

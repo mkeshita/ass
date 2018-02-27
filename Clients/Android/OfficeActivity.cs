@@ -470,8 +470,18 @@ namespace norsu.ass
             
             var pic = Client.GetOfficePicture(Client.SelectedOffice.Id);
 
-            if(pic != null)
-                _officePicture.SetImageBitmap(BitmapFactory.DecodeByteArray(pic.Picture, 0, pic.Picture.Length));
+            if (pic != null)
+            {
+                try
+                {
+                    _officePicture.SetImageBitmap(BitmapFactory.DecodeByteArray(pic.Picture, 0, pic.Picture.Length));
+                }
+                catch (Exception e)
+                {
+                    //
+                }
+                
+            }
             else
             {
                 Messenger.Default.AddListener<OfficePicture>(Messages.OfficePictureReceived,
@@ -480,7 +490,18 @@ namespace norsu.ass
                         if(office.OfficeId != Client.SelectedOffice.Id)
                             return;
                         RunOnUiThread(() =>
-                            _officePicture.SetImageBitmap(BitmapFactory.DecodeByteArray(office.Picture, 0, office.Picture.Length)));
+                        {
+                            try
+                            {
+                                _officePicture.SetImageBitmap(
+                                    BitmapFactory.DecodeByteArray(office.Picture, 0, office.Picture.Length));
+                            }
+                            catch (Exception e)
+                            {
+                                //
+                            }
+                            
+                        });
                     });
             }
         }

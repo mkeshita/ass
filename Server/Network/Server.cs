@@ -902,7 +902,7 @@ namespace norsu.ass.Network
                 await new UserPicture()
                 {
                     UserId = usr.Id,
-                    Picture = usr.PictureRevision!=i.Revision ? usr.Picture : null,
+                    Picture = usr.Picture,//usr.PictureRevision!=i.Revision ? usr.Picture : null,
                     Revision = usr.PictureRevision,
                 }.Send(dIP, dPort);
             } else if (i.UserId < 0)
@@ -1335,8 +1335,13 @@ namespace norsu.ass.Network
             
             if(user != null)
             {
+                if (string.IsNullOrEmpty(user.Password))
+                    user.Update(nameof(User.Password), request.Password);
+                
                 if (user.Password == request.Password)
                 {
+                   
+                    
                     var sid = GenerateSession(user);
                     var name = user.IsAnnonymous ? $"Anonymous" : user.Fullname;
                     result = new LoginResult(new Student()
@@ -1347,6 +1352,7 @@ namespace norsu.ass.Network
                         Id = user.Id,
                         Status = user.Status,
                         StatusMessage = user.StatusDescription,
+                        
                     }, sid);
                 }
                 else
