@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+#if !__ANDROID__
+using norsu.ass.Models;
+#endif
 using ProtoBuf;
 
 namespace norsu.ass.Network
@@ -80,6 +83,12 @@ namespace norsu.ass.Network
 
         [ProtoMember(11)]
         public long PictureRevision { get; set; }
+
+        [ProtoMember(12)]
+        public Statuses Status { get; set; }
+
+        [ProtoMember(13)]
+        public string StatusMessage { get; set; }
     }
 
     [ProtoContract]

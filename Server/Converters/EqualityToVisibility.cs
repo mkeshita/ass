@@ -62,7 +62,11 @@ namespace norsu.ass.Server.Converters
                 return FalseValue;
 
             if (parameter != null)
+            {
+                if (value is int)
+                    return (int) value == int.Parse(Operand.ToString());
                 return value.Equals(parameter) ? TrueValue : FalseValue;
+            }
 
             if (Operation == Operations.GreaterThan)
             {

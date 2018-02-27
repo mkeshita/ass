@@ -15,44 +15,8 @@ namespace norsu.ass.Server.ViewModels
     {
         private StudentsViewModel()
         {
-            User.Cache.CollectionChanged += (sender, args) =>
-            {
-                _students.Filter = FilterStudent;
-                OnPropertyChanged(nameof(AnonymousCount));
-            };
-
-            Students.CurrentChanged += (sender, args) =>
-            {
-                OnPropertyChanged(nameof(OneStarCount));
-                OnPropertyChanged(nameof(TwoStarCount));
-                OnPropertyChanged(nameof(ThreeStarCount));
-                OnPropertyChanged(nameof(FourStarCount));
-                OnPropertyChanged(nameof(FiveStarCount));
-                OnPropertyChanged(nameof(SuggestionsCount));
-                OnPropertyChanged(nameof(CommentsCount));
-                OnPropertyChanged(nameof(UpVotesCount));
-                OnPropertyChanged(nameof(DownVotesCount));
-            };
-            
-            Messenger.Default.AddListener<User>(Messages.UserSaved,async user =>
-            {
-                var res = await Client.SaveUser(new UserInfo()
-                {
-                    Id = user.Id,
-                    Access =(int) (user.Access??0),
-                    Description = user.Course,
-                    Firstname = user.Firstname,
-                    Lastname = user.Lastname,
-                    StudentId = user.StudentId,
-                    Username = user.Username
-                });
-                if (res?.Success ?? false)
-                {
-                    if(res.Id!=user.Id)
-                    user.ChangeId(res.Id);
-                }
-                
-            });
+           
+            Messenger.Default.AddListener<User>(Messages.UserSaved,UserSaved);
             
             Messenger.Default.AddListener<User>(Messages.NewUserBegin, user =>
             {
@@ -62,8 +26,40 @@ namespace norsu.ass.Server.ViewModels
             Messenger.Default.AddListener(Messages.DatabaseRefreshed, () =>
             {
                 _students = null;
-                OnPropertyChanged("");
+                OnPropertyChanged(nameof(Students));
+                User.Cache.CollectionChanged += (sender, args) =>
+                {
+                    OnPropertyChanged(nameof(AnonymousCount));
+                };
             });
+        }
+
+        private async void UserSaved(User user)
+        {
+            var res = await Client.SaveUser(new UserInfo()
+            {
+                Id = user.Id,
+                Access = (int) (user.Access ?? 0),
+                Description = user.Course,
+                Firstname = user.Firstname,
+                Lastname = user.Lastname,
+                StudentId = user.StudentId,
+                Username = user.Username,
+                Status = user.Status,
+                StatusMessage = user.StatusDescription,
+            });
+            if (res?.Success ?? false)
+            {
+                //if (res.Id != user.Id)
+                  //  user.ChangeId(res.Id);
+                if (!user.HasPicture)
+                {
+                    var pic = ImageProcessor.Generate();
+                    user.Update(nameof(User.Picture), pic);
+                    var result = await Client.SetPicture(user.Id, pic);
+                }
+                
+            }
         }
 
         private static StudentsViewModel _instance;
@@ -78,7 +74,18 @@ namespace norsu.ass.Server.ViewModels
                 if (_students != null) return _students;
                 _students = new ListCollectionView(Models.User.Cache);
                 _students.Filter = FilterStudent;
-                
+                _students.CurrentChanged += (sender, args) =>
+                {
+                    OnPropertyChanged(nameof(OneStarCount));
+                    OnPropertyChanged(nameof(TwoStarCount));
+                    OnPropertyChanged(nameof(ThreeStarCount));
+                    OnPropertyChanged(nameof(FourStarCount));
+                    OnPropertyChanged(nameof(FiveStarCount));
+                    OnPropertyChanged(nameof(SuggestionsCount));
+                    OnPropertyChanged(nameof(CommentsCount));
+                    OnPropertyChanged(nameof(UpVotesCount));
+                    OnPropertyChanged(nameof(DownVotesCount));
+                };
                 return _students;
             }
         }
@@ -229,5 +236,96 @@ namespace norsu.ass.Server.ViewModels
                 return Like.Cache.Count(x => x.UserId == u.Id && x.Dislike);
             }
         }
+
+        private Statuses _SetStatus;
+
+        public Statuses SetStatus
+        {
+            get => _SetStatus;
+            set
+            {
+                if(value == _SetStatus)
+                    return;
+                _SetStatus = value;
+                OnPropertyChanged(nameof(SetStatus));
+            }
+        }
+
+        private string _SetStatusDescription;
+
+        public string SetStatusDescription
+        {
+            get => _SetStatusDescription;
+            set
+            {
+                if(value == _SetStatusDescription)
+                    return;
+                _SetStatusDescription = value;
+                OnPropertyChanged(nameof(SetStatusDescription));
+            }
+        }
+
+        private ICommand _setStatusCommand;
+
+        public ICommand SetStatusCommand => _setStatusCommand ?? (_setStatusCommand = new DelegateCommand<User>(d =>
+        {
+            d.Status = SetStatus;
+            d.StatusDescription = SetStatusDescription;
+            d.Save();
+
+            UserSaved(d);
+        },d=>d!=null));
+
+        private ICommand _addNewStudentCommand;
+
+        private User _NewStudent = new User()
+        {
+            Access = AccessLevels.Student,
+            Status = Statuses.Active,
+            IsAnnonymous = false,
+        };
+
+        public User NewStudent
+        {
+            get => _NewStudent;
+            set
+            {
+                if(value == _NewStudent)
+                    return;
+                _NewStudent = value;
+                OnPropertyChanged(nameof(NewStudent));
+            }
+        }
+
+        
+
+        public ICommand AddNewStudentCommand => _addNewStudentCommand ?? (_addNewStudentCommand = new DelegateCommand(
+        d =>
+        {
+           NewStudent.Save();
+            UserSaved(NewStudent);
+            NewStudent = new User()
+            {
+                Access = AccessLevels.Student,
+                Status = Statuses.Active,
+                IsAnnonymous = false,
+            };
+        },d=>NewStudent?.CanSave()??false));
+
+        private bool _IsVisible;
+
+        public bool IsVisible
+        {
+            get => _IsVisible;
+            set
+            {
+                if(value == _IsVisible)
+                    return;
+                _IsVisible = value;
+                OnPropertyChanged(nameof(IsVisible));
+            }
+        }
+
+        
     }
 }

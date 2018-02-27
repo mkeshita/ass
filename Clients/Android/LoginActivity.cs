@@ -11,6 +11,14 @@ using norsu.ass.Network;
 
 namespace norsu.ass
 {
+    public enum Statuses
+    {
+        Pending,
+        Active,
+        Warning,
+        Blocked
+    }
+    
     [Activity(Icon = "@mipmap/ic_launcher", Label = "Sign In", Theme = "@style/AppTheme",
         ScreenOrientation = ScreenOrientation.Portrait,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
@@ -149,6 +157,8 @@ namespace norsu.ass
             }
         }
 
+        
+
         private async void LoginButtonOnClick(object sender, EventArgs eventArgs)
         {
             if (CurrentFocus != null)
@@ -167,8 +177,34 @@ namespace norsu.ass
             _progressView.Visibility = ViewStates.Gone;
             if (result?.Success ?? false)
             {
-                StartActivity(new Intent(Application.Context,typeof(OfficesActivity)));
-                Finish();
+                if (result.Student.Status == Statuses.Warning)
+                {
+                    new Android.App.AlertDialog.Builder(this)
+                        .SetPositiveButton("OKAY", (o, args) =>
+                        {
+                            StartActivity(new Intent(Application.Context, typeof(OfficesActivity)));
+                            Finish();
+                        })
+                        .SetTitle("STATUS: WARNING")
+                        .SetMessage(result.Student.StatusMessage)
+                        .Show();
+                }
+                else if (result.Student.Status == Statuses.Blocked)
+                {
+                    new Android.App.AlertDialog.Builder(this)
+                        .SetPositiveButton("OKAY", (o, args) =>
+                        {
+                            FinishAffinity();
+                        })
+                        .SetTitle("STATUS: BLOCKED")
+                        .SetMessage(result.Student.StatusMessage)
+                        .Show();
+                }
+                else
+                {
+                    StartActivity(new Intent(Application.Context, typeof(OfficesActivity)));
+                    Finish();
+                }
             }
             else
             {

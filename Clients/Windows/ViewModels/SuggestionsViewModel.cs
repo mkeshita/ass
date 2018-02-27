@@ -23,11 +23,6 @@ namespace norsu.ass.Server.ViewModels
                 Suggestions.Filter = FilterSuggestion;
             };
             
-            Models.Suggestion.Cache.CollectionChanged += (sender, args) =>
-            {
-                _suggestions.Filter = FilterSuggestion;
-            };
-            
             Messenger.Default.AddListener<Suggestion>(Messages.ModelSelected, s =>
             {
                 OnPropertyChanged(nameof(CanDeleteSuggestions));
@@ -45,6 +40,11 @@ namespace norsu.ass.Server.ViewModels
 
                 OnPropertyChanged(nameof(Suggestions));
                 OnPropertyChanged(nameof(Comments));
+
+                Models.Suggestion.Cache.CollectionChanged += (sender, args) =>
+                {
+                    _suggestions.Filter = FilterSuggestion;
+                };
             });
         }
 

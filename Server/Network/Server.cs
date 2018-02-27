@@ -140,6 +140,7 @@ namespace norsu.ass.Network
             {
                 user = new User();
                 user.DateRegistered = DateTime.Now;
+                user.Status = Statuses.Active;
             }
 
             user.Username = req.User.Username;
@@ -148,7 +149,9 @@ namespace norsu.ass.Network
             user.Firstname = req.User.Firstname;
             user.Lastname = req.User.Lastname;
             user.StudentId = req.User.StudentId;
-
+            user.Status = req.User.Status;
+            user.StatusDescription = req.User.StatusMessage;
+            
             if(user.Id>0)
                 Program.Log("User modified");
             else
@@ -285,14 +288,16 @@ namespace norsu.ass.Network
                 office = new Models.Office();
             office.LongName = req.LongName;
             office.ShortName = req.ShortName;
+            var isnew = office.Id == 0;
+            office.Save();
             
-            if(office.Id==0)
+            if(isnew)
                 Program.Log($"New office added. Source: {dev.IP} Office: #{office.Id} {office.ShortName} | {office.LongName}");
             else
                 Program.Log(
                     $"Office details changed. Source: {dev.IP} Office: #{office.Id}");
 
-            office.Save();
+            
 
             await new SaveOfficeResult()
             {
@@ -828,6 +833,7 @@ namespace norsu.ass.Network
                 IsAnnonymous = false,
                 Password = i.Password,
                 Picture = ImageProcessor.Generate(),
+                Status = Statuses.Active
             };
             user.Save();
 
@@ -1339,6 +1345,8 @@ namespace norsu.ass.Network
                         UserName = user.Username,
                         IsAnonymous = user.IsAnnonymous,
                         Id = user.Id,
+                        Status = user.Status,
+                        StatusMessage = user.StatusDescription,
                     }, sid);
                 }
                 else
@@ -1347,8 +1355,6 @@ namespace norsu.ass.Network
                 }
             }
             await result.Send(dev.IP, dev.Port);
-
-            
         }
 
         private AndroidDevice GetDevice(string ip)

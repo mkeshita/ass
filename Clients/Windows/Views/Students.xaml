@@ -56,17 +56,24 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
       <DataGrid ItemsSource="{Binding Students}"
                 Margin="0 0 1 0"
+                Grid.Row="1"
                 IsReadOnly="{Binding Source={x:Static viewModels:LoginViewModel.Instance},Path=User.IsSuperAdmin,Converter={converters:Inverter}, FallbackValue=True}"
               AutoGenerateColumns="False"
                 IsSynchronizedWithCurrentItem="True"
                 FrozenColumnCount="1"
+                CanUserAddRows="False"
               CanUserDeleteRows="False">
         <DataGrid.Columns>
-          <DataGridCheckBoxColumn Binding="{Binding IsSelected,UpdateSourceTrigger=PropertyChanged}"
+          <!--<DataGridCheckBoxColumn Binding="{Binding IsSelected,UpdateSourceTrigger=PropertyChanged}"
                                   ElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnStyle}"
-                                  EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"/>
+                                  EditingElementStyle="{StaticResource MaterialDesignDataGridCheckBoxColumnEditingStyle}"/>-->
           <DataGridTextColumn Binding="{Binding Username,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Header="USERNAME"
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
           <DataGridTextColumn Binding="{Binding Firstname,UpdateSourceTrigger=PropertyChanged,ValidatesOnDataErrors=True}" Header="FIRST NAME"
@@ -77,13 +84,64 @@
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
           <DataGridTextColumn Binding="{Binding StudentId}" Header="ID NUMBER"
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
-          <!--<DataGridTextColumn Binding="{Binding Status}" Header="STATUS"
+          <DataGridTextColumn Binding="{Binding Status}" Header="STATUS"
+                              IsReadOnly="True"
                               EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />
-          <DataGridTextColumn Binding="{Binding StatusDescription}" Header="REMARKS"
-                              EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}" />-->
         </DataGrid.Columns>
       </DataGrid>
 
+        <GroupBox Header="NEW STUDENT"
+                  Visibility="{Binding Source={x:Static viewModels:StudentsViewModel.Instance},Path=IsVisible,Converter={converters:BooleanToVisibility}}"
+                  DataContext="{Binding NewStudent}"
+                  Grid.Row="0">
+          <Grid Margin="10">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition/>
+              <ColumnDefinition />
+              <ColumnDefinition />
+              <ColumnDefinition />
+              <ColumnDefinition />
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+          
+          <TextBox Text="{Binding Username,ValidatesOnDataErrors=True,UpdateSourceTrigger=PropertyChanged}"
+                   materialDesign:HintAssist.Hint="USERNAME"
+                   materialDesign:HintAssist.IsFloating="True"
+                   Margin="0 0 10 0"/>
+
+          <TextBox Text="{Binding Firstname}"
+                   materialDesign:HintAssist.Hint="FIRST NAME"
+                   materialDesign:HintAssist.IsFloating="True"
+                   Margin="0 0 10 0" 
+                   Grid.Column="1"/>
+
+            <TextBox Text="{Binding Lastname}"
+                     materialDesign:HintAssist.Hint="LAST NAME"
+                     materialDesign:HintAssist.IsFloating="True"
+                     Margin="0 0 10 0" 
+                     Grid.Column="2"/>
+
+            <TextBox Text="{Binding Course}"
+                     materialDesign:HintAssist.Hint="COURSE"
+                     materialDesign:HintAssist.IsFloating="True"
+                     Margin="0 0 10 0"
+                     Grid.Column="3" />
+
+          <TextBox Text="{Binding StudentId}"
+                   materialDesign:HintAssist.Hint="STUDENT ID"
+                   materialDesign:HintAssist.IsFloating="True"
+                   Margin="0 0 10 0"
+                   Grid.Column="4" />
+
+            <Button Grid.Column="5"
+              Content="SAVE"
+              VerticalAlignment="Center"
+              Command="{Binding Source={x:Static viewModels:StudentsViewModel.Instance},Path=AddNewStudentCommand}"/>
+      </Grid>
+      </GroupBox>
+      </Grid>
+      
+      
       <Rectangle Grid.Column="0"
                  Width="1"
                  HorizontalAlignment="Right"
@@ -95,7 +153,7 @@
                   IsEnabled="{Binding Source={x:Static viewModels:LoginViewModel.Instance},Path=User.IsSuperAdmin,FallbackValue=False}">
 
           <StackPanel Orientation="Horizontal">
-        <Image Source="{Binding Students/Picture,Converter={converters:BytesToImage}}"
+        <Image Source="{Binding Students.CurrentItem.Picture,Converter={converters:BytesToImage}}"
                RenderOptions.BitmapScalingMode="HighQuality"
                Height="111" Width="111"
                HorizontalAlignment="Center"
@@ -113,6 +171,38 @@
                       CommandParameter="{Binding Students.CurrentItem}" />
             </StackPanel>
           </StackPanel>
+
+          <GroupBox Header="SET STATUS" Margin="10">
+            <GroupBox.Resources>
+              <x:Array Type="{x:Type models:Statuses}" x:Key="Statuses">
+                <models:Statuses>Active</models:Statuses>
+                <models:Statuses>Warning</models:Statuses>
+                <models:Statuses>Blocked</models:Statuses>
+              </x:Array>
+            </GroupBox.Resources>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition />
+              </Grid.RowDefinitions>
+            <ComboBox SelectedItem="{Binding SetStatus}" ItemsSource="{StaticResource Statuses}"
+                      materialDesign:HintAssist.Hint="NEW STATUS"
+                      materialDesign:HintAssist.IsFloating="True"/>
+              <Button Grid.Column="1" Content="SET" Margin="10 0 0 0"
+                      Command="{Binding SetStatusCommand}"
+                      CommandParameter="{Binding Students.CurrentItem}"/>
+              <TextBox Margin="0 10 0 0" AcceptsReturn="True"
+                       Grid.Row="1"
+                       Grid.ColumnSpan="2"
+                       materialDesign:HintAssist.Hint="BLOCK/WARNING REASON"
+                       materialDesign:HintAssist.IsFloating="True"
+                       Text="{Binding SetStatusDescription}"/>
+            </Grid>
+          </GroupBox>
 
           <materialDesign:Card Margin="10 20 10 10" IsHitTestVisible="False">
           <Grid Margin="20">

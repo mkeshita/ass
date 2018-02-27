@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+#if !__ANDROID__
+using norsu.ass.Models;
+#endif
+
 using ProtoBuf;
 
 namespace norsu.ass.Network
@@ -25,5 +29,11 @@ namespace norsu.ass.Network
 
         [ProtoMember(6)]
         public long Id { get; set; }
+
+        [ProtoMember(7)]
+        public string StatusMessage { get; set; }
+
+        [ProtoMember(9)]
+        public Statuses Status { get; set; }
     }
 }

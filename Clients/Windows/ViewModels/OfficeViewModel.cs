@@ -58,12 +58,6 @@ namespace norsu.ass.Server.ViewModels
             //NetworkComms.AppendGlobalIncomingPacketHandler<Network.OfficeRatings>(OfficeRatings.Header, HandleOfficeRatings);
             //NetworkComms.AppendGlobalIncomingPacketHandler<Network.Comments>(Comments.Header, HandlerComments);
             //NetworkComms.AppendGlobalIncomingPacketHandler<Network.Votes>(Votes.Header, VotesHandler);
-
-            Models.Suggestion.Cache.CollectionChanged += (sender, args) =>
-            {
-                RatingsChanged();
-            };
-
             
             Messenger.Default.AddListener(Messages.DatabaseRefreshed,async () =>
             {
@@ -82,7 +76,12 @@ namespace norsu.ass.Server.ViewModels
                 RatingsChanged();
                 
                 CheckOfficeCount();
-                
+
+                Models.Suggestion.Cache.CollectionChanged += (sender, args) =>
+                {
+                    RatingsChanged();
+                };
+
                 Messenger.Default.Broadcast(Messages.OfficeViewModelRefreshed);
             });
         }

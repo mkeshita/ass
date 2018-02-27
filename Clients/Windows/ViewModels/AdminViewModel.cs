@@ -29,6 +29,7 @@ namespace norsu.ass.Server.ViewModels
                     return;
                 _ScreenIndex = value;
                 OnPropertyChanged(nameof(ScreenIndex));
+                StudentsViewModel.Instance.IsVisible = value == 1;
             }
         }
 
